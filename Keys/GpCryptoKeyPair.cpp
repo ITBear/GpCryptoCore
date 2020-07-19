@@ -7,7 +7,23 @@ iType(aType)
 {
 }
 
-GpCryptoKeyPair::GpCryptoKeyPair (GpCryptoKeyPair&& aKeyPair) noexcept:
+GpCryptoKeyPair::GpCryptoKeyPair (const TypeTE      aType,
+                                  GpSecureStorage&& aPrivateBytes,
+                                  GpBytesArray&&    aPublicBytes):
+iType(aType),
+iPrivateBytes(std::move(aPrivateBytes)),
+iPublicBytes(std::move(aPublicBytes))
+{
+}
+
+GpCryptoKeyPair::GpCryptoKeyPair (const GpCryptoKeyPair& aKeyPair):
+iType(aKeyPair.iType),
+iPrivateBytes(aKeyPair.iPrivateBytes),
+iPublicBytes(aKeyPair.iPublicBytes)
+{
+}
+
+GpCryptoKeyPair::GpCryptoKeyPair (GpCryptoKeyPair&& aKeyPair):
 iType(std::move(aKeyPair.iType)),
 iPrivateBytes(std::move(aKeyPair.iPrivateBytes)),
 iPublicBytes(std::move(aKeyPair.iPublicBytes))
@@ -16,81 +32,82 @@ iPublicBytes(std::move(aKeyPair.iPublicBytes))
 
 GpCryptoKeyPair::~GpCryptoKeyPair (void) noexcept
 {
-	Clear();
+    Clear();
 }
 
-void	GpCryptoKeyPair::Clear (void) noexcept
+void    GpCryptoKeyPair::Clear (void) noexcept
 {
-	iPrivateBytes.Clear();
-	iPublicBytes.clear();
+    iPrivateBytes.Clear();
+    iPublicBytes.clear();
 }
 
-void	GpCryptoKeyPair::GenerateNewSS (const GpSecureStorage& aSeed)
+GpSecureStorage GpCryptoKeyPair::ToPrivateBytesWithPrefix (void) const
 {
-	GpSecureStorageViewR view = aSeed.ViewR();
-	GenerateNewSV(view.AsStringView());
+    THROW_GPE_COND_CHECK_M(iPrivateBytes.Size() > 0_byte, "Keypair is empty");
+
+    GpRawPtrByteR                   prefixPtr   = PrivateBytesPrefix();
+    GpSecureStorageViewR            privateView = iPrivateBytes.ViewR();
+    GpRawPtrByteR                   privatePtr  = privateView.R().Subrange(0_cnt, 32_cnt);
+
+    const size_byte_t               resSize     = prefixPtr.SizeLeft() + privatePtr.SizeLeft();
+    GpSecureStorage                 res;
+    res.Allocate(resSize);
+    GpSecureStorageViewRW           resView     = res.ViewRW();
+    GpByteWriterStorageFixedSize    resStorage(resView.RW());
+    GpByteWriter                    resWriter(resStorage);
+
+    resWriter.Bytes(prefixPtr);
+    resWriter.Bytes(privatePtr);
+
+    return res;
 }
 
-void	GpCryptoKeyPair::ImportPrivateBytesSS (const GpSecureStorage& aPrivateBytes)
+GpSecureStorage GpCryptoKeyPair::ToPrivateStrHexWithPrefix (void) const
 {
-	GpSecureStorageViewR view = aPrivateBytes.ViewR();
-	ImportPrivateBytesSV(view.AsStringView());
+    GpSecureStorage         privateData = ToPrivateBytesWithPrefix();
+    GpSecureStorageViewR    privateView = privateData.ViewR();
+    GpRawPtrByteR           privatePtr  = privateView.R();
+
+    //Str hex data
+    const size_byte_t       resSize = privatePtr.SizeLeft() * 2_byte;
+    GpSecureStorage         res;
+    res.Allocate(resSize);
+
+    GpStringOps::SFromBytes(privatePtr, res.ViewRW().RW());
+
+    return res;
 }
 
-void	GpCryptoKeyPair::ImportPrivateStrHexSS (const GpSecureStorage& aPrivateStrHex)
+GpBytesArray    GpCryptoKeyPair::ToPublicBytesWithPrefix (void) const
 {
-	GpSecureStorageViewR view = aPrivateStrHex.ViewR();
-	ImportPrivateStrHexSV(view.AsStringView());
+    THROW_GPE_COND_CHECK_M(iPublicBytes.size() > 0, "Keypair is empty");
+
+    GpRawPtrByteR                   prefixPtr   = PublicBytesPrefix();
+
+    const size_byte_t               resSize     = prefixPtr.SizeLeft() + size_byte_t::SMake(iPublicBytes.size());
+    GpBytesArray                    res;
+    res.resize(resSize.ValueAs<size_t>());
+    GpByteWriterStorageFixedSize    resStorage(res);
+    GpByteWriter                    resWriter(resStorage);
+
+    resWriter.Bytes(prefixPtr);
+    resWriter.Bytes(iPublicBytes);
+
+    return res;
 }
 
-GpBytesArray	GpCryptoKeyPair::ToPublicBytesWithPrefix (void) const
+GpBytesArray    GpCryptoKeyPair::ToPublicStrHexWithPrefix (void) const
 {
-	GpBytesArray res;
+    const GpBytesArray      publicData = ToPublicBytesWithPrefix();
 
-	if (iPublicBytes.size() == 0)
-	{
-		return res;
-	}
+    //Str hex data
+    const size_byte_t       resSize = size_byte_t::SMake(publicData.size()) * 2_byte;
+    GpBytesArray            res;
+    res.resize(resSize.ValueAs<size_t>());
 
-	std::string_view prefix = PublicBytesPrefix();
-	res.resize(prefix.size() + iPublicBytes.size());
-	std::memcpy(res.data(), prefix.data(), prefix.size());
-	std::memcpy(res.data() + prefix.size(), iPublicBytes.data(), iPublicBytes.size());
+    GpStringOps::SFromBytes(publicData, res);
 
-	return res;
-}
-
-GpSecureStorage	GpCryptoKeyPair::ToPrivateStrHexWithPrefix (void) const
-{
-	if (iPrivateBytes.Size() == 0_cnt)
-	{
-		return GpSecureStorage();
-	}
-
-	std::string_view prefix = PrivateStrHexPrefix();
-	GpSecureStorage res;
-	res.Allocate(count_t::SMake(prefix.length() + 64));
-	GpSecureStorageViewRW	resView		= res.ViewRW();
-	GpSecureStorageViewR	privateView	= iPrivateBytes.ViewR();
-
-	std::memcpy(resView.Data(), prefix.data(), prefix.length());
-
-	GpStringOps::SFromBytes(privateView.Data(),
-							32_cnt,
-							reinterpret_cast<char*>(resView.Data()) + prefix.length(),
-							64_cnt);
-
-	return res;
-}
-
-std::string	GpCryptoKeyPair::ToPublicStrHexWithPrefix (void) const
-{
-	if (iPublicBytes.size() == 0)
-	{
-		return std::string();
-	}
-
-	return PublicStrHexPrefix() + GpStringOps::SFromBytes(iPublicBytes);
+    return res;
 }
 
 }//namespace GPlatform

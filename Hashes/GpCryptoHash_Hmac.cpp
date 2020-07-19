@@ -4,52 +4,66 @@
 
 namespace GPlatform {
 
-void	GpCryptoHash_Hmac::S_256 (const std::byte*	aData,
-								  const count_t		aDataSize,
-								  const std::byte*	aKey,
-								  const count_t		aKeySize,
-								  Res256T::pointer	aDataOut)
+void    GpCryptoHash_Hmac::S_256 (GpRawPtrByteR     aData,
+                                  GpRawPtrByteR     aKey,
+                                  GpRawPtrByteRW    aResOut)
 {
-	THROW_GPE_COND_CHECK_M((aData != nullptr) && (aDataSize > 0_cnt), "Wrong data"_sv);
-	THROW_GPE_COND_CHECK_M((aKey != nullptr) && (aKeySize > 0_cnt), "Wrong key"_sv);
-	THROW_GPE_COND_CHECK_M(aDataOut != nullptr, "Wrong data out"_sv);
+    THROW_GPE_COND_CHECK_M(aResOut.CountLeft() >= count_t::SMake(std::tuple_size<Res256T>::value), "aRes size too small");
 
-	crypto_auth_hmacsha256_state hctx;
+    crypto_auth_hmacsha256_state hCtx;
+    GpRAIIonDestruct hCtxDestructor([&]()
+    {
+        sodium_memzero(&hCtx, sizeof(hCtx));
+    });
 
-	crypto_auth_hmacsha256_init(&hctx,
-								reinterpret_cast<const unsigned char*>(aKey),
-								aKeySize.ValueAs<size_t>());
-	crypto_auth_hmacsha256_update(&hctx,
-								  reinterpret_cast<const unsigned char*>(aData),
-								  aDataSize.ValueAs<size_t>());
-	crypto_auth_hmacsha256_final(&hctx,
-								 reinterpret_cast<unsigned char*>(aDataOut));
-
-	sodium_memzero(&hctx, sizeof(hctx));
+    crypto_auth_hmacsha256_init(&hCtx,
+                                aKey.PtrAs<const unsigned char*>(),
+                                aKey.CountLeftV<size_t>());
+    crypto_auth_hmacsha256_update(&hCtx,
+                                  aData.PtrAs<const unsigned char*>(),
+                                  aData.CountLeftV<size_t>());
+    crypto_auth_hmacsha256_final(&hCtx,
+                                 aResOut.PtrAs<unsigned char*>());
 }
 
-void	GpCryptoHash_Hmac::S_512 (const std::byte*	aData,
-								  const count_t		aDataSize,
-								  const std::byte*	aKey,
-								  const count_t		aKeySize,
-								  Res512T::pointer	aDataOut)
+GpCryptoHash_Hmac::Res256T  GpCryptoHash_Hmac::S_256 (GpRawPtrByteR aData,
+                                                      GpRawPtrByteR aKey)
 {
-	THROW_GPE_COND_CHECK_M((aData != nullptr) && (aDataSize > 0_cnt), "Wrong data"_sv);
-	THROW_GPE_COND_CHECK_M((aKey != nullptr) && (aKeySize > 0_cnt), "Wrong key"_sv);
-	THROW_GPE_COND_CHECK_M(aDataOut != nullptr, "Wrong data out"_sv);
+    Res256T res;
+    GpRawPtrByteRW r(res);
+    S_256(aData, aKey, r);
+    return res;
+}
 
-	crypto_auth_hmacsha512_state hctx;
+void    GpCryptoHash_Hmac::S_512 (GpRawPtrByteR     aData,
+                                  GpRawPtrByteR     aKey,
+                                  GpRawPtrByteRW    aResOut)
+{
+    THROW_GPE_COND_CHECK_M(aResOut.CountLeft() >= count_t::SMake(std::tuple_size<Res512T>::value), "aRes size too small");
 
-	crypto_auth_hmacsha512_init(&hctx,
-								reinterpret_cast<const unsigned char*>(aKey),
-								aKeySize.ValueAs<size_t>());
-	crypto_auth_hmacsha512_update(&hctx,
-								  reinterpret_cast<const unsigned char*>(aData),
-								  aDataSize.ValueAs<size_t>());
-	crypto_auth_hmacsha512_final(&hctx,
-								 reinterpret_cast<unsigned char*>(aDataOut));
+    crypto_auth_hmacsha512_state hCtx;
+    GpRAIIonDestruct hCtxDestructor([&]()
+    {
+        sodium_memzero(&hCtx, sizeof(hCtx));
+    });
 
-	sodium_memzero(&hctx, sizeof(hctx));
+    crypto_auth_hmacsha512_init(&hCtx,
+                                aKey.PtrAs<const unsigned char*>(),
+                                aKey.CountLeftV<size_t>());
+    crypto_auth_hmacsha512_update(&hCtx,
+                                  aData.PtrAs<const unsigned char*>(),
+                                  aData.CountLeftV<size_t>());
+    crypto_auth_hmacsha512_final(&hCtx,
+                                 aResOut.PtrAs<unsigned char*>());
+}
+
+GpCryptoHash_Hmac::Res512T  GpCryptoHash_Hmac::S_512 (GpRawPtrByteR aData,
+                                                      GpRawPtrByteR aKey)
+{
+    Res512T res;
+    GpRawPtrByteRW r(res);
+    S_512(aData, aKey, r);
+    return res;
 }
 
 }//namespace GPlatform

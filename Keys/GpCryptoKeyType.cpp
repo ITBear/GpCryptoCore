@@ -2,6 +2,6 @@
 
 namespace GPlatform {
 
-GP_ENUM_IMPL(GpCryptoKeyType);
+GP_ENUM_IMPL(GpCryptoKeyType)
 
 }//namespace GPlatform

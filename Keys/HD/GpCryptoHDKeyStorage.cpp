@@ -2,70 +2,66 @@
 
 namespace GPlatform {
 
-GpCryptoHDKeyStorage::GpCryptoHDKeyStorage (KeyTypeTE aKeyType) noexcept:
-iKeyType(aKeyType)
+GpCryptoHDKeyStorage::GpCryptoHDKeyStorage (void) noexcept
 {
 }
 
-GpCryptoHDKeyStorage::GpCryptoHDKeyStorage (GpCryptoHDKeyStorage&& aKeyStorage) noexcept:
-iKeyType(std::move(aKeyStorage.iKeyType)),
-iNetworkType(std::move(aKeyStorage.iNetworkType)),
-iSchemeType(std::move(aKeyStorage.iSchemeType)),
-iDepth(std::move(aKeyStorage.iDepth)),
-iFingerprint(std::move(aKeyStorage.iFingerprint)),
-iChildNumber(std::move(aKeyStorage.iChildNumber)),
-iChainCode(std::move(aKeyStorage.iChainCode)),
-iKeyData(std::move(aKeyStorage.iKeyData))
+GpCryptoHDKeyStorage::GpCryptoHDKeyStorage (const SchemeTypeTE      aSchemeType,
+                                            const GpSecureStorage&  aChainCode,
+                                            const GpSecureStorage&  aKeyData):
+iSchemeType(aSchemeType),
+iChainCode(aChainCode),
+iKeyData(aKeyData)
 {
 }
 
-GpCryptoHDKeyStorage&	GpCryptoHDKeyStorage::operator= (GpCryptoHDKeyStorage&& aKeyStorage) noexcept
-{
-	iKeyType		= std::move(aKeyStorage.iKeyType);
-	iNetworkType	= std::move(aKeyStorage.iNetworkType);
-	iSchemeType		= std::move(aKeyStorage.iSchemeType);
-	iDepth			= std::move(aKeyStorage.iDepth);
-	iFingerprint	= std::move(aKeyStorage.iFingerprint);
-	iChildNumber	= std::move(aKeyStorage.iChildNumber);
-	iChainCode		= std::move(aKeyStorage.iChainCode);
-	iKeyData		= std::move(aKeyStorage.iKeyData);
-
-	return *this;
-}
-
-GpCryptoHDKeyStorage::~GpCryptoHDKeyStorage	(void) noexcept
+GpCryptoHDKeyStorage::GpCryptoHDKeyStorage (const SchemeTypeTE  aSchemeType,
+                                            GpSecureStorage&&   aChainCode,
+                                            GpSecureStorage&&   aKeyData):
+iSchemeType(std::move(aSchemeType)),
+iChainCode(std::move(aChainCode)),
+iKeyData(std::move(aKeyData))
 {
 }
 
-void	GpCryptoHDKeyStorage::ConstructRoot (const NetworkTypeTE	aNetworkType,
-											 const SchemeTypeTE		aScheme,
-											 const GpSecureStorage&	aChainCode,
-											 const GpSecureStorage&	aKeyData)
+GpCryptoHDKeyStorage::GpCryptoHDKeyStorage (const GpCryptoHDKeyStorage& aKeyStorage)
 {
-	iNetworkType	= aNetworkType;
-	iSchemeType		= aScheme;
-	iDepth			= 0_cnt;
-	std::memset(iFingerprint.data(), 0, iFingerprint.size());
-	iChildNumber	= 0_cnt;
-	iChainCode.Set(aChainCode.ViewR().AsStringView());
-	iKeyData.Set(aKeyData.ViewR().AsStringView());
+    Set(aKeyStorage);
 }
 
-void	GpCryptoHDKeyStorage::ConstructChild (const NetworkTypeTE			aNetworkType,
-											  const SchemeTypeTE			aScheme,
-											  const count_t					aDepth,
-											  const GpArray<std::byte, 4>	aFingerprint,
-											  const count_t					aChildNumber,
-											  const GpSecureStorage&		aChainCode,
-											  const GpSecureStorage&		aKeyData)
+GpCryptoHDKeyStorage::GpCryptoHDKeyStorage (GpCryptoHDKeyStorage&& aKeyStorage)
 {
-	iNetworkType	= aNetworkType;
-	iSchemeType		= aScheme;
-	iDepth			= aDepth;
-	iFingerprint	= aFingerprint;
-	iChildNumber	= aChildNumber;
-	iChainCode.Set(aChainCode.ViewR().AsStringView());
-	iKeyData.Set(aKeyData.ViewR().AsStringView());
+    Set(std::move(aKeyStorage));
+}
+
+GpCryptoHDKeyStorage::~GpCryptoHDKeyStorage (void) noexcept
+{
+}
+
+GpCryptoHDKeyStorage&   GpCryptoHDKeyStorage::operator= (const GpCryptoHDKeyStorage& aKeyStorage)
+{
+    Set(aKeyStorage);
+    return *this;
+}
+
+GpCryptoHDKeyStorage&   GpCryptoHDKeyStorage::operator= (GpCryptoHDKeyStorage&& aKeyStorage)
+{
+    Set(std::move(aKeyStorage));
+    return *this;
+}
+
+void    GpCryptoHDKeyStorage::Set (const GpCryptoHDKeyStorage& aKeyStorage)
+{
+    iSchemeType     = aKeyStorage.iSchemeType;
+    iChainCode      = aKeyStorage.iChainCode;
+    iKeyData        = aKeyStorage.iKeyData;
+}
+
+void    GpCryptoHDKeyStorage::Set (GpCryptoHDKeyStorage&& aKeyStorage)
+{
+    iSchemeType     = std::move(aKeyStorage.iSchemeType);
+    iChainCode      = std::move(aKeyStorage.iChainCode);
+    iKeyData        = std::move(aKeyStorage.iKeyData);
 }
 
 }//GPlatform

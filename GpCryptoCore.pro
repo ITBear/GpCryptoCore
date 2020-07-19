@@ -3,7 +3,7 @@ QT			-= core gui widgets
 TEMPLATE	= lib
 VER_MAJ		= 0
 VER_MIN		= 1
-VER_PAT		= 0
+VER_PAT		= 1
 CONFIG		+= warn_on
 DEFINES		+= GPCRYPTOCORE_LIBRARY \
 			HAVE_NETINET_IN_H \
@@ -13,10 +13,9 @@ PACKET_NAME     = GpCryptoCore
 OUT_BUILD_PATH  = ./../../../Bin_tmp/
 
 compiler_gcc{
-	os_linux{
-		QMAKE_CC	= gcc-9
-		QMAKE_CXX	= g++-9
-	}
+	QMAKE_CC		=	gcc-10
+	QMAKE_CXX		=	g++-10
+	QMAKE_LINK		=	g++-10
 }else:compiler_clang{
 	QMAKE_CXXFLAGS	+= -stdlib=libc++
 	QMAKE_LFLAGS    += -stdlib=libc++
@@ -24,34 +23,22 @@ compiler_gcc{
 	#QMAKE_CXXFLAGS	+= -stdlib=libstdc++
 	#QMAKE_LFLAGS   += -stdlib=libstdc++
 }else:compiler_emscripten{
-
 }else{
 	error(Unknown compiler mode. Set CONFIG+=compiler_gcc OR CONFIG+=compiler_clang OR CONFIG+=compiler_emscripten)
 }
 
-#c++2a
-CONFIG					+=	c++2a
-QMAKE_CXXFLAGS_GNUCXX11 =	-std=gnu++2a
-QMAKE_CXXFLAGS_GNUCXX14 =	-std=gnu++2a
-QMAKE_CXXFLAGS_GNUCXX1Z =	-std=gnu++2a
-QMAKE_CXXFLAGS			+=	-std=gnu++2a
-
-compiler_gcc{
-	QMAKE_CXXFLAGS	+= -fstrict-aliasing -Wall -Wextra -Wno-comment -Wdouble-promotion -Wswitch-default -Wswitch-enum -Wuninitialized -Wstrict-aliasing -Wfloat-equal -Wshadow -Wplacement-new -Wcast-align -Wconversion -Wlogical-op
-	QMAKE_CXXFLAGS	+= -Wduplicated-cond -Wduplicated-branches -Wrestrict -Wnull-dereference -Wno-terminate
-	#QMAKE_CXXFLAGS	+= -fconcepts -fgnu-tm
-	QMAKE_CXXFLAGS  += -fstack-clash-protection
-}else:compiler_clang{
-}else:compiler_emscripten{
-}
+#c++20
+CONFIG			+=	c++20
+QMAKE_CXXFLAGS	+=	-std=gnu++2a
 
 QMAKE_CXXFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden
-QMAKE_CXXFLAGS	+= -ffunction-sections -fdata-sections
+QMAKE_CXXFLAGS	+= -ffunction-sections -fdata-sections -fexceptions -fstrict-aliasing -fstack-clash-protection
+QMAKE_CXXFLAGS	+= -Wall -Wextra -Wdouble-promotion -Wswitch-default -Wswitch-enum -Wuninitialized
+QMAKE_CXXFLAGS	+= -Wstrict-aliasing -Wfloat-equal -Wshadow -Wplacement-new -Wcast-align -Wconversion -Wlogical-op
+QMAKE_CXXFLAGS	+= -Wduplicated-cond -Wduplicated-branches -Wrestrict -Wnull-dereference -Wno-terminate
+QMAKE_CXXFLAGS	+= -Wno-unknown-warning-option -Wno-unused-command-line-argument -Wno-comment
 #QMAKE_CXXFLAGS	+= -fno-rtti
 QMAKE_LFLAGS    += -Wl,--gc-sections
-
-QMAKE_CFLAGS	+= -fstrict-aliasing -Wall -Wextra -Wno-comment -Wdouble-promotion -Wswitch-default -Wswitch-enum -Wuninitialized -Wstrict-aliasing -Wfloat-equal -Wshadow -Wplacement-new -Wcast-align -Wconversion -Wlogical-op
-QMAKE_CFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden
 
 #------------------------ DEBUG or RELEASE ---------------------
 debug_build {
@@ -126,29 +113,25 @@ message([$$PACKET_NAME]: Build directory $$DESTDIR)
 message([$$PACKET_NAME]: -------------------------------------------------)
 
 #------------------------------ LIBS BEGIN ---------------------------------
-LIBS += -L$$DESTDIR \
-		-L$$DESTDIR/Plugins
+LIBS += -L$$DESTDIR
+
+os_windows{
+	GP_CORE_LIB_V		= 2
+}
 
 os_linux
 {
-	LIBS += -L/usr/lib/gcc/x86_64-linux-gnu/9
 }
 
-os_windows{
-	GP_CORE_LIB_V = 2
-}
-
-#LIBS += -lpthread
-#LIBS += -lboost_context
-LIBS += -lsodium
-LIBS += -lutf8proc$$TARGET_POSTFIX
 LIBS += -lGpCore$$TARGET_POSTFIX$$GP_CORE_LIB_V
+LIBS += -lutf8proc$$TARGET_POSTFIX
+LIBS += -lsodium
 
 #------------------------------ LIBS END ---------------------------------
 
 INCLUDEPATH += \
-	../../Extras \
-	../../Extras/Boost/boost_1_72_0$$BOOST_POSTFIX
+	../Extras \
+	../Extras/Boost/boost_1_72_0$$BOOST_POSTFIX
 
 SOURCES += \
 	ExtSources/ripemd160.cpp \
@@ -157,15 +140,16 @@ SOURCES += \
 	Hashes/GpCryptoHash_PBKDF2.cpp \
 	Hashes/GpCryptoHash_Ripemd160.cpp \
 	Hashes/GpCryptoHash_Sha2.cpp \
+	Keys/Curve25519/GpCryptoHDKeyGen_Ed25519.cpp \
+	Keys/Curve25519/GpCryptoKeyFactory_Ed25519_HD.cpp \
+	Keys/Curve25519/GpCryptoKeyFactory_Ed25519_Import.cpp \
+	Keys/Curve25519/GpCryptoKeyFactory_Ed25519_Rnd.cpp \
 	Keys/Curve25519/GpCryptoKeyPair_Ed25519.cpp \
 	Keys/GpCryptoKeyPair.cpp \
 	Keys/GpCryptoKeyType.cpp \
 	GpCryptoCore.cpp \
 	Keys/HD/GpCryptoHDKeyGen.cpp \
-	Keys/HD/GpCryptoHDKeyPair.cpp \
 	Keys/HD/GpCryptoHDKeyStorage.cpp \
-	Keys/HD/GpCryptoHDKeyType.cpp \
-	Keys/HD/GpCryptoHDNetworkType.cpp \
 	Keys/HD/GpCryptoHDSchemeType.cpp \
 	MnemonicCodes/GpMnemonicCodeGen.cpp \
 	Utils/GpCryptoRandom.cpp \
@@ -183,19 +167,19 @@ HEADERS += \
 	Hashes/GpCryptoHash_Ripemd160.hpp \
 	Hashes/GpCryptoHash_Sha2.hpp \
 	Hashes/GpCryptoHashes.hpp \
+	Keys/Curve25519/GpCryptoHDKeyGen_Ed25519.hpp \
+	Keys/Curve25519/GpCryptoKeyFactory_Ed25519_HD.hpp \
+	Keys/Curve25519/GpCryptoKeyFactory_Ed25519_Import.hpp \
+	Keys/Curve25519/GpCryptoKeyFactory_Ed25519_Rnd.hpp \
 	Keys/Curve25519/GpCryptoKeyPair_Ed25519.hpp \
-	Keys/Curve25519/GpCryptoKey_Curve25519.hpp \
+	Keys/Curve25519/GpCurve25519.hpp \
+	Keys/GpCryptoKeyFactory.hpp \
 	Keys/GpCryptoKeyPair.hpp \
 	Keys/GpCryptoKeyType.hpp \
 	Keys/GpCryptoKeys.hpp \
 	Keys/HD/GpCryptoHDKeyGen.hpp \
-	Keys/HD/GpCryptoHDKeyPair.hpp \
-	Keys/HD/GpCryptoHDKeyPrivate.hpp \
-	Keys/HD/GpCryptoHDKeyPublic.hpp \
 	Keys/HD/GpCryptoHDKeyStorage.hpp \
-	Keys/HD/GpCryptoHDKeyType.hpp \
 	Keys/HD/GpCryptoHDKeys.hpp \
-	Keys/HD/GpCryptoHDNetworkType.hpp \
 	Keys/HD/GpCryptoHDSchemeType.hpp \
 	MnemonicCodes/GpMnemonicCodeGen.hpp \
 	MnemonicCodes/GpMnemonicCodes.hpp \

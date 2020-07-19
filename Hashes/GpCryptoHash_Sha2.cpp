@@ -3,34 +3,40 @@
 
 namespace GPlatform {
 
-GpBytesArray	GpCryptoHash_Sha2::S_256 (const std::byte*	aData,
-										  const count_t	aDataSize)
+void    GpCryptoHash_Sha2::S_256 (GpRawPtrByteR     aData,
+                                  GpRawPtrByteRW    aResOut)
 {
-	THROW_GPE_COND_CHECK_M((aData != nullptr) && (aDataSize > 0_cnt), "Wrong data"_sv);
+    THROW_GPE_COND_CHECK_M(aResOut.CountLeft() >= count_t::SMake(std::tuple_size<Res256T>::value), "aRes size too small");
 
-	GpBytesArray hash;
-	hash.resize(size_t(crypto_hash_sha256_BYTES));
-
-	crypto_hash_sha256(reinterpret_cast<unsigned char*>(hash.data()),
-					   reinterpret_cast<const unsigned char*>(aData),
-					   aDataSize.ValueAs<size_t>());
-
-	return hash;
+    crypto_hash_sha256(aResOut.PtrAs<unsigned char*>(),
+                       aData.PtrAs<const unsigned char*>(),
+                       aData.CountLeftV<size_t>());
 }
 
-GpBytesArray	GpCryptoHash_Sha2::S_512 (const std::byte*	aData,
-										  const count_t	aDataSize)
+GpCryptoHash_Sha2::Res256T  GpCryptoHash_Sha2::S_256 (GpRawPtrByteR aData)
 {
-	THROW_GPE_COND_CHECK_M((aData != nullptr) && (aDataSize > 0_cnt), "Wrong data"_sv);
+    Res256T res;
+    GpRawPtrByteRW r(res);
+    S_256(aData, r);
+    return res;
+}
 
-	GpBytesArray hash;
-	hash.resize(size_t(crypto_hash_sha512_BYTES));
+void    GpCryptoHash_Sha2::S_512 (GpRawPtrByteR     aData,
+                                  GpRawPtrByteRW    aResOut)
+{
+    THROW_GPE_COND_CHECK_M(aResOut.CountLeft() >= count_t::SMake(std::tuple_size<Res512T>::value), "aRes size too small");
 
-	crypto_hash_sha512(reinterpret_cast<unsigned char*>(hash.data()),
-					   reinterpret_cast<const unsigned char*>(aData),
-					   aDataSize.ValueAs<size_t>());
+    crypto_hash_sha512(aResOut.PtrAs<unsigned char*>(),
+                       aData.PtrAs<const unsigned char*>(),
+                       aData.CountLeftV<size_t>());
+}
 
-	return hash;
+GpCryptoHash_Sha2::Res512T  GpCryptoHash_Sha2::S_512 (GpRawPtrByteR aData)
+{
+    Res512T res;
+    GpRawPtrByteRW r(res);
+    S_512(aData, r);
+    return res;
 }
 
 }//namespace GPlatform

@@ -4,81 +4,54 @@
 namespace GPlatform {
 
 GpSecureStorageViewR::GpSecureStorageViewR (const GpSecureStorage& aStorage):
-iStorage(&aStorage)
+iStorage(aStorage)
 {
-	iStorage->UnlockR();
+    const GpSecureStorage& storage = iStorage.value();
+
+    storage.SetViewing(true);
+    storage.UnlockR();
 }
 
-GpSecureStorageViewR::GpSecureStorageViewR	(GpSecureStorageViewR&& aView) noexcept:
-iStorage(aView.iStorage)
+GpSecureStorageViewR::GpSecureStorageViewR (GpSecureStorageViewR&& aView) noexcept:
+iStorage(std::move(aView.iStorage))
 {
-	aView.iStorage = nullptr;
 }
 
-GpSecureStorageViewR::~GpSecureStorageViewR	(void) noexcept
+GpSecureStorageViewR::~GpSecureStorageViewR (void) noexcept
 {
-	if (iStorage != nullptr)
-	{
-		try
-		{
-			iStorage->LockRW();
-		} catch (const GpException& e)
-		{
-			GpExceptionsSink::SSink(e);
-		}
-	}
+    if (iStorage.has_value() == false)
+    {
+        return;
+    }
+
+    const GpSecureStorage& storage = iStorage.value();
+
+    storage.LockRW();
+    storage.SetViewing(false);
 }
 
-const std::byte*	GpSecureStorageViewR::Data (void) const noexcept
+GpRawPtrByteR   GpSecureStorageViewR::R (void) const
 {
-	if (iStorage != nullptr)
-	{
-		return iStorage->iData;
-	} else
-	{
-		return nullptr;
-	}
+    THROW_GPE_COND_CHECK_M(iStorage.has_value(), "Storage is null");
+
+    const GpSecureStorage& storage = iStorage.value();
+    return storage.DataR();
 }
 
-count_t	GpSecureStorageViewR::Size (void) const noexcept
+size_byte_t GpSecureStorageViewR::Size (void) const noexcept
 {
-	if (iStorage != nullptr)
-	{
-		return iStorage->iSize;
-	} else
-	{
-		return 0_cnt;
-	}
+    if (iStorage.has_value() == false)
+    {
+        return 0_byte;
+    }
+
+    const GpSecureStorage& storage = iStorage.value();
+    return storage.Size();
 }
 
-std::string_view	GpSecureStorageViewR::AsStringView (void) const noexcept
+bool    GpSecureStorageViewR::IsEmpty (void) const noexcept
 {
-	if (iStorage != nullptr)
-	{
-		return std::string_view(reinterpret_cast<const char*>(iStorage->iData),
-								iStorage->iSize.ValueAs<size_t>());
-	} else
-	{
-		return std::string_view();
-	}
-}
-
-std::string_view	GpSecureStorageViewR::AsStringView (count_t aOffset, count_t aSize) const
-{
-	THROW_GPE_COND_CHECK_M(iStorage != nullptr, "Storage is empty"_sv);
-
-	const count_t size = iStorage->Size();
-
-	THROW_GPE_COND_CHECK_M(   (aOffset < size)
-						   && ((aOffset + aSize) <= size), "Out of range"_sv);
-
-	return std::string_view(reinterpret_cast<const char*>(iStorage->iData) + aOffset.ValueAs<size_t>(),
-							aSize.ValueAs<size_t>());
-}
-
-bool	GpSecureStorageViewR::IsEmpty (void) const noexcept
-{
-	return (iStorage == nullptr) || (iStorage->iSize == 0_cnt);
+    return Size() == 0_byte;
 }
 
 }//namespace GPlatform

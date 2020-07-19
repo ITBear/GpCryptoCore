@@ -52,16 +52,16 @@ namespace GPlatform {
 
 struct ripemd160_state
 {
-	u_int64_t length;
+    u_int64_t length;
 
-	union
-	{
-		u_int32_t w[16];
-		u_int8_t  b[64];
-	} buf;
+    union
+    {
+        u_int32_t w[16];
+        u_int8_t  b[64];
+    } buf;
 
-	u_int32_t		h[5];
-	size_t			bufpos;
+    u_int32_t       h[5];
+    size_t          bufpos;
 };
 
 #define RIPEMD160_DIGEST_SIZE 20
@@ -156,11 +156,11 @@ static const uint32_t KR[5] = {
 
 void ripemd160_init(ripemd160_state& aState)
 {
-	std::memcpy(aState.h, initial_h, RIPEMD160_DIGEST_SIZE);
-	std::memset(&aState.buf, 0, sizeof(aState.buf));
+    std::memcpy(aState.h, initial_h, RIPEMD160_DIGEST_SIZE);
+    std::memset(&aState.buf, 0, sizeof(aState.buf));
 
-	aState.length = 0;
-	aState.bufpos = 0;
+    aState.length = 0;
+    aState.bufpos = 0;
 }
 
 #ifdef PCT_BIG_ENDIAN
@@ -203,165 +203,165 @@ static void ripemd160_compress(ripemd160_state& aState)
     uint32_t AR, BR, CR, DR, ER;    /* right line */
 
     /* Sanity check */
-	assert(aState.bufpos == 64);
+    assert(aState.bufpos == 64);
 
     /* Byte-swap the buffer if we're on a big-endian machine */
 #ifdef PCT_BIG_ENDIAN
-	byteswap_digest(aState.buf.w);
+    byteswap_digest(aState.buf.w);
 #endif
 
     /* Load the left and right lines with the initial state */
-	AL = AR = aState.h[0];
-	BL = BR = aState.h[1];
-	CL = CR = aState.h[2];
-	DL = DR = aState.h[3];
-	EL = ER = aState.h[4];
+    AL = AR = aState.h[0];
+    BL = BR = aState.h[1];
+    CL = CR = aState.h[2];
+    DL = DR = aState.h[3];
+    EL = ER = aState.h[4];
 
     /* Round 1 */
     round = 0;
     for (w = 0; w < 16; w++) { /* left line */
-		T = ROL(SL[round][w], AL + F1(BL, CL, DL) + aState.buf.w[RL[round][w]] + KL[round]) + EL;
+        T = ROL(SL[round][w], AL + F1(BL, CL, DL) + aState.buf.w[RL[round][w]] + KL[round]) + EL;
         AL = EL; EL = DL; DL = ROL(10, CL); CL = BL; BL = T;
     }
     for (w = 0; w < 16; w++) { /* right line */
-		T = ROL(SR[round][w], AR + F5(BR, CR, DR) + aState.buf.w[RR[round][w]] + KR[round]) + ER;
+        T = ROL(SR[round][w], AR + F5(BR, CR, DR) + aState.buf.w[RR[round][w]] + KR[round]) + ER;
         AR = ER; ER = DR; DR = ROL(10, CR); CR = BR; BR = T;
     }
 
     /* Round 2 */
     round++;
     for (w = 0; w < 16; w++) { /* left line */
-		T = ROL(SL[round][w], AL + F2(BL, CL, DL) + aState.buf.w[RL[round][w]] + KL[round]) + EL;
+        T = ROL(SL[round][w], AL + F2(BL, CL, DL) + aState.buf.w[RL[round][w]] + KL[round]) + EL;
         AL = EL; EL = DL; DL = ROL(10, CL); CL = BL; BL = T;
     }
     for (w = 0; w < 16; w++) { /* right line */
-		T = ROL(SR[round][w], AR + F4(BR, CR, DR) + aState.buf.w[RR[round][w]] + KR[round]) + ER;
+        T = ROL(SR[round][w], AR + F4(BR, CR, DR) + aState.buf.w[RR[round][w]] + KR[round]) + ER;
         AR = ER; ER = DR; DR = ROL(10, CR); CR = BR; BR = T;
     }
 
     /* Round 3 */
     round++;
     for (w = 0; w < 16; w++) { /* left line */
-		T = ROL(SL[round][w], AL + F3(BL, CL, DL) + aState.buf.w[RL[round][w]] + KL[round]) + EL;
+        T = ROL(SL[round][w], AL + F3(BL, CL, DL) + aState.buf.w[RL[round][w]] + KL[round]) + EL;
         AL = EL; EL = DL; DL = ROL(10, CL); CL = BL; BL = T;
     }
     for (w = 0; w < 16; w++) { /* right line */
-		T = ROL(SR[round][w], AR + F3(BR, CR, DR) + aState.buf.w[RR[round][w]] + KR[round]) + ER;
+        T = ROL(SR[round][w], AR + F3(BR, CR, DR) + aState.buf.w[RR[round][w]] + KR[round]) + ER;
         AR = ER; ER = DR; DR = ROL(10, CR); CR = BR; BR = T;
     }
 
     /* Round 4 */
     round++;
     for (w = 0; w < 16; w++) { /* left line */
-		T = ROL(SL[round][w], AL + F4(BL, CL, DL) + aState.buf.w[RL[round][w]] + KL[round]) + EL;
+        T = ROL(SL[round][w], AL + F4(BL, CL, DL) + aState.buf.w[RL[round][w]] + KL[round]) + EL;
         AL = EL; EL = DL; DL = ROL(10, CL); CL = BL; BL = T;
     }
     for (w = 0; w < 16; w++) { /* right line */
-		T = ROL(SR[round][w], AR + F2(BR, CR, DR) + aState.buf.w[RR[round][w]] + KR[round]) + ER;
+        T = ROL(SR[round][w], AR + F2(BR, CR, DR) + aState.buf.w[RR[round][w]] + KR[round]) + ER;
         AR = ER; ER = DR; DR = ROL(10, CR); CR = BR; BR = T;
     }
 
     /* Round 5 */
     round++;
     for (w = 0; w < 16; w++) { /* left line */
-		T = ROL(SL[round][w], AL + F5(BL, CL, DL) + aState.buf.w[RL[round][w]] + KL[round]) + EL;
+        T = ROL(SL[round][w], AL + F5(BL, CL, DL) + aState.buf.w[RL[round][w]] + KL[round]) + EL;
         AL = EL; EL = DL; DL = ROL(10, CL); CL = BL; BL = T;
     }
     for (w = 0; w < 16; w++) { /* right line */
-		T = ROL(SR[round][w], AR + F1(BR, CR, DR) + aState.buf.w[RR[round][w]] + KR[round]) + ER;
+        T = ROL(SR[round][w], AR + F1(BR, CR, DR) + aState.buf.w[RR[round][w]] + KR[round]) + ER;
         AR = ER; ER = DR; DR = ROL(10, CR); CR = BR; BR = T;
     }
 
     /* Final mixing stage */
-	T = aState.h[1] + CL + DR;
-	aState.h[1] = aState.h[2] + DL + ER;
-	aState.h[2] = aState.h[3] + EL + AR;
-	aState.h[3] = aState.h[4] + AL + BR;
-	aState.h[4] = aState.h[0] + BL + CR;
-	aState.h[0] = T;
+    T = aState.h[1] + CL + DR;
+    aState.h[1] = aState.h[2] + DL + ER;
+    aState.h[2] = aState.h[3] + EL + AR;
+    aState.h[3] = aState.h[4] + AL + BR;
+    aState.h[4] = aState.h[0] + BL + CR;
+    aState.h[0] = T;
 
     /* Clear the buffer and wipe the temporary variables */
     T = AL = BL = CL = DL = EL = AR = BR = CR = DR = ER = 0;
-	std::memset(&aState.buf, 0, sizeof(aState.buf));
-	aState.bufpos = 0;
+    std::memset(&aState.buf, 0, sizeof(aState.buf));
+    aState.bufpos = 0;
 }
 
-void ripemd160_process(ripemd160_state&	aState,
-					   const std::byte* aBuffer,
-					   const size_t		aLength)
+void ripemd160_process(ripemd160_state& aState,
+                       GpRawPtrByteR    aData)
 {
-	size_t bytes_needed = 0;
-	size_t lengthLeft	= aLength;
-
-    /* Some assertions */
-	THROW_GPE_COND_CHECK_M(aBuffer != nullptr, "Input data is null");
+    size_t bytes_needed = 0;
+    size_t lengthLeft   = aData.CountLeftV<size_t>();
 
     /* We never leave a full buffer */
-	THROW_GPE_COND_CHECK_M(aState.bufpos < 64, "Buffer ptr is out of range"_sv);
+    THROW_GPE_COND_CHECK_M(aState.bufpos < 64, "Buffer ptr is out of range"_sv);
 
-	while (lengthLeft > 0)
-	{
+    while (lengthLeft > 0)
+    {
         /* Figure out how many bytes we need to fill the internal buffer. */
-		bytes_needed = 64 - aState.bufpos;
+        bytes_needed = 64 - aState.bufpos;
 
-		if (lengthLeft >= bytes_needed)
-		{
+        if (lengthLeft >= bytes_needed)
+        {
             /* We have enough bytes, so copy them into the internal buffer and run
              * the compression function. */
-			std::memcpy(&aState.buf.b[aState.bufpos], aBuffer, bytes_needed);
-			aState.bufpos += bytes_needed;
-			aState.length += bytes_needed << 3;    /* length is in bits */
-			aBuffer += bytes_needed;
-			ripemd160_compress(aState);
-			lengthLeft -= bytes_needed;
+            std::memcpy(&aState.buf.b[aState.bufpos], aData.Ptr(), bytes_needed);
+            aState.bufpos += bytes_needed;
+            aState.length += bytes_needed << 3;    /* length is in bits */
+            aData.OffsetAdd(count_t::SMake(bytes_needed));
+            ripemd160_compress(aState);
+            lengthLeft -= bytes_needed;
             continue;
         }
 
         /* We do not have enough bytes to fill the internal buffer.
          * Copy what's there and return. */
-		std::memcpy(&aState.buf.b[aState.bufpos], aBuffer, lengthLeft);
-		aState.bufpos += lengthLeft;
-		aState.length += lengthLeft << 3;    /* length is in bits */
+        std::memcpy(&aState.buf.b[aState.bufpos], aData.Ptr(), lengthLeft);
+        aState.bufpos += lengthLeft;
+        aState.length += lengthLeft << 3;    /* length is in bits */
         return;
     }
 }
 
-void ripemd160_done(ripemd160_state& aState, std::byte* aOut)
+void    ripemd160_done(ripemd160_state& aState,
+                       GpRawPtrByteRW   aResOut)
 {
-    /* Append the padding */
-	aState.buf.b[aState.bufpos++] = 0x80;
+    THROW_GPE_COND_CHECK_M(aResOut.CountLeft() >= count_t::SMake(RIPEMD160_DIGEST_SIZE), "aRes size too small");
 
-	if (aState.bufpos > 56) {
-		aState.bufpos = 64;
-		ripemd160_compress(aState);
+    /* Append the padding */
+    aState.buf.b[aState.bufpos++] = 0x80;
+
+    if (aState.bufpos > 56)
+    {
+        aState.bufpos = 64;
+        ripemd160_compress(aState);
     }
 
     /* Append the length */
-	aState.buf.w[14] = (uint32_t) (aState.length & 0xFFFFffffu);
-	aState.buf.w[15] = (uint32_t) ((aState.length >> 32) & 0xFFFFffffu);
+    aState.buf.w[14] = (uint32_t) (aState.length & 0xFFFFffffu);
+    aState.buf.w[15] = (uint32_t) ((aState.length >> 32) & 0xFFFFffffu);
 #ifdef PCT_BIG_ENDIAN
-	byteswap32(&aState.buf.w[14]);
-	byteswap32(&aState.buf.w[15]);
+    byteswap32(&aState.buf.w[14]);
+    byteswap32(&aState.buf.w[15]);
 #endif
-	aState.bufpos = 64;
-	ripemd160_compress(aState);
+    aState.bufpos = 64;
+    ripemd160_compress(aState);
 
     /* Copy the final state into the output buffer */
 #ifdef PCT_BIG_ENDIAN
-	byteswap_digest(aState.h);
+    byteswap_digest(aState.h);
 #endif
-	std::memcpy(aOut, &aState.h, RIPEMD160_DIGEST_SIZE);
+
+    aResOut.CopyFrom(reinterpret_cast<const std::byte*>(&aState.h), count_t::SMake(RIPEMD160_DIGEST_SIZE));
 }
 
-void ripemd160 (const std::byte*	aData,
-				const count_t		aLength,
-				std::byte*			aOut)
+void Ripemd160 (GpRawPtrByteR   aData,
+                GpRawPtrByteRW  aResOut)
 {
-	ripemd160_state md;
+    ripemd160_state md;
 
-	ripemd160_init(md);
-	ripemd160_process(md, aData, aLength.ValueAs<size_t>());
-	ripemd160_done(md, aOut);
+    ripemd160_init(md);
+    ripemd160_process(md, aData);
+    ripemd160_done(md, aResOut);
 }
 
 }//namespace GPlatform

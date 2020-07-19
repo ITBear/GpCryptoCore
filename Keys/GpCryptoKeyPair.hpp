@@ -8,47 +8,42 @@ namespace GPlatform {
 class GPCRYPTOCORE_API GpCryptoKeyPair
 {
 public:
-	CLASS_REMOVE_CTRS_EXCEPT_MOVE(GpCryptoKeyPair);
-	CLASS_DECLARE_DEFAULTS(GpCryptoKeyPair);
+    CLASS_DECLARE_DEFAULTS(GpCryptoKeyPair)
 
-	using TypeT		= GpCryptoKeyType;
-	using TypeTE	= TypeT::EnumT;
+    using TypeT     = GpCryptoKeyType;
+    using TypeTE    = TypeT::EnumT;
 
 protected:
-								GpCryptoKeyPair				(const TypeTE aType) noexcept;
-								GpCryptoKeyPair				(GpCryptoKeyPair&& aKeyPair) noexcept;
+                                GpCryptoKeyPair             (const TypeTE aType) noexcept;
+                                GpCryptoKeyPair             (const TypeTE       aType,
+                                                             GpSecureStorage&&  aPrivateBytes,
+                                                             GpBytesArray&&     aPublicBytes);
+                                GpCryptoKeyPair             (const GpCryptoKeyPair& aKeyPair);
+                                GpCryptoKeyPair             (GpCryptoKeyPair&& aKeyPair);
 
 public:
-	virtual						~GpCryptoKeyPair			(void) noexcept;
+    virtual                     ~GpCryptoKeyPair            (void) noexcept;
 
-	void						Clear						(void) noexcept;
+    void                        Clear                       (void) noexcept;
 
-	TypeTE						Type						(void) const noexcept {return iType;}
+    TypeTE                      Type                        (void) const noexcept {return iType;}
 
-	virtual void				GenerateNew					(void) = 0;
-	void						GenerateNewSS				(const GpSecureStorage& aSeed);
-	virtual void				GenerateNewSV				(std::string_view aSeed) = 0;
-	void						ImportPrivateBytesSS		(const GpSecureStorage& aPrivateBytes);
-	virtual void				ImportPrivateBytesSV		(std::string_view aPrivateBytes) = 0;
-	void						ImportPrivateStrHexSS		(const GpSecureStorage& aPrivateStrHex);
-	virtual void				ImportPrivateStrHexSV		(std::string_view aPrivateStrHex) = 0;
+    //const GpSecureStorage&        PrivateBytes                (void) const noexcept {return iPrivateBytes;}
+    const GpRawPtrByteR         PublicBytes                 (void) const noexcept {return GpRawPtrByteR(iPublicBytes);}
 
-	const GpSecureStorage&		PrivateBytes				(void) const noexcept {return iPrivateBytes;}
-	const GpBytesArray&			PublicBytes					(void) const noexcept {return iPublicBytes;}
+    GpSecureStorage             ToPrivateBytesWithPrefix    (void) const;
+    GpSecureStorage             ToPrivateStrHexWithPrefix   (void) const;
 
-	GpBytesArray				ToPublicBytesWithPrefix		(void) const;
-	GpSecureStorage				ToPrivateStrHexWithPrefix	(void) const;
-	std::string					ToPublicStrHexWithPrefix	(void) const;
+    GpBytesArray                ToPublicBytesWithPrefix     (void) const;
+    GpBytesArray                ToPublicStrHexWithPrefix    (void) const;
 
-	virtual std::string_view	PrivateBytesPrefix			(void) const noexcept = 0;
-	virtual std::string_view	PublicBytesPrefix			(void) const noexcept = 0;
-	virtual std::string_view	PrivateStrHexPrefix			(void) const noexcept = 0;
-	virtual std::string_view	PublicStrHexPrefix			(void) const noexcept = 0;
+    virtual GpRawPtrByteR       PrivateBytesPrefix          (void) const noexcept = 0;
+    virtual GpRawPtrByteR       PublicBytesPrefix           (void) const noexcept = 0;
 
 protected:
-	const TypeTE				iType;
-	GpSecureStorage				iPrivateBytes;
-	GpBytesArray				iPublicBytes;
+    const TypeTE                iType;
+    GpSecureStorage             iPrivateBytes;
+    GpBytesArray                iPublicBytes;
 };
 
 }//namespace GPlatform

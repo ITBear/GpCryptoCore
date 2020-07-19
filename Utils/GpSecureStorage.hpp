@@ -5,46 +5,53 @@
 
 namespace GPlatform {
 
-class GPCRYPTOCORE_API GpSecureStorage final: public GpMemoryStorage
+class GPCRYPTOCORE_API GpSecureStorage
 {
-	friend class GpSecureStorageViewR;
-	friend class GpSecureStorageViewRW;
+    friend class GpSecureStorageViewR;
+    friend class GpSecureStorageViewRW;
 
 public:
-	CLASS_DECLARE_DEFAULTS(GpSecureStorage);
+    CLASS_DECLARE_DEFAULTS(GpSecureStorage)
 
 public:
-								GpSecureStorage		(void) noexcept;
-								GpSecureStorage		(const GpSecureStorage&) noexcept = delete;
-								GpSecureStorage		(GpSecureStorage&& aStorage) noexcept;
-	virtual						~GpSecureStorage	(void) noexcept override final;
+                                GpSecureStorage     (void) noexcept;
+                                GpSecureStorage     (const GpSecureStorage& aStorage);
+                                GpSecureStorage     (GpSecureStorage&& aStorage);
+    explicit                    GpSecureStorage     (GpRawPtrByteR aData);
+                                ~GpSecureStorage    (void) noexcept;
 
-	GpSecureStorage&			operator=			(GpSecureStorage&& aStorage) noexcept;
+    GpSecureStorage&            operator=           (const GpSecureStorage& aStorage);
+    GpSecureStorage&            operator=           (GpSecureStorage&& aStorage);
 
-	virtual void				Clear				(void) noexcept override final;
-	virtual void				Allocate			(count_t aSize) override final;
-	virtual void				Resize				(count_t aSize) override final;
-	virtual void				Set					(GpMemoryStorage&& aStorage) override final;
-	virtual void				Set					(std::string_view aData) override final;
-	virtual count_t				Size				(void) const noexcept override final {return iSize;}
-	virtual bool				IsEmpty				(void) const noexcept override final {return (iData == nullptr) || (iSize == 0_cnt);}
+    void                        Clear               (void);
+    void                        Allocate            (const size_byte_t aSize);
+    void                        Allocate            (const count_t aElementsCount, const size_byte_t aElementSize);
+    void                        Resize              (const size_byte_t aSize);
+    size_byte_t                 Size                (void) const noexcept {return iSize;}
+    bool                        IsEmpty             (void) const noexcept {return (iData == nullptr) || (iSize == 0_byte);}
+    bool                        IsViewing           (void) const noexcept {return iIsViewing;}
 
-	virtual GpMemoryStorage::SP	New					(void) const override final;
+    void                        CopyFrom            (const GpSecureStorage& aStorage);
+    void                        Set                 (GpSecureStorage&& aStorage);
+    void                        CopyFrom            (GpRawPtrByteR aData);
+    void                        CopyFrom            (GpRawPtrByteRW aData);
 
-	virtual ViewR::SP			ViewRead			(void) const override final {return GpSecureStorageViewR::SP::SNew(*this);}
-	virtual ViewRW::SP			ViewReadWrite		(void) override final {return GpSecureStorageViewRW::SP::SNew(*this);}
-
-	GpSecureStorageViewR		ViewR				(void) const{return GpSecureStorageViewR(*this);}
-	GpSecureStorageViewRW		ViewRW				(void) {return GpSecureStorageViewRW(*this);}
+    GpSecureStorageViewR        ViewR               (void) const;
+    GpSecureStorageViewRW       ViewRW              (void);
 
 protected:
-	void						LockRW				(void) const;
-	void						UnlockRW			(void);
-	void						UnlockR				(void) const;
+    void                        LockRW              (void) const;
+    void                        UnlockRW            (void);
+    void                        UnlockR             (void) const;
+    void                        SetViewing          (const bool aValue) const noexcept {iIsViewing = aValue;}
+    GpRawPtrByteR               DataR               (void) const;
+    GpRawPtrByteRW              DataRW              (void);
 
 private:
-	std::byte*					iData	= nullptr;
-	count_t						iSize	= 0_cnt;
+    std::byte*                  iData           = nullptr;
+    size_byte_t                 iSize           = 0_byte;
+    mutable bool                iIsViewing      = false;
+    bool                        iIsEnableResize = true;
 };
 
 }//namespace GPlatform

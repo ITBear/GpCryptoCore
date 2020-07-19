@@ -4,35 +4,41 @@
 
 namespace GPlatform {
 
-GpSecureStorage	GpCryptoRandom::SEntropy (const count_t aSize)
+void    GpCryptoRandom::SEntropy (const size_byte_t aSize,
+                                  GpRawPtrByteRW    aResOut)
 {
-	size_t size = aSize.ValueAs<size_t>();
+    size_byte_t bytesLeft   = aSize;
+    u_int_32    randVal     = 0;
 
-	GpSecureStorage entropy;
-	entropy.Allocate(aSize);
+    GpRAIIonDestruct randValDestructor([&]()
+    {
+        sodium_memzero(&randVal, sizeof(randVal));
+    });
 
-	{
-		GpSecureStorageViewRW	entropyView = entropy.ViewRW();
-		std::byte*				entropyData	= entropyView.Data();
-		size_t					bytesNeed	= 0;
+    while (bytesLeft > 0_byte)
+    {
+        const size_byte_t bytesNeed = std::min(size_byte_t::SMake(sizeof(u_int_32)), bytesLeft);
 
-		u_int_32 v = 0;
+        randVal = randombytes_random();
 
-		while (size > 0)
-		{
-			v			= randombytes_random();
-			bytesNeed	= std::min(sizeof(u_int_32), size);
+        aResOut.CopyFrom(reinterpret_cast<const std::byte*>(&randVal), bytesNeed.ValueAs<count_t>());
 
-			std::memcpy(entropyData, &v, bytesNeed);
+        aResOut.OffsetAdd(bytesNeed.ValueAs<count_t>());
+        bytesLeft   -= bytesNeed;
+    }
+}
 
-			entropyData += bytesNeed;
-			size		-= bytesNeed;
-		}
+GpSecureStorage GpCryptoRandom::SEntropy (const size_byte_t aSize)
+{
+    GpSecureStorage entropy;
+    entropy.Allocate(aSize);
 
-		sodium_memzero(&v, sizeof(v));
-	}
+    GpSecureStorageViewRW   entropyView = entropy.ViewRW();
+    GpRawPtrByteRW          entropyData = entropyView.RW();
 
-	return entropy;
+    SEntropy(aSize, entropyData);
+
+    return entropy;
 }
 
 }//namespace GPlatform
