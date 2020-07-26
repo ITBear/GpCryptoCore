@@ -33,7 +33,7 @@ GpSecureStorage GpMnemonicCodeGen::SGenerateNewMnemonic (const WordListT&   aWor
     const GpCryptoHash_Sha2::Res256T    entropySha256   = GpCryptoHash_Sha2::S_256(entropy.ViewR().R());
 
     GpSecureStorage entropyWithChecksum;
-    entropyWithChecksum.Allocate(entropySize + 1_byte/*cheksum*/);
+    entropyWithChecksum.Resize(entropySize + 1_byte/*cheksum*/);
 
     {
         GpSecureStorageViewRW entropyWithChecksumViewRW = entropyWithChecksum.ViewRW();
@@ -52,7 +52,7 @@ GpSecureStorage GpMnemonicCodeGen::SGenerateNewMnemonic (const WordListT&   aWor
     {
         const count_t           spaceSize   = count_t::SMake(aSpaceChar.size());
         constexpr const count_t maxWordSize = 10_cnt;
-        mnemonicPhrase.Allocate((wordsCount*maxWordSize/*words*/ + (wordsCount - 1_cnt)*spaceSize/*spaces*/).ValueAs<size_byte_t>());
+        mnemonicPhrase.Resize((wordsCount*maxWordSize/*words*/ + (wordsCount - 1_cnt)*spaceSize/*spaces*/).ValueAs<size_byte_t>());
         GpSecureStorageViewRW           mnemonicPhraseViewRW    = mnemonicPhrase.ViewRW();
         GpByteWriterStorageFixedSize    mnemonicPhraseStorage(mnemonicPhraseViewRW.RW());
         GpByteWriter                    mnemonicPhraseWriter(mnemonicPhraseStorage);
@@ -105,7 +105,7 @@ bool    GpMnemonicCodeGen::SValidateMnemonic (const WordListT&  aWordList,
 
     // ------------- Reconstruct entropy with checksum ---------------
     GpSecureStorage entropyWithChecksum;
-    entropyWithChecksum.Allocate(entropySize + 1_byte/*cheksum*/);
+    entropyWithChecksum.Resize(entropySize + 1_byte/*cheksum*/);
     {
         GpSecureStorageViewRW entropyWithChecksumViewRW = entropyWithChecksum.ViewRW();
 
@@ -169,7 +169,8 @@ GpSecureStorage GpMnemonicCodeGen::SSeedFromMnemonic (const WordListT&  aWordLis
         const count_t cnt = UTF8Proc::S_MaxCountUTF32(UTF8NFType::NFKD, aMnemonic.AsStringView());
 
         GpSecureStorage tmpStorage;
-        tmpStorage.Allocate(cnt, GpRawPtrSI32_RW::value_size_v);
+        tmpStorage.Resize(cnt.ValueAs<size_byte_t>() * GpRawPtrSI32_RW::value_size_v,
+                          size_byte_t::SMake(alignof(GpRawPtrSI32_RW::value_type)));
         GpSecureStorageViewRW   tmpStorageViewRW    = tmpStorage.ViewRW();
         GpRawPtrSI32_RW         tmpStoragePtrRW     = tmpStorageViewRW.RW().ReinterpretAs<GpRawPtrSI32_RW>();
 
@@ -184,7 +185,8 @@ GpSecureStorage GpMnemonicCodeGen::SSeedFromMnemonic (const WordListT&  aWordLis
         const count_t cnt = UTF8Proc::S_MaxCountUTF32(UTF8NFType::NFKD, aPassword.AsStringView());
 
         GpSecureStorage tmpStorage;
-        tmpStorage.Allocate(cnt, GpRawPtrSI32_RW::value_size_v);
+        tmpStorage.Resize(cnt.ValueAs<size_byte_t>() * GpRawPtrSI32_RW::value_size_v,
+                          size_byte_t::SMake(alignof(GpRawPtrSI32_RW::value_type)));
         GpSecureStorageViewRW   tmpStorageViewRW    = tmpStorage.ViewRW();
         GpRawPtrSI32_RW         tmpStoragePtrRW     = tmpStorageViewRW.RW().ReinterpretAs<GpRawPtrSI32_RW>();
 

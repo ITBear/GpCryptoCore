@@ -19,15 +19,21 @@ iStorage(std::move(aView.iStorage))
 
 GpSecureStorageViewR::~GpSecureStorageViewR (void) noexcept
 {
-    if (iStorage.has_value() == false)
+    Release();
+}
+
+GpSecureStorageViewR&   GpSecureStorageViewR::operator= (GpSecureStorageViewR&& aView)
+{
+    if (this == &aView)
     {
-        return;
+        return *this;
     }
 
-    const GpSecureStorage& storage = iStorage.value();
+    Release();
+    iStorage = std::move(aView.iStorage);
+    aView.iStorage.reset();
 
-    storage.LockRW();
-    storage.SetViewing(false);
+    return *this;
 }
 
 GpRawPtrByteR   GpSecureStorageViewR::R (void) const
@@ -49,9 +55,18 @@ size_byte_t GpSecureStorageViewR::Size (void) const noexcept
     return storage.Size();
 }
 
-bool    GpSecureStorageViewR::IsEmpty (void) const noexcept
+void    GpSecureStorageViewR::Release (void)
 {
-    return Size() == 0_byte;
+    if (iStorage.has_value() == false)
+    {
+        return;
+    }
+
+    const GpSecureStorage& storage = iStorage.value();
+
+    storage.LockRW();
+    storage.SetViewing(false);
+    iStorage.reset();
 }
 
 }//namespace GPlatform

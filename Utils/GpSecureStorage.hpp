@@ -24,17 +24,18 @@ public:
     GpSecureStorage&            operator=           (GpSecureStorage&& aStorage);
 
     void                        Clear               (void);
-    void                        Allocate            (const size_byte_t aSize);
-    void                        Allocate            (const count_t aElementsCount, const size_byte_t aElementSize);
     void                        Resize              (const size_byte_t aSize);
-    size_byte_t                 Size                (void) const noexcept {return iSize;}
-    bool                        IsEmpty             (void) const noexcept {return (iData == nullptr) || (iSize == 0_byte);}
+    void                        Resize              (const size_byte_t aSize, const size_byte_t aAlignment);
+    void                        Reserve             (const size_byte_t aSize);
+    void                        Reserve             (const size_byte_t aSize, const size_byte_t aAlignment);
+    size_byte_t                 Size                (void) const noexcept {return iSizeUsed;}
+    size_byte_t                 Alignment           (void) const noexcept {return iAlignment;}
+    bool                        IsDataNullptr       (void) const noexcept {return iData == nullptr;}
     bool                        IsViewing           (void) const noexcept {return iIsViewing;}
 
-    void                        CopyFrom            (const GpSecureStorage& aStorage);
     void                        Set                 (GpSecureStorage&& aStorage);
+    void                        CopyFrom            (const GpSecureStorage& aStorage);
     void                        CopyFrom            (GpRawPtrByteR aData);
-    void                        CopyFrom            (GpRawPtrByteRW aData);
 
     GpSecureStorageViewR        ViewR               (void) const;
     GpSecureStorageViewRW       ViewRW              (void);
@@ -43,15 +44,19 @@ protected:
     void                        LockRW              (void) const;
     void                        UnlockRW            (void);
     void                        UnlockR             (void) const;
-    void                        SetViewing          (const bool aValue) const noexcept {iIsViewing = aValue;}
+    void                        SetViewing          (const bool aValue) const;
     GpRawPtrByteR               DataR               (void) const;
     GpRawPtrByteRW              DataRW              (void);
 
 private:
+    void                        ClearAndAllocate    (const size_byte_t aSize, const size_byte_t aAlignment);
+
+private:
     std::byte*                  iData           = nullptr;
-    size_byte_t                 iSize           = 0_byte;
+    size_byte_t                 iSizeUsed       = 0_byte;
+    size_byte_t                 iSizeAllocated  = 0_byte;
+    size_byte_t                 iAlignment      = 1_byte;
     mutable bool                iIsViewing      = false;
-    bool                        iIsEnableResize = true;
 };
 
 }//namespace GPlatform

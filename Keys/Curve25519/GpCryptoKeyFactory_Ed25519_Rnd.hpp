@@ -15,6 +15,8 @@ public:
     virtual                         ~GpCryptoKeyFactory_Ed25519_Rnd (void) noexcept override final;
 
     virtual GpCryptoKeyPair::SP     Generate                        (void) override final;
+    virtual void                    Serialize                       (GpByteWriter& aWriter) const override final;
+    virtual void                    Deserialize                     (GpByteReader& aReader) override final;
 };
 
 }//GPlatform

@@ -4,6 +4,7 @@
 #include "Utils/GpCryptoUtils.h"
 #include "Hashes/GpCryptoHashes.hpp"
 #include "MnemonicCodes/GpMnemonicCodes.hpp"
+#include "Encryption/GpEncryption.hpp"
 
 namespace GPlatform {
 

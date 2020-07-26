@@ -34,4 +34,41 @@ GpCryptoKeyPair::SP GpCryptoKeyFactory_Ed25519_HD::Generate (void)
     return factory.Generate();
 }
 
+void    GpCryptoKeyFactory_Ed25519_HD::Serialize (GpByteWriter& aWriter) const
+{
+    //iParentHDKeyStorage
+    {
+        //SchemeType
+        aWriter.BytesWithLen(GpCryptoHDSchemeType::SToString(iParentHDKeyStorage.SchemeType()));
+
+        //ChainCode
+        aWriter.BytesWithLen(iParentHDKeyStorage.ChainCode().ViewR().R());
+
+        //KeyData
+        aWriter.BytesWithLen(iParentHDKeyStorage.KeyData().ViewR().R());
+    }
+
+    //iChildNumber
+    aWriter.CompactSInt32(iChildNumber.ValueAs<s_int_32>());
+}
+
+void    GpCryptoKeyFactory_Ed25519_HD::Deserialize (GpByteReader& aReader)
+{
+    //iParentHDKeyStorage
+    {
+        //SchemeType
+        THROW_GPE_COND_CHECK_M(aReader.BytesWithLen() == GpCryptoHDSchemeType::SToString(iParentHDKeyStorage.SchemeType()),
+                               "Wrong SchemeType"_sv);
+
+        //ChainCode
+        iParentHDKeyStorage.ChainCode().ViewRW().RW().CopyFrom(aReader.BytesWithLen());
+
+        //KeyData
+        iParentHDKeyStorage.KeyData().ViewRW().RW().CopyFrom(aReader.BytesWithLen());
+    }
+
+    //iChildNumber
+    iChildNumber = count_t::SMake(aReader.CompactSInt32());
+}
+
 }//GPlatform

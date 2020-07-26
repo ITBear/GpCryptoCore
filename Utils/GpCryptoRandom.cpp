@@ -31,7 +31,7 @@ void    GpCryptoRandom::SEntropy (const size_byte_t aSize,
 GpSecureStorage GpCryptoRandom::SEntropy (const size_byte_t aSize)
 {
     GpSecureStorage entropy;
-    entropy.Allocate(aSize);
+    entropy.Resize(aSize);
 
     GpSecureStorageViewRW   entropyView = entropy.ViewRW();
     GpRawPtrByteRW          entropyData = entropyView.RW();

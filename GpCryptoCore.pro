@@ -134,9 +134,11 @@ INCLUDEPATH += \
 	../Extras/Boost/boost_1_72_0$$BOOST_POSTFIX
 
 SOURCES += \
+	Encryption/GpEncryptionUtils.cpp \
 	ExtSources/ripemd160.cpp \
 	Hashes/GpCryptoHash_Blake2b.cpp \
 	Hashes/GpCryptoHash_Hmac.cpp \
+	Hashes/GpCryptoHash_KDF_Passwd.cpp \
 	Hashes/GpCryptoHash_PBKDF2.cpp \
 	Hashes/GpCryptoHash_Ripemd160.cpp \
 	Hashes/GpCryptoHash_Sha2.cpp \
@@ -145,6 +147,7 @@ SOURCES += \
 	Keys/Curve25519/GpCryptoKeyFactory_Ed25519_Import.cpp \
 	Keys/Curve25519/GpCryptoKeyFactory_Ed25519_Rnd.cpp \
 	Keys/Curve25519/GpCryptoKeyPair_Ed25519.cpp \
+	Keys/Curve25519/GpCryptoKeyPair_X25519.cpp \
 	Keys/GpCryptoKeyPair.cpp \
 	Keys/GpCryptoKeyType.cpp \
 	GpCryptoCore.cpp \
@@ -152,17 +155,22 @@ SOURCES += \
 	Keys/HD/GpCryptoHDKeyStorage.cpp \
 	Keys/HD/GpCryptoHDSchemeType.cpp \
 	MnemonicCodes/GpMnemonicCodeGen.cpp \
+	Utils/GpByteWriterStorageSecure.cpp \
 	Utils/GpCryptoRandom.cpp \
+	Utils/GpEncoders.cpp \
 	Utils/GpSecureStorage.cpp \
 	Utils/GpSecureStorageViewR.cpp \
 	Utils/GpSecureStorageViewRW.cpp
 
 HEADERS += \
+	Encryption/GpEncryption.hpp \
+	Encryption/GpEncryptionUtils.hpp \
 	ExtSources/ripemd160.hpp \
 	GpCryptoCore.hpp \
 	GpCryptoCore_global.hpp \
 	Hashes/GpCryptoHash_Blake2b.hpp \
 	Hashes/GpCryptoHash_Hmac.hpp \
+	Hashes/GpCryptoHash_KDF_Passwd.hpp \
 	Hashes/GpCryptoHash_PBKDF2.hpp \
 	Hashes/GpCryptoHash_Ripemd160.hpp \
 	Hashes/GpCryptoHash_Sha2.hpp \
@@ -172,6 +180,7 @@ HEADERS += \
 	Keys/Curve25519/GpCryptoKeyFactory_Ed25519_Import.hpp \
 	Keys/Curve25519/GpCryptoKeyFactory_Ed25519_Rnd.hpp \
 	Keys/Curve25519/GpCryptoKeyPair_Ed25519.hpp \
+	Keys/Curve25519/GpCryptoKeyPair_X25519.hpp \
 	Keys/Curve25519/GpCurve25519.hpp \
 	Keys/GpCryptoKeyFactory.hpp \
 	Keys/GpCryptoKeyPair.hpp \
@@ -183,8 +192,10 @@ HEADERS += \
 	Keys/HD/GpCryptoHDSchemeType.hpp \
 	MnemonicCodes/GpMnemonicCodeGen.hpp \
 	MnemonicCodes/GpMnemonicCodes.hpp \
+	Utils/GpByteWriterStorageSecure.hpp \
 	Utils/GpCryptoRandom.hpp \
 	Utils/GpCryptoUtils.h \
+	Utils/GpEncoders.hpp \
 	Utils/GpSecureStorage.hpp \
 	Utils/GpSecureStorageViewR.hpp \
 	Utils/GpSecureStorageViewRW.hpp

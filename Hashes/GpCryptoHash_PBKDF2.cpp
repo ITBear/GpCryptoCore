@@ -8,24 +8,24 @@ GpSecureStorage GpCryptoHash_PBKDF2::S_HmacSHA512 (GpRawPtrByteR    aPassword,
                                                    const count_t    aIterations,
                                                    const size_bit_t aBitLengthDerivedKey)
 {
-    THROW_GPE_COND_CHECK_M(aPassword.CountLeft() > 0_cnt, "Wrong password"_sv);
-    THROW_GPE_COND_CHECK_M(aSalt.CountLeft() > 0_cnt, "Wrong salt"_sv);
+    THROW_GPE_COND_CHECK_M(aPassword.CountLeft() > 0_cnt, "Wrong password length"_sv);
+    THROW_GPE_COND_CHECK_M(aSalt.CountLeft() > 0_cnt, "Wrong salt length"_sv);
     THROW_GPE_COND_CHECK_M(   (aBitLengthDerivedKey > 0_bit)
                            && (aBitLengthDerivedKey % 8_bit == 0_bit)
-                           && (aBitLengthDerivedKey <= 0x1fffffffe0_bit), "Wrong aBitLengthDerivedKey"_sv);
+                           && (aBitLengthDerivedKey <= 0x1fffffffe0_bit), "Wrong aBitLengthDerivedKey length"_sv);
 
     const size_byte_t   derivedKeySize      = size_byte_t(aBitLengthDerivedKey);
     size_byte_t         derivedKeyLeftBytes = derivedKeySize;
 
     GpSecureStorage derivedKey;
-    derivedKey.Allocate(derivedKeySize);
+    derivedKey.Resize(derivedKeySize);
     GpSecureStorageViewRW   derivedKeyViewRW    = derivedKey.ViewRW();
     GpRawPtrByteRW          derivedKeyPtrRW     = derivedKeyViewRW.RW();
 
     GpSecureStorage buf_U_T;
     constexpr size_byte_t sizeU = size_byte_t::SMake(crypto_auth_hmacsha512_BYTES);
     constexpr size_byte_t sizeT = size_byte_t::SMake(crypto_auth_hmacsha512_BYTES);
-    buf_U_T.Allocate(sizeU + sizeT);
+    buf_U_T.Resize(sizeU + sizeT);
     GpSecureStorageViewRW   buf_U_T_KeyViewRW   = buf_U_T.ViewRW();
     GpRawPtrByteRW          buf_U_T_KeyPtrRW    = buf_U_T_KeyViewRW.RW();
     GpRawPtrByteRW          dataU               = buf_U_T_KeyPtrRW.Subrange(0_cnt, sizeU.ValueAs<count_t>());
@@ -100,14 +100,14 @@ GpSecureStorage GpCryptoHash_PBKDF2::S_HmacSHA256 (GpRawPtrByteR    aPassword,
     size_byte_t         derivedKeyLeftBytes = derivedKeySize;
 
     GpSecureStorage derivedKey;
-    derivedKey.Allocate(derivedKeySize);
+    derivedKey.Resize(derivedKeySize);
     GpSecureStorageViewRW   derivedKeyViewRW    = derivedKey.ViewRW();
     GpRawPtrByteRW          derivedKeyPtrRW     = derivedKeyViewRW.RW();
 
     GpSecureStorage buf_U_T;
     constexpr size_byte_t sizeU = size_byte_t::SMake(crypto_auth_hmacsha256_BYTES);
     constexpr size_byte_t sizeT = size_byte_t::SMake(crypto_auth_hmacsha256_BYTES);
-    buf_U_T.Allocate(sizeU + sizeT);
+    buf_U_T.Resize(sizeU + sizeT);
     GpSecureStorageViewRW   buf_U_T_KeyViewRW   = buf_U_T.ViewRW();
     GpRawPtrByteRW          buf_U_T_KeyPtrRW    = buf_U_T_KeyViewRW.RW();
     GpRawPtrByteRW          dataU               = buf_U_T_KeyPtrRW.Subrange(0_cnt, sizeU.ValueAs<count_t>());

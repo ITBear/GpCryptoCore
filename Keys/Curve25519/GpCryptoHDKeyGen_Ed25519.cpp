@@ -8,7 +8,7 @@ namespace GPlatform {
 GpCryptoHDKeyStorage    GpCryptoHDKeyGen_Ed25519::SMasterKeyPairFromSeed (GpRawPtrByteR aSeed)
 {
     GpSecureStorage valI;
-    valI.Allocate(512_bit);
+    valI.Resize(512_bit);
 
     GpCryptoHash_Hmac::S_512(aSeed,
                              "ed25519 seed"_sv,
@@ -54,7 +54,7 @@ GpCryptoHDKeyStorage    GpCryptoHDKeyGen_Ed25519::SChildKeyPair (const GpCryptoH
     }
 
     GpSecureStorage valI;
-    valI.Allocate(512_bit);
+    valI.Resize(512_bit);
 
     GpCryptoHash_Hmac::S_512(sourceData.ViewR().R(),
                              aParentHDKeyStorage.ChainCode().ViewR().R(),
