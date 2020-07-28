@@ -24,7 +24,7 @@ sudo apt install cmake gcc-10 g++-10 build-essential libtool libboost-dev
  
 ## Linux x86_64
 
-- create folders **_uno-labs/src_**
+- create folders **_build/src_**
 - go into **_src_** and clone this repo
 - go to the repo folder and run
 ```sh
@@ -35,7 +35,7 @@ cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_PROCES
 make & make install
 ```
 
-In the folder **uno-labs** be created folders:
+In the folder **build** be created folders:
 ```
 ├── bin
 ├── doc
@@ -46,7 +46,7 @@ In the folder **uno-labs** be created folders:
 ```
 
 ### Build libsodium
-Clone libsodium to **_uno-labs/src_**, branch _stable_
+Clone libsodium to **_build/src_**, branch _stable_
 
 ```sh
 $ git clone -b stable https://github.com/jedisct1/libsodium.git && cd libsodium 
