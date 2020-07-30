@@ -160,12 +160,14 @@ set(LIBRARY_OUTPUT_PATH	${DESTDIR})
 #------------------------ LIBS ---------------------
 set(GPCORE2   GpCore2)
 set(LIBSODIUM sodium)
+set(UTF8PROC  utf8proc)
 
 target_include_directories(${PROJECT_NAME}
         PRIVATE
             "${TARGET_EXT_INCLUDE_DIR}"
             "${TARGET_EXT_INCLUDE_DIR}/${GPCORE2}"
             "${TARGET_EXT_INCLUDE_DIR}/${UTF8PROC}"
+            "${TARGET_EXT_INCLUDE_DIR}/${LIBSODIUM}"
             "${BOOST_INCLUDE}"
 	)
 
