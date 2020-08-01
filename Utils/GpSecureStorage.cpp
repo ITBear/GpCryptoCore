@@ -45,7 +45,7 @@ void    GpSecureStorage::Clear (void)
 
     if (iData != nullptr)
     {
-        sodium_memzero(ViewRW().RW()._PtrBegin(), iSizeAllocated.ValueAs<size_t>());
+        sodium_memzero(ViewRW().RW().PtrBegin(), iSizeAllocated.ValueAs<size_t>());
 
 #if !defined(OS_BROWSER)
         sodium_free(iData);

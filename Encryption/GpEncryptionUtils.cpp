@@ -10,6 +10,9 @@ void    GpEncryptionUtils::SEncrypt (GpByteReader&  aReader,
                                      GpByteWriter&  aWriter,
                                      GpRawPtrByteR  aKey)
 {
+    THROW_GPE_COND_CHECK_M(aKey.CountLeft() >= count_t::SMake(crypto_secretstream_xchacha20poly1305_KEYBYTES),
+                           "Wrong key length"_sv);
+
     constexpr size_byte_t CHUNK_SIZE = 4096_byte;
     GpArray<unsigned char, crypto_secretstream_xchacha20poly1305_HEADERBYTES>                           encryptHeader;
     GpArray<unsigned char, CHUNK_SIZE.ValueAs<size_t>() + crypto_secretstream_xchacha20poly1305_ABYTES> encryptChunk;
@@ -18,7 +21,7 @@ void    GpEncryptionUtils::SEncrypt (GpByteReader&  aReader,
 
     if (crypto_secretstream_xchacha20poly1305_init_push(&encryptState,
                                                         encryptHeader.data(),
-                                                        aKey.PtrBeginAs<const unsigned char*>()) != 0)
+                                                        aKey.PtrAs<const unsigned char*>()) != 0)
     {
         THROW_GPE("crypto_secretstream_xchacha20poly1305_init_push return error"_sv);
     }
@@ -55,6 +58,9 @@ void    GpEncryptionUtils::SDecrypt (GpByteReader&  aReader,
                                      GpByteWriter&  aWriter,
                                      GpRawPtrByteR  aKey)
 {
+    THROW_GPE_COND_CHECK_M(aKey.CountLeft() >= count_t::SMake(crypto_secretstream_xchacha20poly1305_KEYBYTES),
+                           "Wrong key length"_sv);
+
     constexpr size_byte_t CHUNK_SIZE = 4096_byte;
     GpArray<unsigned char, crypto_secretstream_xchacha20poly1305_HEADERBYTES>   encryptHeader;
     GpRawPtrByteRW                                                              encryptHeaderPtr(encryptHeader);
@@ -70,7 +76,7 @@ void    GpEncryptionUtils::SDecrypt (GpByteReader&  aReader,
 
     if (crypto_secretstream_xchacha20poly1305_init_pull(&encryptState,
                                                         encryptHeaderPtr.PtrBeginAs<const unsigned char*>(),
-                                                        aKey.PtrBeginAs<const unsigned char*>()) != 0)
+                                                        aKey.PtrAs<const unsigned char*>()) != 0)
     {
         THROW_GPE("crypto_secretstream_xchacha20poly1305_init_pull return error"_sv);
     }

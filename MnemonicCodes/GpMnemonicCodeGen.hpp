@@ -50,7 +50,7 @@ public:
 private:
     static size_t               SFindConfByWordsCount   (const count_t aWordsCount);
     static u_int_16             SFindWordId             (const WordListT&   aWordList,
-                                                         std::string_view   aWord);
+                                                         GpRawPtrCharR      aWord);
 };
 
 }//GPlatform

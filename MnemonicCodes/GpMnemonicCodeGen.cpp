@@ -92,11 +92,11 @@ bool    GpMnemonicCodeGen::SValidateMnemonic (const WordListT&  aWordList,
                                               const std::string aSpaceChar,
                                               GpRawPtrCharR     aMnemonic)
 {
-    GpVector<std::string_view> mnemonicWords = GpStringOps::SSplit(aMnemonic.AsStringView(),
-                                                                   aSpaceChar,
-                                                                   0_cnt,
-                                                                   0_cnt,
-                                                                   Algo::SplitMode::SKIP_ZERO_LENGTH_PARTS);
+    GpVector<GpRawPtrCharR> mnemonicWords = GpStringOps::SSplit(aMnemonic.AsStringView(),
+                                                                aSpaceChar,
+                                                                0_cnt,
+                                                                0_cnt,
+                                                                Algo::SplitMode::SKIP_ZERO_LENGTH_PARTS);
 
     const auto& conf = GpMnemonicCodeGen_sMnemonicK.at(SFindConfByWordsCount(count_t::SMake(mnemonicWords.size())));
 
@@ -112,7 +112,7 @@ bool    GpMnemonicCodeGen::SValidateMnemonic (const WordListT&  aWordList,
         GpBitWriterStorageFixedSize entropyWithChecksumStorage(entropyWithChecksumViewRW.RW());
         GpBitWriter                 entropyWithChecksumWriter(entropyWithChecksumStorage);
 
-        for (std::string_view word: mnemonicWords)
+        for (const GpRawPtrCharR& word: mnemonicWords)
         {
             const u_int_16 wid = SFindWordId(aWordList, word);
             entropyWithChecksumWriter.UInt16(wid, 11_bit);
@@ -244,12 +244,13 @@ size_t  GpMnemonicCodeGen::SFindConfByWordsCount (const count_t aWordsCount)
 }
 
 u_int_16    GpMnemonicCodeGen::SFindWordId (const WordListT&    aWordList,
-                                            std::string_view    aWord)
+                                            GpRawPtrCharR       aWord)
 {
+    std::string_view word = aWord.AsStringView();
     size_t id = 0;
-    for (const auto& word: aWordList)
+    for (const auto& wordFromList: aWordList)
     {
-        if (word == aWord)
+        if (word == wordFromList)
         {
             return u_int_16(id);
         }
@@ -257,7 +258,7 @@ u_int_16    GpMnemonicCodeGen::SFindWordId (const WordListT&    aWordList,
         ++id;
     }
 
-    THROW_GPE("Word '"_sv + aWord + "' was not found in list"_sv);
+    THROW_GPE("Word '"_sv + word + "' was not found in list"_sv);
 }
 
 }//namespace GPlatform
