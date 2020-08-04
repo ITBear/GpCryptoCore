@@ -6,7 +6,7 @@ namespace GPlatform {
 //const std::string_view    GpCryptoKeyPair_X25519::sPrivateBytesPrefix = "\x30\x2e\x02\x01\x00\x30\x05\x06\x03\x2b\x65\x70\x04\x22\x04\x20"_sv;
 //const std::string_view    GpCryptoKeyPair_X25519::sPublicBytesPrefix      = "\x30\x2a\x30\x05\x06\x03\x2b\x65\x70\x03\x21\x00"_sv;
 
-GpCryptoKeyPair_X25519::GpCryptoKeyPair_X25519 (void) noexcept:
+/*GpCryptoKeyPair_X25519::GpCryptoKeyPair_X25519 (void) noexcept:
 GpCryptoKeyPair(GpCryptoKeyType::X_25519)
 {
 }
@@ -43,6 +43,6 @@ GpRawPtrByteR   GpCryptoKeyPair_X25519::PublicBytesPrefix (void) const noexcept
 {
     THROW_NOT_IMPLEMENTED();
     //return sPublicBytesPrefix;
-}
+}*/
 
 }//namespace GPlatform

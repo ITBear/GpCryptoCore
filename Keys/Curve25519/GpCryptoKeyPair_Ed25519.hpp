@@ -19,6 +19,9 @@ public:
                                                              GpBytesArray&&     aPublicBytes);
     virtual                     ~GpCryptoKeyPair_Ed25519    (void) noexcept override final;
 
+    GpCryptoKeyPair_Ed25519&    operator=                   (const GpCryptoKeyPair_Ed25519& aKeyPair);
+    GpCryptoKeyPair_Ed25519&    operator=                   (GpCryptoKeyPair_Ed25519&& aKeyPair);
+
     ResSignT                    Sign                        (GpRawPtrByteR  aData) const;
     bool                        VerifySign                  (GpRawPtrByteR  aData,
                                                              GpRawPtrByteR  aSign) const;

@@ -110,4 +110,18 @@ GpBytesArray    GpCryptoKeyPair::ToPublicStrHexWithPrefix (void) const
     return res;
 }
 
+void    GpCryptoKeyPair::SetKeys (GpRawPtrByteR aPrivateBytes,
+                                  GpRawPtrByteR aPublicBytes)
+{
+    iPrivateBytes.ViewRW().RW().CopyFrom(aPrivateBytes);
+    iPublicBytes = GpBytesArrayUtils::SMake(aPublicBytes);
+}
+
+void    GpCryptoKeyPair::SetKeys (GpSecureStorage&& aPrivateBytes,
+                                  GpBytesArray&&    aPublicBytes)
+{
+    iPrivateBytes   = std::move(aPrivateBytes);
+    iPublicBytes    = std::move(aPublicBytes);
+}
+
 }//namespace GPlatform

@@ -1,5 +1,6 @@
 #include "GpSecureStorage.hpp"
 #include <libsodium/sodium.h>
+#include <cstdlib>
 
 namespace GPlatform {
 
@@ -229,11 +230,14 @@ void    GpSecureStorage::ClearAndAllocate (const size_byte_t aSize, const size_b
 
 #if !defined(OS_BROWSER)
     iData = reinterpret_cast<std::byte*>(sodium_allocarray((aSize / aAlignment).ValueAs<size_t>(), aAlignment.ValueAs<size_t>()));
+    THROW_GPE_COND_CHECK_M(iData != nullptr, "sodium_malloc return nullptr"_sv);
 #else
-    iData = reinterpret_cast<std::byte*>(std::aligned_alloc(aAlignment.ValueAs<size_t>(), aSize.ValueAs<size_t>()));
-#endif
+    //iData = reinterpret_cast<std::byte*>(aligned_alloc(aAlignment.ValueAs<size_t>(), aSize.ValueAs<size_t>()));
+    //THROW_GPE_COND_CHECK_M(iData != nullptr, "aligned_alloc return nullptr"_sv);
 
-    THROW_GPE_COND_CHECK_M(iData != nullptr, "sodium_malloc return error"_sv);
+    iData = reinterpret_cast<std::byte*>(std::malloc(aSize.ValueAs<size_t>()));
+    THROW_GPE_COND_CHECK_M(iData != nullptr, "std::malloc return nullptr"_sv);
+#endif
 
     iSizeAllocated  = aSize;
     iAlignment      = aAlignment;

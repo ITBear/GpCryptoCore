@@ -4,7 +4,7 @@
 
 namespace GPlatform {
 
-class GPCRYPTOCORE_API GpCryptoKeyPair_X25519 final : public GpCryptoKeyPair
+/*class GPCRYPTOCORE_API GpCryptoKeyPair_X25519 final : public GpCryptoKeyPair
 {
 public:
     CLASS_DECLARE_DEFAULTS(GpCryptoKeyPair_X25519)
@@ -28,6 +28,6 @@ public:
 private:
     //static const std::string_view sPrivateBytesPrefix;
     //static const std::string_view sPublicBytesPrefix;
-};
+};*/
 
 }//namespace GPlatform
