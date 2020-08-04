@@ -6,26 +6,34 @@ namespace GPlatform {
 
 class GpSecureStorage;
 
-class GPCRYPTOCORE_API GpSecureStorageViewR final: public GpMemoryStorageViewR
+class GPCRYPTOCORE_API GpSecureStorageViewR
 {
-public:
-	CLASS_DECLARE_DEFAULTS(GpSecureStorageViewR);
+    friend class GpSecureStorage;
 
 public:
-								GpSecureStorageViewR	(void) noexcept = delete;
-								GpSecureStorageViewR	(const GpSecureStorage& aStorage);
-								GpSecureStorageViewR	(const GpSecureStorageViewR& aView) noexcept = delete;
-								GpSecureStorageViewR	(GpSecureStorageViewR&& aView) noexcept;
-	virtual						~GpSecureStorageViewR	(void) noexcept override final;
+    CLASS_REMOVE_CTRS_EXCEPT_MOVE(GpSecureStorageViewR)
+    CLASS_DECLARE_DEFAULTS(GpSecureStorageViewR)
 
-	virtual const std::byte*	Data					(void) const noexcept override final;
-	virtual count_t				Size					(void) const noexcept override final;
-	virtual std::string_view	AsStringView			(void) const noexcept override final;
-	virtual std::string_view	AsStringView			(const count_t aOffset, const count_t aSize) const override final;
-	virtual bool				IsEmpty					(void) const noexcept override final;
+    using StorageOptT = std::optional<std::reference_wrapper<const GpSecureStorage>>;
 
 private:
-	const GpSecureStorage*		iStorage = nullptr;
+                                GpSecureStorageViewR    (const GpSecureStorage& aStorage);
+
+public:
+                                GpSecureStorageViewR    (GpSecureStorageViewR&& aView) noexcept;
+                                ~GpSecureStorageViewR   (void) noexcept;
+
+    GpSecureStorageViewR&       operator=               (GpSecureStorageViewR&& aView);
+
+    GpRawPtrByteR               R                       (void) const;
+
+    size_byte_t                 Size                    (void) const noexcept;
+    bool                        IsEmpty                 (void) const noexcept {return Size() == 0_byte;}
+
+    void                        Release                 (void);
+
+private:
+    StorageOptT                 iStorage;
 };
 
 }//namespace GPlatform

@@ -4,8 +4,7 @@
 
 namespace GPlatform {
 
-void ripemd160 (const std::byte*	aData,
-				const count_t		aLength,
-				std::byte*			aOut/*size must be 20 bytes*/);
+void    Ripemd160 (GpRawPtrByteR    aData,
+                   GpRawPtrByteRW   aResOut);
 
 }//GPlatform

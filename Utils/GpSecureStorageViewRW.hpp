@@ -6,27 +6,34 @@ namespace GPlatform {
 
 class GpSecureStorage;
 
-class GPCRYPTOCORE_API GpSecureStorageViewRW final: public GpMemoryStorageViewRW
+class GPCRYPTOCORE_API GpSecureStorageViewRW
 {
-public:
-	CLASS_DECLARE_DEFAULTS(GpSecureStorageViewRW);
+    friend class GpSecureStorage;
 
 public:
-								GpSecureStorageViewRW	(void) noexcept = delete;
-								GpSecureStorageViewRW	(GpSecureStorage& aStorage);
-								GpSecureStorageViewRW	(const GpSecureStorageViewRW& aView) noexcept = delete;
-								GpSecureStorageViewRW	(GpSecureStorageViewRW&& aView) noexcept;
-	virtual						~GpSecureStorageViewRW	(void) noexcept override final;
+    CLASS_REMOVE_CTRS_EXCEPT_MOVE(GpSecureStorageViewRW)
+    CLASS_DECLARE_DEFAULTS(GpSecureStorageViewRW)
 
-	virtual const std::byte*	Data					(void) const noexcept override final;
-	virtual std::byte*			Data					(void) noexcept override final;
-	virtual count_t				Size					(void) const noexcept override final;
-	virtual std::string_view	AsStringView			(void) const noexcept override final;
-	virtual std::string_view	AsStringView			(const count_t aOffset, const count_t aSize) const override final;
-	virtual bool				IsEmpty					(void) const noexcept override final;
+    using StorageOptT = std::optional<std::reference_wrapper<GpSecureStorage>>;
 
 private:
-	GpSecureStorage*			iStorage = nullptr;
+                                GpSecureStorageViewRW   (GpSecureStorage& aStorage);
+
+public:
+                                GpSecureStorageViewRW   (GpSecureStorageViewRW&& aView) noexcept;
+                                ~GpSecureStorageViewRW  (void) noexcept;
+
+    GpSecureStorageViewRW&      operator=               (GpSecureStorageViewRW&& aView);
+
+    GpRawPtrByteR               R                       (void) const;
+    GpRawPtrByteRW              RW                      (void);
+    size_byte_t                 Size                    (void) const noexcept;
+    bool                        IsEmpty                 (void) const noexcept {return Size() == 0_byte;}
+
+    void                        Release                 (void);
+
+private:
+    StorageOptT                 iStorage;
 };
 
 }//namespace GPlatform

@@ -1,5 +1,6 @@
 #include "GpSecureStorage.hpp"
 #include <libsodium/sodium.h>
+#include <cstdlib>
 
 namespace GPlatform {
 
@@ -7,177 +8,247 @@ GpSecureStorage::GpSecureStorage (void) noexcept
 {
 }
 
-GpSecureStorage::GpSecureStorage (GpSecureStorage&& aStorage) noexcept:
-iData(aStorage.iData),
-iSize(aStorage.iSize)
+GpSecureStorage::GpSecureStorage (const GpSecureStorage& aStorage)
 {
-	aStorage.iData	= nullptr;
-	aStorage.iSize	= 0_cnt;
+    CopyFrom(aStorage);
+}
+
+GpSecureStorage::GpSecureStorage (GpSecureStorage&& aStorage)
+{
+    Set(std::move(aStorage));
+}
+
+GpSecureStorage::GpSecureStorage (GpRawPtrByteR aData)
+{
+    CopyFrom(aData);
 }
 
 GpSecureStorage::~GpSecureStorage (void) noexcept
 {
-	Clear();
+    Clear();
 }
 
-GpSecureStorage&	GpSecureStorage::operator= (GpSecureStorage&& aStorage) noexcept
+GpSecureStorage&    GpSecureStorage::operator= (const GpSecureStorage& aStorage)
 {
-	if (&aStorage == this)
-	{
-		return *this;
-	}
-
-	Clear();
-
-	iData	= aStorage.iData;
-	iSize	= aStorage.iSize;
-
-	aStorage.iData	= nullptr;
-	aStorage.iSize	= 0_cnt;
-
-	return *this;
+    CopyFrom(aStorage);
+    return *this;
 }
 
-void	GpSecureStorage::Clear (void) noexcept
+GpSecureStorage&    GpSecureStorage::operator= (GpSecureStorage&& aStorage)
 {
-	if (iData != nullptr)
-	{
-		UnlockRW();
+    Set(std::move(aStorage));
+    return *this;
+}
 
-		sodium_memzero(iData, iSize.ValueAs<size_t>());
+void    GpSecureStorage::Clear (void)
+{
+    THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing");
+
+    if (iData != nullptr)
+    {
+        sodium_memzero(ViewRW().RW().PtrBegin(), iSizeAllocated.ValueAs<size_t>());
 
 #if !defined(OS_BROWSER)
         sodium_free(iData);
 #else
-		std::free(iData);
+        std::free(iData);
 #endif
+    }
 
-		iData = nullptr;
-		iSize = 0_cnt;
-	}
+    iData           = nullptr;
+    iSizeUsed       = 0_byte;
+    iSizeAllocated  = 0_byte;
+    iAlignment      = 1_byte;
+    //iIsViewing    = false;//THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing");
 }
 
-void	GpSecureStorage::Allocate (count_t aSize)
+void    GpSecureStorage::Resize (const size_byte_t aSize)
 {
-	Clear();
+    Resize(aSize, iAlignment);
+}
 
-	THROW_GPE_COND_CHECK_M((aSize > 0_cnt) && (aSize < 4096_cnt), "aSize is out of range"_sv);
+void    GpSecureStorage::Resize (const size_byte_t aSize, const size_byte_t aAlignment)
+{
+    Reserve(aSize, aAlignment);
+    iSizeUsed = aSize;
+}
+
+void    GpSecureStorage::Reserve (const size_byte_t aSize)
+{
+    Reserve(aSize, iAlignment);
+}
+
+void    GpSecureStorage::Reserve (const size_byte_t aSize, const size_byte_t aAlignment)
+{
+    THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing"_sv);
+
+    if (IsDataNullptr())
+    {
+        ClearAndAllocate(aSize, aAlignment);
+        LockRW();
+        return;
+    }
+
+    THROW_GPE_COND_CHECK_M((Alignment() % aAlignment) == 0_byte, "Wrong alignment"_sv);
+
+    if (aSize <= iSizeAllocated)
+    {
+        return;
+    }
+
+    GpSecureStorage tmpStorage;
+    tmpStorage.Reserve(aSize, Alignment());
+    tmpStorage.CopyFrom(ViewR().R());
+    Set(std::move(tmpStorage));
+}
+
+void    GpSecureStorage::Set (GpSecureStorage&& aStorage)
+{
+    if (this == &aStorage)
+    {
+        return;
+    }
+
+    THROW_GPE_COND_CHECK_M(aStorage.IsViewing() == false, "aStorage is viewing");
+    THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing");
+
+    Clear();
+
+    iData           = aStorage.iData;
+    iSizeUsed       = aStorage.iSizeUsed;
+    iSizeAllocated  = aStorage.iSizeAllocated;
+    iAlignment      = aStorage.iAlignment;
+
+    aStorage.iData          = nullptr;
+    aStorage.iSizeUsed      = 0_byte;
+    aStorage.iSizeAllocated = 0_byte;
+    aStorage.iAlignment     = 1_byte;
+}
+
+void    GpSecureStorage::CopyFrom (const GpSecureStorage& aStorage)
+{
+    if (this == &aStorage)
+    {
+        return;
+    }
+
+    THROW_GPE_COND_CHECK_M(aStorage.IsViewing() == false, "aStorage is viewing");
+    THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing");
+    THROW_GPE_COND_CHECK_M((Alignment() % aStorage.Alignment()) == 0_byte, "Wrong alignment"_sv);
+
+    CopyFrom(aStorage.ViewR().R());
+}
+
+void    GpSecureStorage::CopyFrom (GpRawPtrByteR aData)
+{
+    Resize(aData.SizeLeft());
+    ViewRW().RW().CopyFrom(aData);
+}
+
+GpSecureStorageViewR    GpSecureStorage::ViewR (void) const
+{
+    THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing");
+
+    return GpSecureStorageViewR(*this);
+}
+
+GpSecureStorageViewRW   GpSecureStorage::ViewRW (void)
+{
+    THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing");
+
+    return GpSecureStorageViewRW(*this);
+}
+
+void    GpSecureStorage::LockRW (void) const
+{
+    if (iData == nullptr)
+    {
+        return;
+    }
 
 #if !defined(OS_BROWSER)
-	iData = reinterpret_cast<std::byte*>(sodium_malloc(aSize.ValueAs<size_t>()));
+    if (sodium_mprotect_noaccess(iData) != 0)
+    {
+        THROW_GPE("sodium_mprotect_noaccess return error"_sv);
+    }
+#endif//#if !defined(OS_BROWSER)
+}
+
+void    GpSecureStorage::UnlockRW (void)
+{
+    if (iData == nullptr)
+    {
+        return;
+    }
+
+#if !defined(OS_BROWSER)
+    if (sodium_mprotect_readwrite(iData) != 0)
+    {
+        THROW_GPE("sodium_mprotect_readwrite return error"_sv);
+    }
+#endif//#if !defined(OS_BROWSER)
+}
+
+void    GpSecureStorage::UnlockR (void) const
+{
+    if (iData == nullptr)
+    {
+        return;
+    }
+
+#if !defined(OS_BROWSER)
+    if (sodium_mprotect_readonly(iData) != 0)
+    {
+        THROW_GPE("sodium_mprotect_readonly return error"_sv);
+    }
+#endif//#if !defined(OS_BROWSER)
+}
+
+void    GpSecureStorage::SetViewing (const bool aValue) const
+{
+    THROW_GPE_COND_CHECK_M(iIsViewing != aValue, "Same value");
+
+    iIsViewing = aValue;
+}
+
+GpRawPtrByteR   GpSecureStorage::DataR (void) const
+{
+    return GpRawPtrByteR(iData, iSizeUsed.ValueAs<count_t>());
+}
+
+GpRawPtrByteRW  GpSecureStorage::DataRW (void)
+{
+    return GpRawPtrByteRW(iData, iSizeUsed.ValueAs<count_t>());
+}
+
+void    GpSecureStorage::ClearAndAllocate (const size_byte_t aSize, const size_byte_t aAlignment)
+{
+    Clear();
+
+    THROW_GPE_COND_CHECK_M((aSize >= 1_byte) && (aSize <= 32768_byte), "aSize is out of range"_sv);
+    THROW_GPE_COND_CHECK_M((aSize % aAlignment) == 0_byte, "Wrong size for alignment"_sv);
+
+#if !defined(OS_BROWSER)
+    iData = reinterpret_cast<std::byte*>(sodium_allocarray((aSize / aAlignment).ValueAs<size_t>(), aAlignment.ValueAs<size_t>()));
+    THROW_GPE_COND_CHECK_M(iData != nullptr, "sodium_malloc return nullptr"_sv);
 #else
-	iData = reinterpret_cast<std::byte*>(std::malloc(aSize.ValueAs<size_t>()));
+    //iData = reinterpret_cast<std::byte*>(aligned_alloc(aAlignment.ValueAs<size_t>(), aSize.ValueAs<size_t>()));
+    //THROW_GPE_COND_CHECK_M(iData != nullptr, "aligned_alloc return nullptr"_sv);
+
+    iData = reinterpret_cast<std::byte*>(std::malloc(aSize.ValueAs<size_t>()));
+    THROW_GPE_COND_CHECK_M(iData != nullptr, "std::malloc return nullptr"_sv);
 #endif
 
-	if (iData == nullptr)
-	{
-		THROW_GPE("sodium_malloc return error"_sv);
-	}
-
-	iSize = aSize;
+    iSizeAllocated  = aSize;
+    iAlignment      = aAlignment;
 
 #if !defined(OS_BROWSER)
-	if (sodium_mlock(iData, iSize.ValueAs<size_t>()) != 0)
-	{
-		Clear();
-		THROW_GPE("sodium_mlock return error"_sv);
-	}
+    if (sodium_mlock(iData, iSizeAllocated.ValueAs<size_t>()) != 0)
+    {
+        Clear();
+        THROW_GPE("sodium_mlock return error"_sv);
+    }
 #endif//#if !defined(OS_BROWSER)
-
-	LockRW();
-}
-
-void	GpSecureStorage::Resize (count_t aSize)
-{
-	if (IsEmpty())
-	{
-		Allocate(aSize);
-		return;
-	}
-
-	GpSecureStorage s;
-
-	{
-		s.Allocate(aSize);
-		GpSecureStorageViewRW	sView		= s.ViewRW();
-		GpSecureStorageViewR	thisView	= ViewR();
-
-		std::memcpy(sView.Data(), thisView.Data(), std::min(aSize.Value(), iSize.Value()));
-	}
-
-	Set(std::move(s));
-}
-
-void	GpSecureStorage::Set (GpMemoryStorage&& aStorage)
-{
-	if (this == &aStorage)
-	{
-		return;
-	}
-
-	GpSecureStorage* ss = dynamic_cast<GpSecureStorage*>(&aStorage);
-
-	THROW_GPE_COND_CHECK_M(ss != nullptr, "Wrong type of aStorage"_sv);
-
-	Clear();
-
-	iData = ss->iData;
-	iSize = ss->iSize;
-
-	ss->iData = nullptr;
-	ss->iSize = 0_cnt;
-}
-
-void	GpSecureStorage::Set (std::string_view aData)
-{
-	Resize(count_t::SMake(aData.size()));
-
-	GpSecureStorageViewRW view = ViewRW();
-	std::memcpy(view.Data(), aData.data(), aData.size());
-}
-
-GpMemoryStorage::SP	GpSecureStorage::New (void) const
-{
-	return GpSecureStorage::SP::SNew();
-}
-
-void	GpSecureStorage::LockRW (void) const
-{
-	if (iData != nullptr)
-	{
-#if !defined(OS_BROWSER)
-		if (sodium_mprotect_noaccess(iData) != 0)
-		{
-			THROW_GPE("sodium_mprotect_noaccess return error"_sv);
-		}
-#endif//#if !defined(OS_BROWSER)
-	}
-}
-
-void	GpSecureStorage::UnlockRW (void)
-{
-	if (iData != nullptr)
-	{
-#if !defined(OS_BROWSER)
-		if (sodium_mprotect_readwrite(iData) != 0)
-		{
-			THROW_GPE("sodium_mprotect_readwrite return error"_sv);
-		}
-#endif//#if !defined(OS_BROWSER)
-	}
-}
-
-void	GpSecureStorage::UnlockR (void) const
-{
-	if (iData != nullptr)
-	{
-#if !defined(OS_BROWSER)
-		if (sodium_mprotect_readonly(iData) != 0)
-		{
-			THROW_GPE("sodium_mprotect_readonly return error"_sv);
-		}
-#endif//#if !defined(OS_BROWSER)
-	}
 }
 
 }//namespace GPlatform

@@ -1,33 +1,23 @@
 #pragma once
 
-#include "GpCryptoHDKeyPair.hpp"
+#include "GpCryptoHDKeyStorage.hpp"
 
 namespace GPlatform {
 
 class GPCRYPTOCORE_API GpCryptoHDKeyGen
 {
 public:
-	CLASS_REMOVE_CTRS(GpCryptoHDKeyGen);
+    CLASS_REMOVE_CTRS(GpCryptoHDKeyGen)
 
-	using KeyTypeT		= GpCryptoHDKeyType;
-	using KeyTypeTE		= KeyTypeT::EnumT;
-
-	using NetworkTypeT	= GpCryptoHDNetworkType;
-	using NetworkTypeTE	= NetworkTypeT::EnumT;
-
-	using SchemeTypeT	= GpCryptoHDSchemeType;
-	using SchemeTypeTE	= SchemeTypeT::EnumT;
+    using SchemeTypeT   = GpCryptoHDSchemeType;
+    using SchemeTypeTE  = SchemeTypeT::EnumT;
 
 public:
-	static GpCryptoHDKeyPair		SMasterKeyPairFromSeed (const GpSecureStorage&	aSeed,
-															const NetworkTypeTE		aNetworkType,
-															const SchemeTypeTE		aSchemeType,
-															const count_t			aUID);
+    static GpCryptoHDKeyStorage     SMasterKeyPairFromSeed  (GpRawPtrByteR          aSeed,
+                                                             const SchemeTypeTE     aSchemeType);
 
-	static GpCryptoHDKeyPair		SChildKeyPair			(const GpCryptoHDKeyPair&	aParentHDKeyPair,
-															 const count_t				aChildNumber,
-															 const bool					aIsHardened,
-															 std::string_view			aPath);
+    static GpCryptoHDKeyStorage     SChildKeyPair           (const GpCryptoHDKeyStorage&    aParentHDKeyStorage,
+                                                             const count_t                  aChildId);
 };
 
 }//GPlatform

@@ -4,17 +4,18 @@
 
 namespace GPlatform {
 
-GpBytesArray	GpCryptoHash_Ripemd160::S_H (const std::byte*	aData,
-											 const count_t		aDataSize)
+void    GpCryptoHash_Ripemd160::S_H (GpRawPtrByteR  aData,
+                                     GpRawPtrByteRW aResOut)
 {
-	THROW_GPE_COND_CHECK_M((aData != nullptr) && (aDataSize > 0_cnt), "Wrong data"_sv);
+    Ripemd160(aData, aResOut);
+}
 
-	GpBytesArray hash;
-	hash.resize(20);
-
-	ripemd160(aData, aDataSize, hash.data());
-
-	return hash;
+GpCryptoHash_Ripemd160::Res160T GpCryptoHash_Ripemd160::S_H (GpRawPtrByteR aData)
+{
+    Res160T res;
+    GpRawPtrByteRW r(res);
+    S_H(aData, r);
+    return res;
 }
 
 }//namespace GPlatform

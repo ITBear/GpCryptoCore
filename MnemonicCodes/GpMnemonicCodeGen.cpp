@@ -11,225 +11,254 @@ namespace GPlatform {
 static const GpArray<GpTuple<size_bit_t, size_bit_t, count_t>, size_t(GpMnemonicCodeGen::EntropySize::_LAST)>
 GpMnemonicCodeGen_sMnemonicK =
 {
-	//ENT, CS, MS
-	GpTuple<size_bit_t, size_bit_t, count_t>{128_bit, 4_bit, 12_cnt},//ES_128
-	GpTuple<size_bit_t, size_bit_t, count_t>{160_bit, 5_bit, 15_cnt},//ES_160
-	GpTuple<size_bit_t, size_bit_t, count_t>{192_bit, 6_bit, 18_cnt},//ES_192
-	GpTuple<size_bit_t, size_bit_t, count_t>{224_bit, 7_bit, 21_cnt},//ES_224
-	GpTuple<size_bit_t, size_bit_t, count_t>{256_bit, 8_bit, 24_cnt} //ES_256
+    //ENT, CS, MS
+    GpTuple<size_bit_t, size_bit_t, count_t>{128_bit, 4_bit, 12_cnt},//ES_128
+    GpTuple<size_bit_t, size_bit_t, count_t>{160_bit, 5_bit, 15_cnt},//ES_160
+    GpTuple<size_bit_t, size_bit_t, count_t>{192_bit, 6_bit, 18_cnt},//ES_192
+    GpTuple<size_bit_t, size_bit_t, count_t>{224_bit, 7_bit, 21_cnt},//ES_224
+    GpTuple<size_bit_t, size_bit_t, count_t>{256_bit, 8_bit, 24_cnt} //ES_256
 };
 
-GpSecureStorage	GpMnemonicCodeGen::SGenerateNewMnemonic (const WordListT&	aWordList,
-														 const EntropySize	aEntropySize,
-														 const std::string	aSpaceChar)
+GpSecureStorage GpMnemonicCodeGen::SGenerateNewMnemonic (const WordListT&   aWordList,
+                                                         const std::string  aSpaceChar,
+                                                         const EntropySize  aEntropySize)
 {
-	const auto&			conf			= GpMnemonicCodeGen_sMnemonicK.at(size_t(aEntropySize));
-	const size_bit_t	entropySize		= std::get<0>(conf);
-	//const size_bit_t	checksumLength	= std::get<1>(conf);
-	const count_t		wordsCount		= std::get<2>(conf);
+    const auto&         conf            = GpMnemonicCodeGen_sMnemonicK.at(size_t(aEntropySize));
+    const size_bit_t    entropySize     = std::get<0>(conf);
+    //const size_bit_t  checksumLength  = std::get<1>(conf);
+    const count_t       wordsCount      = std::get<2>(conf);
 
-	// Generate entropy
-	GpSecureStorage entropy = GpCryptoRandom::SEntropy(count_t::SMake(entropySize.ValueAs<size_t>() / size_t(8)));
+    // Generate entropy
+    GpSecureStorage                     entropy         = GpCryptoRandom::SEntropy(entropySize);
+    const GpCryptoHash_Sha2::Res256T    entropySha256   = GpCryptoHash_Sha2::S_256(entropy.ViewR().R());
 
-	// Add control sum to entropy
-	GpBytesArray entropySha256 = GpCryptoHash_Sha2::S_256(entropy);
+    GpSecureStorage entropyWithChecksum;
+    entropyWithChecksum.Resize(entropySize + 1_byte/*cheksum*/);
 
-	GpSecureStorage entropyWithChecksum;
-	entropyWithChecksum.Allocate(entropy.Size() + 1_cnt/*cheksum*/);
+    {
+        GpSecureStorageViewRW entropyWithChecksumViewRW = entropyWithChecksum.ViewRW();
 
-	{
-		GpSecureStorageViewRW	entropyWithChecksumView = entropyWithChecksum.ViewRW();
-		GpSecureStorageViewR	entropyView				= entropy.ViewR();
+        GpByteWriterStorageFixedSize    entropyWithChecksumStorage(entropyWithChecksumViewRW.RW());
+        GpByteWriter                    entropyWithChecksumWriter(entropyWithChecksumStorage);
 
-		GpByteOStreamFixedSize	entropyWithChecksumOStream(entropyWithChecksumView.Data(),
-														   entropyWithChecksumView.Size());
+        entropyWithChecksumWriter.Bytes(entropy.ViewR().R());
+        entropyWithChecksumWriter.Bytes({entropySha256.data(), 1_cnt});
+    }
 
-		entropyWithChecksumOStream.Bytes(entropyView.AsStringView());
-		entropyWithChecksumOStream.Bytes(entropySha256.data(), 1_cnt);
-	}
+    // Generate mnemonic phrase
+    GpSecureStorage mnemonicPhrase;
+    size_byte_t     mnemonicPhraseActualSize = 0_byte;
 
-	// Generate mnemonic phrase
-	GpSecureStorage mnemonicPhrase;
+    {
+        const count_t           spaceSize   = count_t::SMake(aSpaceChar.size());
+        constexpr const count_t maxWordSize = 10_cnt;
+        mnemonicPhrase.Resize((wordsCount*maxWordSize/*words*/ + (wordsCount - 1_cnt)*spaceSize/*spaces*/).ValueAs<size_byte_t>());
+        GpSecureStorageViewRW           mnemonicPhraseViewRW    = mnemonicPhrase.ViewRW();
+        GpByteWriterStorageFixedSize    mnemonicPhraseStorage(mnemonicPhraseViewRW.RW());
+        GpByteWriter                    mnemonicPhraseWriter(mnemonicPhraseStorage);
 
-	size_t mnemonicPhraseLength = 0;
-	{
-		mnemonicPhrase.Allocate(wordsCount*10_cnt + (wordsCount - 1_cnt));
-		GpSecureStorageViewRW	mnemonicPhraseView	= mnemonicPhrase.ViewRW();
-		GpByteOStreamFixedSize	mnemonicPhraseStream(mnemonicPhraseView.Data(),
-													 mnemonicPhraseView.Size());
-		GpSecureStorageViewR	entropyWithChecksumView = entropyWithChecksum.ViewR();
-		GpBitIStream			entropyBitStream(entropyWithChecksumView.AsStringView());
+        GpSecureStorageViewR            entropyWithChecksumViewR = entropyWithChecksum.ViewR();
+        GpBitReaderStorage              entropyBitStorage(entropyWithChecksumViewR.R());
+        GpBitReader                     entropyBitReader(entropyBitStorage);
 
-		for (size_t wordId = 0; wordId < wordsCount.Value(); ++wordId)
-		{
-			if (wordId > 0)
-			{
-				mnemonicPhraseStream.Bytes(aSpaceChar);
-				mnemonicPhraseLength += aSpaceChar.length();
-			}
+        for (size_t wordId = 0; wordId < wordsCount.Value(); ++wordId)
+        {
+            if (wordId > 0)
+            {
+                mnemonicPhraseWriter.Bytes(aSpaceChar);
+            }
 
-			u_int_16 wid = 0;
-			entropyBitStream.Bits(reinterpret_cast<std::byte*>(&wid), 11_bit);
-#if defined(GP_ORDER_BIG_ENDIAN)
-			wid = BitOps::BSwap(wid);
-#endif
+            const size_t        wid     = entropyBitReader.UInt16(11_bit);
+            std::string_view    word    = aWordList.at(wid);
+            mnemonicPhraseWriter.Bytes(word);
+        }
 
-			std::string_view word = aWordList.at(wid);
-			mnemonicPhraseLength += word.length();
-			mnemonicPhraseStream.Bytes(word);
-		}
-	}
+        mnemonicPhraseActualSize = mnemonicPhraseStorage.DataOut().Offset().ValueAs<size_byte_t>();
+    }
 
-	mnemonicPhrase.Resize(count_t::SMake(mnemonicPhraseLength));
+    mnemonicPhrase.Resize(mnemonicPhraseActualSize);
 
-	return mnemonicPhrase;
+    return mnemonicPhrase;
 }
 
-bool	GpMnemonicCodeGen::SValidateMnemonic (const WordListT&			aWordList,
-											  const GpSecureStorage&	aMnemonic,
-											  const std::string			aSpaceChar)
+bool    GpMnemonicCodeGen::SValidateMnemonic (const WordListT&          aWordList,
+                                              const std::string         aSpaceChar,
+                                              const GpSecureStorage&    aMnemonic)
 {
-	GpSecureStorageViewR		mnemonicView	= aMnemonic.ViewR();
-	GpVector<std::string_view>	mnemonicWords	= GpStringOps::SSplitToView(mnemonicView.AsStringView(),
-																			aSpaceChar,
-																			0_cnt,
-																			0_cnt,
-																			Algo::SplitMode::SKIP_ZERO_LENGTH_PARTS);
-
-
-	const auto& conf = GpMnemonicCodeGen_sMnemonicK.at(SFindConfByWordsCount(count_t::SMake(mnemonicWords.size())));
-
-	const size_bit_t	entropySize		= std::get<0>(conf);
-	const size_bit_t	checksumLength	= std::get<1>(conf);
-
-	// ------------- Reconstruct entropy with checksum ---------------
-	GpSecureStorage entropyWithChecksum;
-	entropyWithChecksum.Allocate(count_t::SMake(size_byte_t(entropySize).Value()) + 1_cnt);
-	{
-		GpSecureStorageViewRW	entropyWithChecksumView = entropyWithChecksum.ViewRW();
-		GpBitOStreamFixedSize	entropyWithChecksumOStream(entropyWithChecksumView.Data(),
-														   size_byte_t::SMake(entropyWithChecksumView.Size().Value()),
-														   0_bit);
-
-		for (std::string_view word: mnemonicWords)
-		{
-			u_int_16 wid = SFindWordId(aWordList, word);
-#if defined(GP_ORDER_BIG_ENDIAN)
-			wid = BitOps::BSwap(wid);
-#endif
-			entropyWithChecksumOStream.Bits(reinterpret_cast<const std::byte*>(&wid), 11_bit);
-		}
-	}
-
-	// ------------- Calculate checksum ---------------
-	GpSecureStorageViewR entropyWithChecksumView = entropyWithChecksum.ViewR();
-	GpBytesArray entropySha256 = GpCryptoHash_Sha2::S_256(entropyWithChecksumView.Data(),
-														  entropyWithChecksumView.Size() - 1_cnt);
-
-	u_int_8 checksumIn		= reinterpret_cast<const u_int_8*>(entropyWithChecksumView.Data())[size_byte_t(entropySize).ValueAs<size_t>()];
-	u_int_8 checksumCalc	= reinterpret_cast<const u_int_8*>(entropySha256.data())[0];
-
-	return	   (checksumIn   & ((1 << checksumLength.Value()) - 1))
-			== (checksumCalc & ((1 << checksumLength.Value()) - 1));
+    return SValidateMnemonic(aWordList, aSpaceChar, aMnemonic.ViewR().R());
 }
 
-GpSecureStorage	GpMnemonicCodeGen::SSeedFromMnemonic (const GpSecureStorage&	aMnemonic,
-													  const GpSecureStorage&	aPassword,
-													  const count_t				aIterations,
-													  const size_bit_t			aBitLengthDerivedKey)
+bool    GpMnemonicCodeGen::SValidateMnemonic (const WordListT&  aWordList,
+                                              const std::string aSpaceChar,
+                                              GpRawPtrCharR     aMnemonic)
 {
-	GpSecureStorageViewR mnemonicView	= aMnemonic.ViewR();
-	GpSecureStorageViewR passwordView	= aPassword.ViewR();
+    GpVector<GpRawPtrCharR> mnemonicWords = GpStringOps::SSplit(aMnemonic.AsStringView(),
+                                                                aSpaceChar,
+                                                                0_cnt,
+                                                                0_cnt,
+                                                                Algo::SplitMode::SKIP_ZERO_LENGTH_PARTS);
 
-	return SSeedFromMnemonic(mnemonicView.AsStringView(),
-							 passwordView.AsStringView(),
-							 aIterations,
-							 aBitLengthDerivedKey);
+    const auto& conf = GpMnemonicCodeGen_sMnemonicK.at(SFindConfByWordsCount(count_t::SMake(mnemonicWords.size())));
+
+    const size_bit_t entropySize    = std::get<0>(conf);
+    const size_bit_t checksumLength = std::get<1>(conf);
+
+    // ------------- Reconstruct entropy with checksum ---------------
+    GpSecureStorage entropyWithChecksum;
+    entropyWithChecksum.Resize(entropySize + 1_byte/*cheksum*/);
+    {
+        GpSecureStorageViewRW entropyWithChecksumViewRW = entropyWithChecksum.ViewRW();
+
+        GpBitWriterStorageFixedSize entropyWithChecksumStorage(entropyWithChecksumViewRW.RW());
+        GpBitWriter                 entropyWithChecksumWriter(entropyWithChecksumStorage);
+
+        for (const GpRawPtrCharR& word: mnemonicWords)
+        {
+            const u_int_16 wid = SFindWordId(aWordList, word);
+            entropyWithChecksumWriter.UInt16(wid, 11_bit);
+        }
+    }
+
+    // ------------- Calculate checksum ---------------
+    {
+        const count_t entropCnt = size_byte_t(entropySize).ValueAs<count_t>();
+
+        GpSecureStorageViewR                entropyWithChecksumViewR    = entropyWithChecksum.ViewR();
+        GpRawPtrByteR                       entropyWithChecksumPtrR     = entropyWithChecksumViewR.R();
+        GpRawPtrByteR                       entropy                     = entropyWithChecksumPtrR.Subrange(0_cnt, entropCnt);
+        const GpCryptoHash_Sha2::Res256T    entropySha256 = GpCryptoHash_Sha2::S_256(entropy);
+
+        const u_int_8 checksumIn    = u_int_8(entropyWithChecksumPtrR.At(entropCnt));
+        const u_int_8 checksumCalc  = u_int_8(entropySha256.at(0));
+
+        return     (checksumIn   & ((1 << checksumLength.Value()) - 1))
+                == (checksumCalc & ((1 << checksumLength.Value()) - 1));
+    }
 }
 
-GpSecureStorage	GpMnemonicCodeGen::SSeedFromMnemonic (std::string_view	aMnemonic,
-													  std::string_view	aPassword,
-													  const count_t		aIterations,
-													  const size_bit_t	aBitLengthDerivedKey)
+GpSecureStorage GpMnemonicCodeGen::SSeedFromMnemonic (const WordListT&          aWordList,
+                                                      const std::string         aSpaceChar,
+                                                      const GpSecureStorage&    aMnemonic,
+                                                      const GpSecureStorage&    aPassword,
+                                                      const count_t             aIterations,
+                                                      const size_bit_t          aBitLengthDerivedKey)
 {
-	THROW_GPE_COND_CHECK_M(aMnemonic.size() > 0, "Mnemonic is empty");
-
-	// Mnemonic normalization
-	GpSecureStorage normalizedMnemonic;
-	UTF8Proc::S_NFKD(aMnemonic, normalizedMnemonic);
-
-	// Password normalization
-	GpSecureStorage normalizedPassword;
-	if (aPassword.size() > 0)
-	{
-		UTF8Proc::S_NFKD(aPassword, normalizedMnemonic);
-	}
-
-	// Salt
-	GpSecureStorage salt;
-	{
-		std::string_view	saltPrefix	= "mnemonic"_sv;
-		count_t				saltSize	= count_t::SMake(saltPrefix.size());
-
-		if (normalizedPassword.Size() > 0_cnt)
-		{
-			saltSize += normalizedPassword.Size();
-		}
-
-		salt.Resize(saltSize);
-		GpSecureStorageViewRW saltView = salt.ViewRW();
-
-		GpByteOStreamFixedSize saltOStream(saltView.Data(),
-										   saltView.Size());
-		saltOStream.Bytes(saltPrefix);
-
-		if (normalizedPassword.Size() > 0_cnt)
-		{
-			GpSecureStorageViewR	normalizedPasswordView	= normalizedPassword.ViewR();
-			saltOStream.Bytes(normalizedPasswordView.Data(),
-							  normalizedPasswordView.Size());
-		}
-	}
-
-	GpSecureStorage res = GpCryptoHash_PBKDF2::S_HmacSHA512(normalizedMnemonic,
-															salt,
-															aIterations,
-															aBitLengthDerivedKey);
-
-	return res;
+    return SSeedFromMnemonic(aWordList,
+                             aSpaceChar,
+                             aMnemonic.ViewR().R(),
+                             aPassword.ViewR().R(),
+                             aIterations,
+                             aBitLengthDerivedKey);
 }
 
-size_t	GpMnemonicCodeGen::SFindConfByWordsCount (const count_t aWordsCount)
+GpSecureStorage GpMnemonicCodeGen::SSeedFromMnemonic (const WordListT&  aWordList,
+                                                      const std::string aSpaceChar,
+                                                      GpRawPtrCharR     aMnemonic,
+                                                      GpRawPtrCharR     aPassword,
+                                                      const count_t     aIterations,
+                                                      const size_bit_t  aBitLengthDerivedKey)
 {
-	for (size_t id = 0; id < size_t(EntropySize::_LAST); ++id)
-	{
-		const auto&		conf		= GpMnemonicCodeGen_sMnemonicK.at(id);
-		const count_t	wordsCount	= std::get<2>(conf);
+    THROW_GPE_COND_CHECK_M(aMnemonic.CountLeft() > 0_cnt, "Mnemonic is empty");
 
-		if (aWordsCount == wordsCount)
-		{
-			return id;
-		}
-	}
+    // Validate mnemonic
+    THROW_GPE_COND_CHECK_M(SValidateMnemonic(aWordList, aSpaceChar, aMnemonic), "Invalid mnemonic phrase"_sv);
 
-	THROW_GPE("Wrong words count"_sv);
+    // Mnemonic normalization
+    GpSecureStorage normalizedMnemonic;
+    {
+        const count_t cnt = UTF8Proc::S_MaxCountUTF32(UTF8NFType::NFKD, aMnemonic.AsStringView());
+
+        GpSecureStorage tmpStorage;
+        tmpStorage.Resize(cnt.ValueAs<size_byte_t>() * GpRawPtrSI32_RW::value_size_v,
+                          size_byte_t::SMake(alignof(GpRawPtrSI32_RW::value_type)));
+        GpSecureStorageViewRW   tmpStorageViewRW    = tmpStorage.ViewRW();
+        GpRawPtrSI32_RW         tmpStoragePtrRW     = tmpStorageViewRW.RW().ReinterpretAs<GpRawPtrSI32_RW>();
+
+        const size_byte_t actualSize = UTF8Proc::S_Process(UTF8NFType::NFKD, aMnemonic.AsStringView(), tmpStoragePtrRW);
+        normalizedMnemonic.CopyFrom(tmpStoragePtrRW.As<GpRawPtrByteR>().Subrange(0_cnt, actualSize.ValueAs<count_t>()));
+    }
+
+    // Password normalization
+    GpSecureStorage normalizedPassword;
+    if (aPassword.CountLeft() > 0_cnt)
+    {
+        const count_t cnt = UTF8Proc::S_MaxCountUTF32(UTF8NFType::NFKD, aPassword.AsStringView());
+
+        GpSecureStorage tmpStorage;
+        tmpStorage.Resize(cnt.ValueAs<size_byte_t>() * GpRawPtrSI32_RW::value_size_v,
+                          size_byte_t::SMake(alignof(GpRawPtrSI32_RW::value_type)));
+        GpSecureStorageViewRW   tmpStorageViewRW    = tmpStorage.ViewRW();
+        GpRawPtrSI32_RW         tmpStoragePtrRW     = tmpStorageViewRW.RW().ReinterpretAs<GpRawPtrSI32_RW>();
+
+        const size_byte_t actualSize = UTF8Proc::S_Process(UTF8NFType::NFKD, aPassword.AsStringView(), tmpStoragePtrRW);
+        normalizedPassword.CopyFrom(tmpStoragePtrRW.As<GpRawPtrByteR>().Subrange(0_cnt, actualSize.ValueAs<count_t>()));
+    }
+
+    // Salt
+    GpSecureStorage salt;
+    {
+        std::string_view    saltPrefix  = "mnemonic"_sv;
+        size_byte_t         saltSize    = size_byte_t::SMake(saltPrefix.size());
+
+        if (normalizedPassword.Size() > 0_byte)
+        {
+            saltSize += normalizedPassword.Size();
+        }
+
+        salt.Resize(saltSize);
+
+        GpSecureStorageViewRW           saltViewRW = salt.ViewRW();
+        GpByteWriterStorageFixedSize    saltStorage(saltViewRW.RW());
+        GpByteWriter                    saltWriter(saltStorage);
+
+        saltWriter.Bytes(saltPrefix);
+
+        if (normalizedPassword.Size() > 0_byte)
+        {
+            saltWriter.Bytes(normalizedPassword.ViewR().R());
+        }
+    }
+
+    GpSecureStorage res = GpCryptoHash_PBKDF2::S_HmacSHA512(normalizedMnemonic.ViewR().R(),
+                                                            salt.ViewR().R(),
+                                                            aIterations,
+                                                            aBitLengthDerivedKey);
+
+    return res;
 }
 
-u_int_16	GpMnemonicCodeGen::SFindWordId (const WordListT&	aWordList,
-											std::string_view	aWord)
+size_t  GpMnemonicCodeGen::SFindConfByWordsCount (const count_t aWordsCount)
 {
-	size_t id = 0;
-	for (const auto& word: aWordList)
-	{
-		if (word == aWord)
-		{
-			return u_int_16(id);
-		}
+    for (size_t id = 0; id < size_t(EntropySize::_LAST); ++id)
+    {
+        const auto&     conf        = GpMnemonicCodeGen_sMnemonicK.at(id);
+        const count_t   wordsCount  = std::get<2>(conf);
 
-		++id;
-	}
+        if (aWordsCount == wordsCount)
+        {
+            return id;
+        }
+    }
 
-	THROW_GPE("Word '"_sv + aWord + "' was not found in list"_sv);
+    THROW_GPE("Wrong words count"_sv);
+}
+
+u_int_16    GpMnemonicCodeGen::SFindWordId (const WordListT&    aWordList,
+                                            GpRawPtrCharR       aWord)
+{
+    std::string_view word = aWord.AsStringView();
+    size_t id = 0;
+    for (const auto& wordFromList: aWordList)
+    {
+        if (word == wordFromList)
+        {
+            return u_int_16(id);
+        }
+
+        ++id;
+    }
+
+    THROW_GPE("Word '"_sv + word + "' was not found in list"_sv);
 }
 
 }//namespace GPlatform

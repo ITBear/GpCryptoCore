@@ -1,163 +1,170 @@
 #include "GpCryptoHash_PBKDF2.hpp"
-#include "GpCryptoHash_Sha2.hpp"
 #include <libsodium/sodium.h>
 
 namespace GPlatform {
 
-GpSecureStorage	GpCryptoHash_PBKDF2::S_HmacSHA512 (const GpSecureStorage&	aPassword,
-												   const GpSecureStorage&	aSalt,
-												   const count_t			aIterations,
-												   const size_bit_t			aBitLengthDerivedKey)
+GpSecureStorage GpCryptoHash_PBKDF2::S_HmacSHA512 (GpRawPtrByteR    aPassword,
+                                                   GpRawPtrByteR    aSalt,
+                                                   const count_t    aIterations,
+                                                   const size_bit_t aBitLengthDerivedKey)
 {
-	THROW_GPE_COND_CHECK_M(!aPassword.IsEmpty(), "Wrong password"_sv);
-	THROW_GPE_COND_CHECK_M(!aSalt.IsEmpty(), "Wrong salt"_sv);
-	THROW_GPE_COND_CHECK_M(   (aBitLengthDerivedKey > 0_bit)
-						   && (aBitLengthDerivedKey % 8_bit == 0_bit)
-						   && (aBitLengthDerivedKey <= 0x1fffffffe0_bit), "Wrong aBitLengthDerivedKey"_sv);
+    THROW_GPE_COND_CHECK_M(aPassword.CountLeft() > 0_cnt, "Wrong password length"_sv);
+    THROW_GPE_COND_CHECK_M(aSalt.CountLeft() > 0_cnt, "Wrong salt length"_sv);
+    THROW_GPE_COND_CHECK_M(   (aBitLengthDerivedKey > 0_bit)
+                           && (aBitLengthDerivedKey % 8_bit == 0_bit)
+                           && (aBitLengthDerivedKey <= 0x1fffffffe0_bit), "Wrong aBitLengthDerivedKey length"_sv);
 
-	GpSecureStorageViewR	passwordView	= aPassword.ViewR();
-	GpSecureStorageViewR	saltView		= aSalt.ViewR();
+    const size_byte_t   derivedKeySize      = size_byte_t(aBitLengthDerivedKey);
+    size_byte_t         derivedKeyLeftBytes = derivedKeySize;
 
-	const size_t	iterations			= aIterations.ValueAs<size_t>();
-	const size_t	derivedKeySize		= size_byte_t(aBitLengthDerivedKey).ValueAs<size_t>();
-	size_t			derivedKeyLeftBytes	= derivedKeySize;
+    GpSecureStorage derivedKey;
+    derivedKey.Resize(derivedKeySize);
+    GpSecureStorageViewRW   derivedKeyViewRW    = derivedKey.ViewRW();
+    GpRawPtrByteRW          derivedKeyPtrRW     = derivedKeyViewRW.RW();
 
-	GpSecureStorage derivedKey;
-	derivedKey.Allocate(count_t::SMake(derivedKeySize));
-	GpSecureStorageViewRW derivedKeyView = derivedKey.ViewRW();
-	std::byte* derivedKeyData = derivedKeyView.Data();
+    GpSecureStorage buf_U_T;
+    constexpr size_byte_t sizeU = size_byte_t::SMake(crypto_auth_hmacsha512_BYTES);
+    constexpr size_byte_t sizeT = size_byte_t::SMake(crypto_auth_hmacsha512_BYTES);
+    buf_U_T.Resize(sizeU + sizeT);
+    GpSecureStorageViewRW   buf_U_T_KeyViewRW   = buf_U_T.ViewRW();
+    GpRawPtrByteRW          buf_U_T_KeyPtrRW    = buf_U_T_KeyViewRW.RW();
+    GpRawPtrByteRW          dataU               = buf_U_T_KeyPtrRW.Subrange(0_cnt, sizeU.ValueAs<count_t>());
+    GpRawPtrByteRW          dataT               = buf_U_T_KeyPtrRW.Subrange(sizeU.ValueAs<count_t>(), sizeT.ValueAs<count_t>());
 
-	GpSecureStorage buf_U_T;
-	constexpr size_t sizeU	= size_t(crypto_auth_hmacsha512_BYTES);
-	constexpr size_t sizeT	= size_t(crypto_auth_hmacsha512_BYTES);
-	buf_U_T.Allocate(count_t::SMake(sizeU + sizeT));
-	GpSecureStorageViewRW buf_U_T_KeyView = buf_U_T.ViewRW();
+    crypto_auth_hmacsha512_state pshCtx, hCtx;
+    GpRAIIonDestruct hCtxDestructor([&]()
+    {
+        sodium_memzero(&pshCtx, sizeof(pshCtx));
+        sodium_memzero(&hCtx, sizeof(hCtx));
+    });
 
-	std::byte* dataU	= buf_U_T_KeyView.Data() + 0;
-	std::byte* dataT	= buf_U_T_KeyView.Data() + sizeU;
+    crypto_auth_hmacsha512_init(&pshCtx, aPassword.PtrAs<const unsigned char*>(), aPassword.SizeLeftV<size_t>());
+    crypto_auth_hmacsha512_update(&pshCtx, aSalt.PtrAs<const unsigned char*>(), aSalt.SizeLeftV<size_t>());
 
-	crypto_auth_hmacsha512_state PShctx, hctx;
+    count_t partsCount = (derivedKeySize / sizeT).ValueAs<count_t>();
+    if ((derivedKeySize % sizeT) > 0_byte)
+    {
+        partsCount++;
+    }
 
-	crypto_auth_hmacsha512_init(&PShctx, reinterpret_cast<const unsigned char*>(passwordView.Data()), passwordView.Size().ValueAs<size_t>());
-	crypto_auth_hmacsha512_update(&PShctx, reinterpret_cast<const unsigned char*>(saltView.Data()), saltView.Size().ValueAs<size_t>());
+    for (count_t partId = 0_cnt; partId < partsCount; partId++)
+    {
+        u_int_32 ivecVal = (partId + 1_cnt).ValueAs<u_int_32>();
+        ivecVal = BitOps::H2N(ivecVal);
 
-	size_t partsCount = derivedKeySize / sizeT;
-	if ((derivedKeySize % sizeT) > 0)
-	{
-		partsCount++;
-	}
+        MemOps::SCopy(hCtx, pshCtx);
+        crypto_auth_hmacsha512_update(&hCtx, reinterpret_cast<const unsigned char*>(&ivecVal), sizeof(ivecVal));
+        crypto_auth_hmacsha512_final(&hCtx, dataU.PtrAs<unsigned char*>());
 
-	for (size_t partId = 0; partId < partsCount; partId++)
-	{
-		u_int_32 ivecVal = NumOps::SConvert<u_int_32>(partId + 1);
-		ivecVal = BitOps::H2N(ivecVal);
+        dataT.CopyFrom(dataU);
 
-		std::memcpy(&hctx, &PShctx, sizeof(crypto_auth_hmacsha512_state));
-		crypto_auth_hmacsha512_update(&hctx, reinterpret_cast<const unsigned char*>(&ivecVal), sizeof(ivecVal));
-		crypto_auth_hmacsha512_final(&hctx, reinterpret_cast<unsigned char*>(dataU));
+        for (count_t j = 2_cnt; j <= aIterations; j++)
+        {
+            crypto_auth_hmacsha512_init(&hCtx, aPassword.PtrAs<const unsigned char*>(), aPassword.SizeLeftV<size_t>());
+            crypto_auth_hmacsha512_update(&hCtx, dataU.PtrAs<const unsigned char*>(), sizeU.ValueAs<size_t>());
+            crypto_auth_hmacsha512_final(&hCtx, dataU.PtrAs<unsigned char*>());
 
-		std::memcpy(dataT, dataU, sizeT);
+            {
+                std::byte*          ptrT    = dataT.Ptr();
+                const std::byte*    ptrU    = dataU.Ptr();
+                const size_t        count   = size_t(crypto_auth_hmacsha512_BYTES);
 
-		for (size_t j = 2; j <= iterations; j++)
-		{
-			crypto_auth_hmacsha512_init(&hctx, reinterpret_cast<const unsigned char*>(passwordView.Data()), passwordView.Size().ValueAs<size_t>());
-			crypto_auth_hmacsha512_update(&hctx, reinterpret_cast<const unsigned char*>(dataU), sizeU);
-			crypto_auth_hmacsha512_final(&hctx, reinterpret_cast<unsigned char*>(dataU));
+                for (size_t k = 0; k < count; k++)
+                {
+                    *ptrT++ ^= *ptrU++;
+                }
+            }
+        }
 
-			for (size_t k = 0; k < sizeT; k++)
-			{
-				dataT[k] ^= dataU[k];
-			}
-		}
+        const count_t clen = std::min(derivedKeyLeftBytes, sizeT).ValueAs<count_t>();
+        derivedKeyPtrRW.CopyFrom(dataT.SubrangeAs<GpRawPtrByteR>(0_cnt, clen));
+        derivedKeyLeftBytes -= clen.ValueAs<size_byte_t>();
+        derivedKeyPtrRW     += clen;
+    }
 
-		const size_t clen = std::min(derivedKeyLeftBytes, sizeT);
-		std::memcpy(derivedKeyData, dataT, clen);
-		derivedKeyLeftBytes -= clen;
-		derivedKeyData		+= clen;
-	}
-
-	sodium_memzero(&PShctx, sizeof(PShctx));
-	sodium_memzero(&hctx, sizeof(hctx));
-
-	return derivedKey;
+    return derivedKey;
 }
 
-GpSecureStorage	GpCryptoHash_PBKDF2::S_HmacSHA256 (const GpSecureStorage&	aPassword,
-												   const GpSecureStorage&	aSalt,
-												   const count_t			aIterations,
-												   const size_bit_t			aBitLengthDerivedKey)
+GpSecureStorage GpCryptoHash_PBKDF2::S_HmacSHA256 (GpRawPtrByteR    aPassword,
+                                                   GpRawPtrByteR    aSalt,
+                                                   const count_t    aIterations,
+                                                   const size_bit_t aBitLengthDerivedKey)
 {
-	THROW_GPE_COND_CHECK_M(!aPassword.IsEmpty(), "Wrong password"_sv);
-	THROW_GPE_COND_CHECK_M(!aSalt.IsEmpty(), "Wrong salt"_sv);
-	THROW_GPE_COND_CHECK_M(   (aBitLengthDerivedKey > 0_bit)
-						   && (aBitLengthDerivedKey % 8_bit == 0_bit)
-						   && (aBitLengthDerivedKey <= 0x1fffffffe0_bit), "Wrong aBitLengthDerivedKey"_sv);
+    THROW_GPE_COND_CHECK_M(aPassword.CountLeft() > 0_cnt, "Wrong password"_sv);
+    THROW_GPE_COND_CHECK_M(aSalt.CountLeft() > 0_cnt, "Wrong salt"_sv);
+    THROW_GPE_COND_CHECK_M(   (aBitLengthDerivedKey > 0_bit)
+                           && (aBitLengthDerivedKey % 8_bit == 0_bit)
+                           && (aBitLengthDerivedKey <= 0x1fffffffe0_bit), "Wrong aBitLengthDerivedKey"_sv);
 
-	GpSecureStorageViewR	passwordView	= aPassword.ViewR();
-	GpSecureStorageViewR	saltView		= aSalt.ViewR();
+    const size_byte_t   derivedKeySize      = size_byte_t(aBitLengthDerivedKey);
+    size_byte_t         derivedKeyLeftBytes = derivedKeySize;
 
-	const size_t	iterations			= aIterations.ValueAs<size_t>();
-	const size_t	derivedKeySize		= size_byte_t(aBitLengthDerivedKey).ValueAs<size_t>();
-	size_t			derivedKeyLeftBytes	= derivedKeySize;
+    GpSecureStorage derivedKey;
+    derivedKey.Resize(derivedKeySize);
+    GpSecureStorageViewRW   derivedKeyViewRW    = derivedKey.ViewRW();
+    GpRawPtrByteRW          derivedKeyPtrRW     = derivedKeyViewRW.RW();
 
-	GpSecureStorage derivedKey;
-	derivedKey.Allocate(count_t::SMake(derivedKeySize));
-	GpSecureStorageViewRW derivedKeyView = derivedKey.ViewRW();
-	std::byte* derivedKeyData = derivedKeyView.Data();
+    GpSecureStorage buf_U_T;
+    constexpr size_byte_t sizeU = size_byte_t::SMake(crypto_auth_hmacsha256_BYTES);
+    constexpr size_byte_t sizeT = size_byte_t::SMake(crypto_auth_hmacsha256_BYTES);
+    buf_U_T.Resize(sizeU + sizeT);
+    GpSecureStorageViewRW   buf_U_T_KeyViewRW   = buf_U_T.ViewRW();
+    GpRawPtrByteRW          buf_U_T_KeyPtrRW    = buf_U_T_KeyViewRW.RW();
+    GpRawPtrByteRW          dataU               = buf_U_T_KeyPtrRW.Subrange(0_cnt, sizeU.ValueAs<count_t>());
+    GpRawPtrByteRW          dataT               = buf_U_T_KeyPtrRW.Subrange(sizeU.ValueAs<count_t>(), sizeT.ValueAs<count_t>());
 
-	GpSecureStorage buf_U_T;
-	constexpr size_t sizeU	= size_t(crypto_auth_hmacsha256_BYTES);
-	constexpr size_t sizeT	= size_t(crypto_auth_hmacsha256_BYTES);
-	buf_U_T.Allocate(count_t::SMake(sizeU + sizeT));
-	GpSecureStorageViewRW buf_U_T_KeyView = buf_U_T.ViewRW();
+    crypto_auth_hmacsha256_state pshCtx, hCtx;
+    GpRAIIonDestruct hCtxDestructor([&]()
+    {
+        sodium_memzero(&pshCtx, sizeof(pshCtx));
+        sodium_memzero(&hCtx, sizeof(hCtx));
+    });
 
-	std::byte* dataU	= buf_U_T_KeyView.Data() + 0;
-	std::byte* dataT	= buf_U_T_KeyView.Data() + sizeU;
+    crypto_auth_hmacsha256_init(&pshCtx, aPassword.PtrAs<const unsigned char*>(), aPassword.SizeLeftV<size_t>());
+    crypto_auth_hmacsha256_update(&pshCtx, aSalt.PtrAs<const unsigned char*>(), aSalt.SizeLeftV<size_t>());
 
-	crypto_auth_hmacsha256_state PShctx, hctx;
+    count_t partsCount = (derivedKeySize / sizeT).ValueAs<count_t>();
+    if ((derivedKeySize % sizeT) > 0_byte)
+    {
+        partsCount++;
+    }
 
-	crypto_auth_hmacsha256_init(&PShctx, reinterpret_cast<const unsigned char*>(passwordView.Data()), passwordView.Size().ValueAs<size_t>());
-	crypto_auth_hmacsha256_update(&PShctx, reinterpret_cast<const unsigned char*>(saltView.Data()), saltView.Size().ValueAs<size_t>());
+    for (count_t partId = 0_cnt; partId < partsCount; partId++)
+    {
+        u_int_32 ivecVal = (partId + 1_cnt).ValueAs<u_int_32>();
+        ivecVal = BitOps::H2N(ivecVal);
 
-	size_t partsCount = derivedKeySize / sizeT;
-	if ((derivedKeySize % sizeT) > 0)
-	{
-		partsCount++;
-	}
+        MemOps::SCopy(hCtx, pshCtx);
+        crypto_auth_hmacsha256_update(&hCtx, reinterpret_cast<const unsigned char*>(&ivecVal), sizeof(ivecVal));
+        crypto_auth_hmacsha256_final(&hCtx, dataU.PtrAs<unsigned char*>());
 
-	for (size_t partId = 0; partId < partsCount; partId++)
-	{
-		u_int_32 ivecVal = NumOps::SConvert<u_int_32>(partId + 1);
-		ivecVal = BitOps::H2N(ivecVal);
+        dataT.CopyFrom(dataU);
 
-		std::memcpy(&hctx, &PShctx, sizeof(crypto_auth_hmacsha256_state));
-		crypto_auth_hmacsha256_update(&hctx, reinterpret_cast<const unsigned char*>(&ivecVal), sizeof(ivecVal));
-		crypto_auth_hmacsha256_final(&hctx, reinterpret_cast<unsigned char*>(dataU));
+        for (count_t j = 2_cnt; j <= aIterations; j++)
+        {
+            crypto_auth_hmacsha256_init(&hCtx, aPassword.PtrAs<const unsigned char*>(), aPassword.SizeLeftV<size_t>());
+            crypto_auth_hmacsha256_update(&hCtx, dataU.PtrAs<const unsigned char*>(), sizeU.ValueAs<size_t>());
+            crypto_auth_hmacsha256_final(&hCtx, dataU.PtrAs<unsigned char*>());
 
-		std::memcpy(dataT, dataU, sizeT);
+            {
+                std::byte*          ptrT    = dataT.Ptr();
+                const std::byte*    ptrU    = dataU.Ptr();
+                const size_t        count   = size_t(crypto_auth_hmacsha256_BYTES);
 
-		for (size_t j = 2; j <= iterations; j++)
-		{
-			crypto_auth_hmacsha256_init(&hctx, reinterpret_cast<const unsigned char*>(passwordView.Data()), passwordView.Size().ValueAs<size_t>());
-			crypto_auth_hmacsha256_update(&hctx, reinterpret_cast<const unsigned char*>(dataU), sizeU);
-			crypto_auth_hmacsha256_final(&hctx, reinterpret_cast<unsigned char*>(dataU));
+                for (size_t k = 0; k < count; k++)
+                {
+                    *ptrT++ ^= *ptrU++;
+                }
+            }
+        }
 
-			for (size_t k = 0; k < sizeT; k++)
-			{
-				dataT[k] ^= dataU[k];
-			}
-		}
+        const count_t clen = std::min(derivedKeyLeftBytes, sizeT).ValueAs<count_t>();
+        derivedKeyPtrRW.CopyFrom(dataT.SubrangeAs<GpRawPtrByteR>(0_cnt, clen));
+        derivedKeyLeftBytes -= clen.ValueAs<size_byte_t>();
+        derivedKeyPtrRW     += clen;
+    }
 
-		const size_t clen = std::min(derivedKeyLeftBytes, sizeT);
-		std::memcpy(derivedKeyData, dataT, clen);
-		derivedKeyLeftBytes -= clen;
-		derivedKeyData		+= clen;
-	}
-
-	sodium_memzero(&PShctx, sizeof(PShctx));
-	sodium_memzero(&hctx, sizeof(hctx));
-
-	return derivedKey;
+    return derivedKey;
 }
 
 }//namespace GPlatform

@@ -2,6 +2,6 @@
 
 namespace GPlatform {
 
-GP_ENUM_IMPL(GpCryptoHDSchemeType);
+GP_ENUM_IMPL(GpCryptoHDSchemeType)
 
 }//GPlatform

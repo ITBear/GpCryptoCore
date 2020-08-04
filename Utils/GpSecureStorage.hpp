@@ -5,46 +5,58 @@
 
 namespace GPlatform {
 
-class GPCRYPTOCORE_API GpSecureStorage final: public GpMemoryStorage
+class GPCRYPTOCORE_API GpSecureStorage
 {
-	friend class GpSecureStorageViewR;
-	friend class GpSecureStorageViewRW;
+    friend class GpSecureStorageViewR;
+    friend class GpSecureStorageViewRW;
 
 public:
-	CLASS_DECLARE_DEFAULTS(GpSecureStorage);
+    CLASS_DECLARE_DEFAULTS(GpSecureStorage)
 
 public:
-								GpSecureStorage		(void) noexcept;
-								GpSecureStorage		(const GpSecureStorage&) noexcept = delete;
-								GpSecureStorage		(GpSecureStorage&& aStorage) noexcept;
-	virtual						~GpSecureStorage	(void) noexcept override final;
+                                GpSecureStorage     (void) noexcept;
+                                GpSecureStorage     (const GpSecureStorage& aStorage);
+                                GpSecureStorage     (GpSecureStorage&& aStorage);
+    explicit                    GpSecureStorage     (GpRawPtrByteR aData);
+                                ~GpSecureStorage    (void) noexcept;
 
-	GpSecureStorage&			operator=			(GpSecureStorage&& aStorage) noexcept;
+    GpSecureStorage&            operator=           (const GpSecureStorage& aStorage);
+    GpSecureStorage&            operator=           (GpSecureStorage&& aStorage);
 
-	virtual void				Clear				(void) noexcept override final;
-	virtual void				Allocate			(count_t aSize) override final;
-	virtual void				Resize				(count_t aSize) override final;
-	virtual void				Set					(GpMemoryStorage&& aStorage) override final;
-	virtual void				Set					(std::string_view aData) override final;
-	virtual count_t				Size				(void) const noexcept override final {return iSize;}
-	virtual bool				IsEmpty				(void) const noexcept override final {return (iData == nullptr) || (iSize == 0_cnt);}
+    void                        Clear               (void);
+    void                        Resize              (const size_byte_t aSize);
+    void                        Resize              (const size_byte_t aSize, const size_byte_t aAlignment);
+    void                        Reserve             (const size_byte_t aSize);
+    void                        Reserve             (const size_byte_t aSize, const size_byte_t aAlignment);
+    size_byte_t                 Size                (void) const noexcept {return iSizeUsed;}
+    size_byte_t                 Alignment           (void) const noexcept {return iAlignment;}
+    bool                        IsDataNullptr       (void) const noexcept {return iData == nullptr;}
+    bool                        IsViewing           (void) const noexcept {return iIsViewing;}
 
-	virtual GpMemoryStorage::SP	New					(void) const override final;
+    void                        Set                 (GpSecureStorage&& aStorage);
+    void                        CopyFrom            (const GpSecureStorage& aStorage);
+    void                        CopyFrom            (GpRawPtrByteR aData);
 
-	virtual ViewR::SP			ViewRead			(void) const override final {return GpSecureStorageViewR::SP::SNew(*this);}
-	virtual ViewRW::SP			ViewReadWrite		(void) override final {return GpSecureStorageViewRW::SP::SNew(*this);}
-
-	GpSecureStorageViewR		ViewR				(void) const{return GpSecureStorageViewR(*this);}
-	GpSecureStorageViewRW		ViewRW				(void) {return GpSecureStorageViewRW(*this);}
+    GpSecureStorageViewR        ViewR               (void) const;
+    GpSecureStorageViewRW       ViewRW              (void);
 
 protected:
-	void						LockRW				(void) const;
-	void						UnlockRW			(void);
-	void						UnlockR				(void) const;
+    void                        LockRW              (void) const;
+    void                        UnlockRW            (void);
+    void                        UnlockR             (void) const;
+    void                        SetViewing          (const bool aValue) const;
+    GpRawPtrByteR               DataR               (void) const;
+    GpRawPtrByteRW              DataRW              (void);
 
 private:
-	std::byte*					iData	= nullptr;
-	count_t						iSize	= 0_cnt;
+    void                        ClearAndAllocate    (const size_byte_t aSize, const size_byte_t aAlignment);
+
+private:
+    std::byte*                  iData           = nullptr;
+    size_byte_t                 iSizeUsed       = 0_byte;
+    size_byte_t                 iSizeAllocated  = 0_byte;
+    size_byte_t                 iAlignment      = 1_byte;
+    mutable bool                iIsViewing      = false;
 };
 
 }//namespace GPlatform

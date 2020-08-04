@@ -6,10 +6,12 @@ namespace GPlatform {
 
 class GPCRYPTOCORE_API GpCryptoRandom
 {
-	CLASS_REMOVE_CTRS(GpCryptoRandom);
+    CLASS_REMOVE_CTRS(GpCryptoRandom)
 
 public:
-	static GpSecureStorage		SEntropy	(const count_t aSize);
+    static void                 SEntropy    (const size_byte_t  aSize,
+                                             GpRawPtrByteRW     aResOut);
+    static GpSecureStorage      SEntropy    (const size_byte_t aSize);
 };
 
 }//namespace GPlatform
