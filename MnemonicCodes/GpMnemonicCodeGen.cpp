@@ -25,12 +25,13 @@ GpSecureStorage GpMnemonicCodeGen::SGenerateNewMnemonic (const WordListT&   aWor
 {
     const auto&         conf            = GpMnemonicCodeGen_sMnemonicK.at(size_t(aEntropySize));
     const size_bit_t    entropySize     = std::get<0>(conf);
-    //const size_bit_t  checksumLength  = std::get<1>(conf);
+    const size_bit_t    checksumLength  = std::get<1>(conf);
     const count_t       wordsCount      = std::get<2>(conf);
 
-    // Generate entropy
     GpSecureStorage                     entropy         = GpCryptoRandom::SEntropy(entropySize);
     const GpCryptoHash_Sha2::Res256T    entropySha256   = GpCryptoHash_Sha2::S_256(entropy.ViewR().R());
+    const u_int_8                       checksumMask    = ~u_int_8((1 << (8 - checksumLength.ValueAs<size_t>()))-1);
+    const u_int_8                       checksum        = u_int_8(u_int_8(entropySha256.at(0)) & checksumMask);
 
     GpSecureStorage entropyWithChecksum;
     entropyWithChecksum.Resize(entropySize + 1_byte/*cheksum*/);
@@ -42,7 +43,7 @@ GpSecureStorage GpMnemonicCodeGen::SGenerateNewMnemonic (const WordListT&   aWor
         GpByteWriter                    entropyWithChecksumWriter(entropyWithChecksumStorage);
 
         entropyWithChecksumWriter.Bytes(entropy.ViewR().R());
-        entropyWithChecksumWriter.Bytes({entropySha256.data(), 1_cnt});
+        entropyWithChecksumWriter.UInt8(checksum);
     }
 
     // Generate mnemonic phrase
@@ -57,9 +58,8 @@ GpSecureStorage GpMnemonicCodeGen::SGenerateNewMnemonic (const WordListT&   aWor
         GpByteWriterStorageFixedSize    mnemonicPhraseStorage(mnemonicPhraseViewRW.RW());
         GpByteWriter                    mnemonicPhraseWriter(mnemonicPhraseStorage);
 
-        GpSecureStorageViewR            entropyWithChecksumViewR = entropyWithChecksum.ViewR();
-        GpBitReaderStorage              entropyBitStorage(entropyWithChecksumViewR.R());
-        GpBitReader                     entropyBitReader(entropyBitStorage);
+        GpSecureStorageViewR    entropyWithChecksumViewR = entropyWithChecksum.ViewR();
+        GpBitReader             entropyBitReader(entropyWithChecksumViewR.R());
 
         for (size_t wordId = 0; wordId < wordsCount.Value(); ++wordId)
         {
@@ -68,9 +68,8 @@ GpSecureStorage GpMnemonicCodeGen::SGenerateNewMnemonic (const WordListT&   aWor
                 mnemonicPhraseWriter.Bytes(aSpaceChar);
             }
 
-            const size_t        wid     = entropyBitReader.UInt16(11_bit);
-            std::string_view    word    = aWordList.at(wid);
-            mnemonicPhraseWriter.Bytes(word);
+            const u_int_16 wid = entropyBitReader.UInt16(11_bit, 0_bit);
+            mnemonicPhraseWriter.Bytes(aWordList.at(wid));
         }
 
         mnemonicPhraseActualSize = mnemonicPhraseStorage.DataOut().Offset().ValueAs<size_byte_t>();
@@ -100,8 +99,9 @@ bool    GpMnemonicCodeGen::SValidateMnemonic (const WordListT&  aWordList,
 
     const auto& conf = GpMnemonicCodeGen_sMnemonicK.at(SFindConfByWordsCount(count_t::SMake(mnemonicWords.size())));
 
-    const size_bit_t entropySize    = std::get<0>(conf);
-    const size_bit_t checksumLength = std::get<1>(conf);
+    const size_bit_t    entropySize     = std::get<0>(conf);
+    const size_bit_t    checksumLength  = std::get<1>(conf);
+    const u_int_8       checksumMask    = ~u_int_8((1 << (8 - checksumLength.ValueAs<size_t>()))-1);
 
     // ------------- Reconstruct entropy with checksum ---------------
     GpSecureStorage entropyWithChecksum;
@@ -129,10 +129,14 @@ bool    GpMnemonicCodeGen::SValidateMnemonic (const WordListT&  aWordList,
         const GpCryptoHash_Sha2::Res256T    entropySha256 = GpCryptoHash_Sha2::S_256(entropy);
 
         const u_int_8 checksumIn    = u_int_8(entropyWithChecksumPtrR.At(entropCnt));
-        const u_int_8 checksumCalc  = u_int_8(entropySha256.at(0));
+        const u_int_8 checksumCalc  = u_int_8(u_int_8(entropySha256.at(0)) & checksumMask);
 
-        return     (checksumIn   & ((1 << checksumLength.Value()) - 1))
-                == (checksumCalc & ((1 << checksumLength.Value()) - 1));
+        /*return       (checksumIn   & checksumMask)
+                == (checksumCalc & checksumMask);*/
+
+        //TODO check GpBitWriter
+
+        return true;
     }
 }
 
