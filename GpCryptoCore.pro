@@ -3,7 +3,7 @@ QT			-= core gui widgets
 TEMPLATE	= lib
 VER_MAJ		= 0
 VER_MIN		= 1
-VER_PAT		= 1
+VER_PAT		= 2
 CONFIG		+= warn_on
 DEFINES		+= GPCRYPTOCORE_LIBRARY \
 			HAVE_NETINET_IN_H \
@@ -123,7 +123,7 @@ os_linux
 {
 }
 
-LIBS += -lGpCore$$TARGET_POSTFIX$$GP_CORE_LIB_V
+LIBS += -lGpCore2$$TARGET_POSTFIX$$GP_CORE_LIB_V
 LIBS += -lutf8proc$$TARGET_POSTFIX
 LIBS += -lsodium
 
