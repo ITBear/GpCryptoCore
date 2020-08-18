@@ -33,7 +33,9 @@ public:
 
     SchemeTypeTE                SchemeType              (void) const noexcept {return iSchemeType;}
     const GpSecureStorage&      ChainCode               (void) const noexcept {return iChainCode;}
+    GpSecureStorage&            ChainCode               (void) noexcept {return iChainCode;}
     const GpSecureStorage&      KeyData                 (void) const noexcept {return iKeyData;}
+    GpSecureStorage&            KeyData                 (void) noexcept {return iKeyData;}
 
 private:
     SchemeTypeTE                iSchemeType;

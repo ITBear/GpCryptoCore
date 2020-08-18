@@ -4,3 +4,5 @@
 #include "GpSecureStorageViewR.hpp"
 #include "GpSecureStorageViewRW.hpp"
 #include "GpCryptoRandom.hpp"
+#include "GpByteWriterStorageSecure.hpp"
+#include "GpEncoders.hpp"

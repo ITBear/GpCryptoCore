@@ -16,6 +16,8 @@ protected:
 
 public:
     virtual GpCryptoKeyPair::SP     Generate            (void) = 0;
+    virtual void                    Serialize           (GpByteWriter& aWriter) const = 0;
+    virtual void                    Deserialize         (GpByteReader& aReader) = 0;
 };
 
 }//namespace GPlatform

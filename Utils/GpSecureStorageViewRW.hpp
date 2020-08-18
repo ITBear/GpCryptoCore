@@ -23,10 +23,14 @@ public:
                                 GpSecureStorageViewRW   (GpSecureStorageViewRW&& aView) noexcept;
                                 ~GpSecureStorageViewRW  (void) noexcept;
 
+    GpSecureStorageViewRW&      operator=               (GpSecureStorageViewRW&& aView);
+
     GpRawPtrByteR               R                       (void) const;
     GpRawPtrByteRW              RW                      (void);
     size_byte_t                 Size                    (void) const noexcept;
-    bool                        IsEmpty                 (void) const noexcept;
+    bool                        IsEmpty                 (void) const noexcept {return Size() == 0_byte;}
+
+    void                        Release                 (void);
 
 private:
     StorageOptT                 iStorage;

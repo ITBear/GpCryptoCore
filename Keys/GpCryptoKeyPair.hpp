@@ -14,6 +14,7 @@ public:
     using TypeTE    = TypeT::EnumT;
 
 protected:
+                                GpCryptoKeyPair             (void) = delete;
                                 GpCryptoKeyPair             (const TypeTE aType) noexcept;
                                 GpCryptoKeyPair             (const TypeTE       aType,
                                                              GpSecureStorage&&  aPrivateBytes,
@@ -28,7 +29,7 @@ public:
 
     TypeTE                      Type                        (void) const noexcept {return iType;}
 
-    //const GpSecureStorage&        PrivateBytes                (void) const noexcept {return iPrivateBytes;}
+    const GpSecureStorage&      PrivateBytes                (void) const noexcept {return iPrivateBytes;}
     const GpRawPtrByteR         PublicBytes                 (void) const noexcept {return GpRawPtrByteR(iPublicBytes);}
 
     GpSecureStorage             ToPrivateBytesWithPrefix    (void) const;
@@ -39,6 +40,12 @@ public:
 
     virtual GpRawPtrByteR       PrivateBytesPrefix          (void) const noexcept = 0;
     virtual GpRawPtrByteR       PublicBytesPrefix           (void) const noexcept = 0;
+
+protected:
+    void                        SetKeys                     (GpRawPtrByteR  aPrivateBytes,
+                                                             GpRawPtrByteR  aPublicBytes);
+    void                        SetKeys                     (GpSecureStorage&&  aPrivateBytes,
+                                                             GpBytesArray&&     aPublicBytes);
 
 protected:
     const TypeTE                iType;

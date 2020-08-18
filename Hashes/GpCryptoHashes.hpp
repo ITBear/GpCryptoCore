@@ -5,3 +5,4 @@
 #include "GpCryptoHash_Sha2.hpp"
 #include "GpCryptoHash_Hmac.hpp"
 #include "GpCryptoHash_PBKDF2.hpp"
+#include "GpCryptoHash_KDF_Passwd.hpp"

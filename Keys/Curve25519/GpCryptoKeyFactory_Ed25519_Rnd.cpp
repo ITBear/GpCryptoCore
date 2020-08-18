@@ -19,7 +19,7 @@ GpCryptoKeyPair::SP GpCryptoKeyFactory_Ed25519_Rnd::Generate (void)
     GpBytesArray    publicBytes;
 
     {
-        privateBytes.Allocate(size_byte_t::SMake(crypto_sign_ed25519_SECRETKEYBYTES));
+        privateBytes.Resize(size_byte_t::SMake(crypto_sign_ed25519_SECRETKEYBYTES));
         publicBytes.resize(size_t(crypto_sign_PUBLICKEYBYTES));
 
         GpSecureStorageViewRW   privateBytesView    = privateBytes.ViewRW();
@@ -34,6 +34,16 @@ GpCryptoKeyPair::SP GpCryptoKeyFactory_Ed25519_Rnd::Generate (void)
     }
 
     return GpCryptoKeyPair_Ed25519::SP::SNew(std::move(privateBytes), std::move(publicBytes));
+}
+
+void    GpCryptoKeyFactory_Ed25519_Rnd::Serialize (GpByteWriter& aWriter) const
+{
+    aWriter.BytesWithLen("GpCryptoKeyFactory_Ed25519_Rnd"_sv);
+}
+
+void    GpCryptoKeyFactory_Ed25519_Rnd::Deserialize (GpByteReader& aReader)
+{
+    THROW_GPE_COND_CHECK_M(aReader.BytesWithLen() == "GpCryptoKeyFactory_Ed25519_Rnd"_sv, "Wrong data");
 }
 
 }//GPlatform

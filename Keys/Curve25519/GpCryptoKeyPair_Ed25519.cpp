@@ -33,6 +33,22 @@ GpCryptoKeyPair_Ed25519::~GpCryptoKeyPair_Ed25519 (void) noexcept
 {
 }
 
+GpCryptoKeyPair_Ed25519&    GpCryptoKeyPair_Ed25519::operator= (const GpCryptoKeyPair_Ed25519& aKeyPair)
+{
+    SetKeys(aKeyPair.iPrivateBytes.ViewR().R(),
+            aKeyPair.iPublicBytes);
+
+    return *this;
+}
+
+GpCryptoKeyPair_Ed25519&    GpCryptoKeyPair_Ed25519::operator= (GpCryptoKeyPair_Ed25519&& aKeyPair)
+{
+    SetKeys(std::move(aKeyPair.iPrivateBytes),
+            std::move(aKeyPair.iPublicBytes));
+
+    return *this;
+}
+
 GpCryptoKeyPair_Ed25519::ResSignT   GpCryptoKeyPair_Ed25519::Sign (GpRawPtrByteR aData) const
 {
     static_assert(std::tuple_size<ResSignT>::value == crypto_sign_ed25519_BYTES);

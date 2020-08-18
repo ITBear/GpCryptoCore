@@ -51,7 +51,7 @@ GpSecureStorage GpCryptoKeyPair::ToPrivateBytesWithPrefix (void) const
 
     const size_byte_t               resSize     = prefixPtr.SizeLeft() + privatePtr.SizeLeft();
     GpSecureStorage                 res;
-    res.Allocate(resSize);
+    res.Resize(resSize);
     GpSecureStorageViewRW           resView     = res.ViewRW();
     GpByteWriterStorageFixedSize    resStorage(resView.RW());
     GpByteWriter                    resWriter(resStorage);
@@ -71,7 +71,7 @@ GpSecureStorage GpCryptoKeyPair::ToPrivateStrHexWithPrefix (void) const
     //Str hex data
     const size_byte_t       resSize = privatePtr.SizeLeft() * 2_byte;
     GpSecureStorage         res;
-    res.Allocate(resSize);
+    res.Resize(resSize);
 
     GpStringOps::SFromBytes(privatePtr, res.ViewRW().RW());
 
@@ -108,6 +108,20 @@ GpBytesArray    GpCryptoKeyPair::ToPublicStrHexWithPrefix (void) const
     GpStringOps::SFromBytes(publicData, res);
 
     return res;
+}
+
+void    GpCryptoKeyPair::SetKeys (GpRawPtrByteR aPrivateBytes,
+                                  GpRawPtrByteR aPublicBytes)
+{
+    iPrivateBytes.ViewRW().RW().CopyFrom(aPrivateBytes);
+    iPublicBytes = GpBytesArrayUtils::SMake(aPublicBytes);
+}
+
+void    GpCryptoKeyPair::SetKeys (GpSecureStorage&& aPrivateBytes,
+                                  GpBytesArray&&    aPublicBytes)
+{
+    iPrivateBytes   = std::move(aPrivateBytes);
+    iPublicBytes    = std::move(aPublicBytes);
 }
 
 }//namespace GPlatform
