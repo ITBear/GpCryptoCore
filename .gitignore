@@ -52,6 +52,7 @@
 !*.ASM
 !*.qml
 !*.qmlproject
+!*.md
 
 #
 !*.jar
