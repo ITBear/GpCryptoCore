@@ -1,7 +1,12 @@
 #include "GpCryptoKeyFactory_Ed25519_Rnd.hpp"
 #include "GpCryptoKeyPair_Ed25519.hpp"
 
+GP_WARNING_PUSH()
+GP_WARNING_DISABLE(duplicated-branches)
+
 #include <libsodium/sodium.h>
+
+GP_WARNING_POP()
 
 namespace GPlatform {
 
@@ -33,7 +38,7 @@ GpCryptoKeyPair::SP GpCryptoKeyFactory_Ed25519_Rnd::Generate (void)
         }
     }
 
-    return GpCryptoKeyPair_Ed25519::SP::SNew(std::move(privateBytes), std::move(publicBytes));
+    return MakeSP<GpCryptoKeyPair_Ed25519>(std::move(privateBytes), std::move(publicBytes));
 }
 
 void    GpCryptoKeyFactory_Ed25519_Rnd::Serialize (GpByteWriter& aWriter) const

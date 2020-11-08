@@ -1,5 +1,11 @@
 #include "GpCryptoKeyPair_Ed25519.hpp"
+
+GP_WARNING_PUSH()
+GP_WARNING_DISABLE(duplicated-branches)
+
 #include <libsodium/sodium.h>
+
+GP_WARNING_POP()
 
 namespace GPlatform {
 
@@ -58,7 +64,7 @@ GpCryptoKeyPair_Ed25519::ResSignT   GpCryptoKeyPair_Ed25519::Sign (GpRawPtrByteR
     if (crypto_sign_ed25519_detached(reinterpret_cast<unsigned char*>(res.data()),
                                      nullptr,
                                      aData.PtrAs<const unsigned char*>(),
-                                     aData.SizeLeftV<size_t>(),
+                                     aData.SizeLeft().As<size_t>(),
                                      iPrivateBytes.ViewR().R().PtrAs<const unsigned char*>()) != 0)
     {
         THROW_GPE("crypto_sign_ed25519_detached return error"_sv);
@@ -82,7 +88,7 @@ bool    GpCryptoKeyPair_Ed25519::SVerifySign (GpRawPtrByteR aData,
 
     if (crypto_sign_ed25519_verify_detached(aSign.PtrAs<const unsigned char*>(),
                                             aData.PtrAs<const unsigned char*>(),
-                                            aData.SizeLeftV<size_t>(),
+                                            aData.SizeLeft().As<size_t>(),
                                             aPublicKey.PtrAs<const unsigned char*>()) == 0)
     {
         return true;

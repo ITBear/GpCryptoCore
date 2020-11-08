@@ -1,5 +1,11 @@
 #include "GpCryptoHash_Sha2.hpp"
+
+GP_WARNING_PUSH()
+GP_WARNING_DISABLE(duplicated-branches)
+
 #include <libsodium/sodium.h>
+
+GP_WARNING_POP()
 
 namespace GPlatform {
 
@@ -10,7 +16,7 @@ void    GpCryptoHash_Sha2::S_256 (GpRawPtrByteR     aData,
 
     crypto_hash_sha256(aResOut.PtrAs<unsigned char*>(),
                        aData.PtrAs<const unsigned char*>(),
-                       aData.CountLeftV<size_t>());
+                       aData.CountLeft().As<size_t>());
 }
 
 GpCryptoHash_Sha2::Res256T  GpCryptoHash_Sha2::S_256 (GpRawPtrByteR aData)
@@ -28,7 +34,7 @@ void    GpCryptoHash_Sha2::S_512 (GpRawPtrByteR     aData,
 
     crypto_hash_sha512(aResOut.PtrAs<unsigned char*>(),
                        aData.PtrAs<const unsigned char*>(),
-                       aData.CountLeftV<size_t>());
+                       aData.CountLeft().As<size_t>());
 }
 
 GpCryptoHash_Sha2::Res512T  GpCryptoHash_Sha2::S_512 (GpRawPtrByteR aData)

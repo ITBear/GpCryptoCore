@@ -50,7 +50,7 @@ GpCryptoHDKeyStorage    GpCryptoHDKeyGen_Ed25519::SChildKeyPair (const GpCryptoH
 
         sourceDataWriter.UInt8(0);
         sourceDataWriter.Bytes(aParentHDKeyStorage.KeyData().ViewR().R());
-        sourceDataWriter.UInt32(childCode.ValueAs<u_int_32>());
+        sourceDataWriter.UInt32(childCode.As<u_int_32>());
     }
 
     GpSecureStorage valI;

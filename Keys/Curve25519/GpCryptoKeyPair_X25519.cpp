@@ -1,5 +1,11 @@
 #include "GpCryptoKeyPair_X25519.hpp"
+
+GP_WARNING_PUSH()
+GP_WARNING_DISABLE(duplicated-branches)
+
 #include <libsodium/sodium.h>
+
+GP_WARNING_POP()
 
 namespace GPlatform {
 

@@ -1,6 +1,11 @@
 #include "GpCryptoHash_Hmac.hpp"
 
+GP_WARNING_PUSH()
+GP_WARNING_DISABLE(duplicated-branches)
+
 #include <libsodium/sodium.h>
+
+GP_WARNING_POP()
 
 namespace GPlatform {
 
@@ -18,10 +23,10 @@ void    GpCryptoHash_Hmac::S_256 (GpRawPtrByteR     aData,
 
     crypto_auth_hmacsha256_init(&hCtx,
                                 aKey.PtrAs<const unsigned char*>(),
-                                aKey.CountLeftV<size_t>());
+                                aKey.CountLeft().As<size_t>());
     crypto_auth_hmacsha256_update(&hCtx,
                                   aData.PtrAs<const unsigned char*>(),
-                                  aData.CountLeftV<size_t>());
+                                  aData.CountLeft().As<size_t>());
     crypto_auth_hmacsha256_final(&hCtx,
                                  aResOut.PtrAs<unsigned char*>());
 }
@@ -49,10 +54,10 @@ void    GpCryptoHash_Hmac::S_512 (GpRawPtrByteR     aData,
 
     crypto_auth_hmacsha512_init(&hCtx,
                                 aKey.PtrAs<const unsigned char*>(),
-                                aKey.CountLeftV<size_t>());
+                                aKey.CountLeft().As<size_t>());
     crypto_auth_hmacsha512_update(&hCtx,
                                   aData.PtrAs<const unsigned char*>(),
-                                  aData.CountLeftV<size_t>());
+                                  aData.CountLeft().As<size_t>());
     crypto_auth_hmacsha512_final(&hCtx,
                                  aResOut.PtrAs<unsigned char*>());
 }

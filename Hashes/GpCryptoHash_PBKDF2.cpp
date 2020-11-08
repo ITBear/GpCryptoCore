@@ -1,5 +1,11 @@
 #include "GpCryptoHash_PBKDF2.hpp"
+
+GP_WARNING_PUSH()
+GP_WARNING_DISABLE(duplicated-branches)
+
 #include <libsodium/sodium.h>
+
+GP_WARNING_POP()
 
 namespace GPlatform {
 
@@ -28,8 +34,8 @@ GpSecureStorage GpCryptoHash_PBKDF2::S_HmacSHA512 (GpRawPtrByteR    aPassword,
     buf_U_T.Resize(sizeU + sizeT);
     GpSecureStorageViewRW   buf_U_T_KeyViewRW   = buf_U_T.ViewRW();
     GpRawPtrByteRW          buf_U_T_KeyPtrRW    = buf_U_T_KeyViewRW.RW();
-    GpRawPtrByteRW          dataU               = buf_U_T_KeyPtrRW.Subrange(0_cnt, sizeU.ValueAs<count_t>());
-    GpRawPtrByteRW          dataT               = buf_U_T_KeyPtrRW.Subrange(sizeU.ValueAs<count_t>(), sizeT.ValueAs<count_t>());
+    GpRawPtrByteRW          dataU               = buf_U_T_KeyPtrRW.Subrange(0_cnt, sizeU.As<count_t>());
+    GpRawPtrByteRW          dataT               = buf_U_T_KeyPtrRW.Subrange(sizeU.As<count_t>(), sizeT.As<count_t>());
 
     crypto_auth_hmacsha512_state pshCtx, hCtx;
     GpRAIIonDestruct hCtxDestructor([&]()
@@ -38,10 +44,10 @@ GpSecureStorage GpCryptoHash_PBKDF2::S_HmacSHA512 (GpRawPtrByteR    aPassword,
         sodium_memzero(&hCtx, sizeof(hCtx));
     });
 
-    crypto_auth_hmacsha512_init(&pshCtx, aPassword.PtrAs<const unsigned char*>(), aPassword.SizeLeftV<size_t>());
-    crypto_auth_hmacsha512_update(&pshCtx, aSalt.PtrAs<const unsigned char*>(), aSalt.SizeLeftV<size_t>());
+    crypto_auth_hmacsha512_init(&pshCtx, aPassword.PtrAs<const unsigned char*>(), aPassword.SizeLeft().As<size_t>());
+    crypto_auth_hmacsha512_update(&pshCtx, aSalt.PtrAs<const unsigned char*>(), aSalt.SizeLeft().As<size_t>());
 
-    count_t partsCount = (derivedKeySize / sizeT).ValueAs<count_t>();
+    count_t partsCount = (derivedKeySize / sizeT).As<count_t>();
     if ((derivedKeySize % sizeT) > 0_byte)
     {
         partsCount++;
@@ -49,7 +55,7 @@ GpSecureStorage GpCryptoHash_PBKDF2::S_HmacSHA512 (GpRawPtrByteR    aPassword,
 
     for (count_t partId = 0_cnt; partId < partsCount; partId++)
     {
-        u_int_32 ivecVal = (partId + 1_cnt).ValueAs<u_int_32>();
+        u_int_32 ivecVal = (partId + 1_cnt).As<u_int_32>();
         ivecVal = BitOps::H2N(ivecVal);
 
         MemOps::SCopy(hCtx, pshCtx);
@@ -60,8 +66,8 @@ GpSecureStorage GpCryptoHash_PBKDF2::S_HmacSHA512 (GpRawPtrByteR    aPassword,
 
         for (count_t j = 2_cnt; j <= aIterations; j++)
         {
-            crypto_auth_hmacsha512_init(&hCtx, aPassword.PtrAs<const unsigned char*>(), aPassword.SizeLeftV<size_t>());
-            crypto_auth_hmacsha512_update(&hCtx, dataU.PtrAs<const unsigned char*>(), sizeU.ValueAs<size_t>());
+            crypto_auth_hmacsha512_init(&hCtx, aPassword.PtrAs<const unsigned char*>(), aPassword.SizeLeft().As<size_t>());
+            crypto_auth_hmacsha512_update(&hCtx, dataU.PtrAs<const unsigned char*>(), sizeU.As<size_t>());
             crypto_auth_hmacsha512_final(&hCtx, dataU.PtrAs<unsigned char*>());
 
             {
@@ -76,9 +82,9 @@ GpSecureStorage GpCryptoHash_PBKDF2::S_HmacSHA512 (GpRawPtrByteR    aPassword,
             }
         }
 
-        const count_t clen = std::min(derivedKeyLeftBytes, sizeT).ValueAs<count_t>();
+        const count_t clen = std::min(derivedKeyLeftBytes, sizeT).As<count_t>();
         derivedKeyPtrRW.CopyFrom(dataT.SubrangeAs<GpRawPtrByteR>(0_cnt, clen));
-        derivedKeyLeftBytes -= clen.ValueAs<size_byte_t>();
+        derivedKeyLeftBytes -= clen.As<size_byte_t>();
         derivedKeyPtrRW     += clen;
     }
 
@@ -110,8 +116,8 @@ GpSecureStorage GpCryptoHash_PBKDF2::S_HmacSHA256 (GpRawPtrByteR    aPassword,
     buf_U_T.Resize(sizeU + sizeT);
     GpSecureStorageViewRW   buf_U_T_KeyViewRW   = buf_U_T.ViewRW();
     GpRawPtrByteRW          buf_U_T_KeyPtrRW    = buf_U_T_KeyViewRW.RW();
-    GpRawPtrByteRW          dataU               = buf_U_T_KeyPtrRW.Subrange(0_cnt, sizeU.ValueAs<count_t>());
-    GpRawPtrByteRW          dataT               = buf_U_T_KeyPtrRW.Subrange(sizeU.ValueAs<count_t>(), sizeT.ValueAs<count_t>());
+    GpRawPtrByteRW          dataU               = buf_U_T_KeyPtrRW.Subrange(0_cnt, sizeU.As<count_t>());
+    GpRawPtrByteRW          dataT               = buf_U_T_KeyPtrRW.Subrange(sizeU.As<count_t>(), sizeT.As<count_t>());
 
     crypto_auth_hmacsha256_state pshCtx, hCtx;
     GpRAIIonDestruct hCtxDestructor([&]()
@@ -120,10 +126,10 @@ GpSecureStorage GpCryptoHash_PBKDF2::S_HmacSHA256 (GpRawPtrByteR    aPassword,
         sodium_memzero(&hCtx, sizeof(hCtx));
     });
 
-    crypto_auth_hmacsha256_init(&pshCtx, aPassword.PtrAs<const unsigned char*>(), aPassword.SizeLeftV<size_t>());
-    crypto_auth_hmacsha256_update(&pshCtx, aSalt.PtrAs<const unsigned char*>(), aSalt.SizeLeftV<size_t>());
+    crypto_auth_hmacsha256_init(&pshCtx, aPassword.PtrAs<const unsigned char*>(), aPassword.SizeLeft().As<size_t>());
+    crypto_auth_hmacsha256_update(&pshCtx, aSalt.PtrAs<const unsigned char*>(), aSalt.SizeLeft().As<size_t>());
 
-    count_t partsCount = (derivedKeySize / sizeT).ValueAs<count_t>();
+    count_t partsCount = (derivedKeySize / sizeT).As<count_t>();
     if ((derivedKeySize % sizeT) > 0_byte)
     {
         partsCount++;
@@ -131,7 +137,7 @@ GpSecureStorage GpCryptoHash_PBKDF2::S_HmacSHA256 (GpRawPtrByteR    aPassword,
 
     for (count_t partId = 0_cnt; partId < partsCount; partId++)
     {
-        u_int_32 ivecVal = (partId + 1_cnt).ValueAs<u_int_32>();
+        u_int_32 ivecVal = (partId + 1_cnt).As<u_int_32>();
         ivecVal = BitOps::H2N(ivecVal);
 
         MemOps::SCopy(hCtx, pshCtx);
@@ -142,8 +148,8 @@ GpSecureStorage GpCryptoHash_PBKDF2::S_HmacSHA256 (GpRawPtrByteR    aPassword,
 
         for (count_t j = 2_cnt; j <= aIterations; j++)
         {
-            crypto_auth_hmacsha256_init(&hCtx, aPassword.PtrAs<const unsigned char*>(), aPassword.SizeLeftV<size_t>());
-            crypto_auth_hmacsha256_update(&hCtx, dataU.PtrAs<const unsigned char*>(), sizeU.ValueAs<size_t>());
+            crypto_auth_hmacsha256_init(&hCtx, aPassword.PtrAs<const unsigned char*>(), aPassword.SizeLeft().As<size_t>());
+            crypto_auth_hmacsha256_update(&hCtx, dataU.PtrAs<const unsigned char*>(), sizeU.As<size_t>());
             crypto_auth_hmacsha256_final(&hCtx, dataU.PtrAs<unsigned char*>());
 
             {
@@ -158,9 +164,9 @@ GpSecureStorage GpCryptoHash_PBKDF2::S_HmacSHA256 (GpRawPtrByteR    aPassword,
             }
         }
 
-        const count_t clen = std::min(derivedKeyLeftBytes, sizeT).ValueAs<count_t>();
+        const count_t clen = std::min(derivedKeyLeftBytes, sizeT).As<count_t>();
         derivedKeyPtrRW.CopyFrom(dataT.SubrangeAs<GpRawPtrByteR>(0_cnt, clen));
-        derivedKeyLeftBytes -= clen.ValueAs<size_byte_t>();
+        derivedKeyLeftBytes -= clen.As<size_byte_t>();
         derivedKeyPtrRW     += clen;
     }
 

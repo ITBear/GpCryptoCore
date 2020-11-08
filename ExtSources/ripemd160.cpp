@@ -290,7 +290,7 @@ void ripemd160_process(ripemd160_state& aState,
                        GpRawPtrByteR    aData)
 {
     size_t bytes_needed = 0;
-    size_t lengthLeft   = aData.CountLeftV<size_t>();
+    size_t lengthLeft   = aData.CountLeft().As<size_t>();
 
     /* We never leave a full buffer */
     THROW_GPE_COND_CHECK_M(aState.bufpos < 64, "Buffer ptr is out of range"_sv);

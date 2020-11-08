@@ -3,7 +3,12 @@
 #include "../HD/GpCryptoHDKeys.hpp"
 #include "GpCryptoKeyFactory_Ed25519_Import.hpp"
 
+GP_WARNING_PUSH()
+GP_WARNING_DISABLE(duplicated-branches)
+
 #include <libsodium/sodium.h>
+
+GP_WARNING_POP()
 
 namespace GPlatform {
 
@@ -49,7 +54,7 @@ void    GpCryptoKeyFactory_Ed25519_HD::Serialize (GpByteWriter& aWriter) const
     }
 
     //iChildNumber
-    aWriter.CompactSInt32(iChildNumber.ValueAs<s_int_32>());
+    aWriter.CompactSInt32(iChildNumber.As<s_int_32>());
 }
 
 void    GpCryptoKeyFactory_Ed25519_HD::Deserialize (GpByteReader& aReader)

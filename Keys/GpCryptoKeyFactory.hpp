@@ -11,10 +11,11 @@ public:
     CLASS_DECLARE_DEFAULTS(GpCryptoKeyFactory)
 
 protected:
-                                    GpCryptoKeyFactory  (void) noexcept = default;
-    virtual                         ~GpCryptoKeyFactory (void) noexcept = default;
+                                    GpCryptoKeyFactory  (void) noexcept {}
 
 public:
+    virtual                         ~GpCryptoKeyFactory (void) noexcept {}
+
     virtual GpCryptoKeyPair::SP     Generate            (void) = 0;
     virtual void                    Serialize           (GpByteWriter& aWriter) const = 0;
     virtual void                    Deserialize         (GpByteReader& aReader) = 0;

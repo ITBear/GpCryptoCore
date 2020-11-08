@@ -8,7 +8,7 @@ GpByteWriterStorageSecure::~GpByteWriterStorageSecure (void) noexcept
 
 void    GpByteWriterStorageSecure::AllocateNext (const size_byte_t aSize)
 {
-    const count_t sizeToWrite   = aSize.ValueAs<count_t>();
+    const count_t sizeToWrite   = aSize.As<count_t>();
     const count_t left          = iDataOut.CountLeft();
 
     if (left >= sizeToWrite)
@@ -18,11 +18,11 @@ void    GpByteWriterStorageSecure::AllocateNext (const size_byte_t aSize)
 
     const count_t used          = iDataOut.Offset();
     const count_t deltaToAdd    = sizeToWrite - left;
-    const count_t newSize       = iOut.Size().ValueAs<count_t>() + deltaToAdd;
+    const count_t newSize       = iOut.Size().As<count_t>() + deltaToAdd;
 
     {
         iViewRW.Release();
-        iOut.Resize(newSize.ValueAs<size_byte_t>());
+        iOut.Resize(newSize.As<size_byte_t>());
         iViewRW = iOut.ViewRW();
         iDataOut.Set(iViewRW.RW().PtrBegin(), newSize, used);
     }

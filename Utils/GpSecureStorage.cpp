@@ -1,5 +1,12 @@
 #include "GpSecureStorage.hpp"
+
+GP_WARNING_PUSH()
+GP_WARNING_DISABLE(duplicated-branches)
+
 #include <libsodium/sodium.h>
+
+GP_WARNING_POP()
+
 #include <cstdlib>
 
 namespace GPlatform {
@@ -46,7 +53,7 @@ void    GpSecureStorage::Clear (void)
 
     if (iData != nullptr)
     {
-        sodium_memzero(ViewRW().RW().PtrBegin(), iSizeAllocated.ValueAs<size_t>());
+        sodium_memzero(ViewRW().RW().PtrBegin(), iSizeAllocated.As<size_t>());
 
 #if !defined(OS_BROWSER)
         sodium_free(iData);
@@ -213,12 +220,12 @@ void    GpSecureStorage::SetViewing (const bool aValue) const
 
 GpRawPtrByteR   GpSecureStorage::DataR (void) const
 {
-    return GpRawPtrByteR(iData, iSizeUsed.ValueAs<count_t>());
+    return GpRawPtrByteR(iData, iSizeUsed.As<count_t>());
 }
 
 GpRawPtrByteRW  GpSecureStorage::DataRW (void)
 {
-    return GpRawPtrByteRW(iData, iSizeUsed.ValueAs<count_t>());
+    return GpRawPtrByteRW(iData, iSizeUsed.As<count_t>());
 }
 
 void    GpSecureStorage::ClearAndAllocate (const size_byte_t aSize, const size_byte_t aAlignment)
@@ -229,13 +236,13 @@ void    GpSecureStorage::ClearAndAllocate (const size_byte_t aSize, const size_b
     THROW_GPE_COND_CHECK_M((aSize % aAlignment) == 0_byte, "Wrong size for alignment"_sv);
 
 #if !defined(OS_BROWSER)
-    iData = reinterpret_cast<std::byte*>(sodium_allocarray((aSize / aAlignment).ValueAs<size_t>(), aAlignment.ValueAs<size_t>()));
+    iData = reinterpret_cast<std::byte*>(sodium_allocarray((aSize / aAlignment).As<size_t>(), aAlignment.As<size_t>()));
     THROW_GPE_COND_CHECK_M(iData != nullptr, "sodium_malloc return nullptr"_sv);
 #else
-    //iData = reinterpret_cast<std::byte*>(aligned_alloc(aAlignment.ValueAs<size_t>(), aSize.ValueAs<size_t>()));
+    //iData = reinterpret_cast<std::byte*>(aligned_alloc(aAlignment.As<size_t>(), aSize.As<size_t>()));
     //THROW_GPE_COND_CHECK_M(iData != nullptr, "aligned_alloc return nullptr"_sv);
 
-    iData = reinterpret_cast<std::byte*>(std::malloc(aSize.ValueAs<size_t>()));
+    iData = reinterpret_cast<std::byte*>(std::malloc(aSize.As<size_t>()));
     THROW_GPE_COND_CHECK_M(iData != nullptr, "std::malloc return nullptr"_sv);
 #endif
 
@@ -243,7 +250,7 @@ void    GpSecureStorage::ClearAndAllocate (const size_byte_t aSize, const size_b
     iAlignment      = aAlignment;
 
 #if !defined(OS_BROWSER)
-    if (sodium_mlock(iData, iSizeAllocated.ValueAs<size_t>()) != 0)
+    if (sodium_mlock(iData, iSizeAllocated.As<size_t>()) != 0)
     {
         Clear();
         THROW_GPE("sodium_mlock return error"_sv);

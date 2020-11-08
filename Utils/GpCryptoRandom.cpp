@@ -1,6 +1,11 @@
 #include "GpCryptoRandom.hpp"
 
+GP_WARNING_PUSH()
+GP_WARNING_DISABLE(duplicated-branches)
+
 #include <libsodium/sodium.h>
+
+GP_WARNING_POP()
 
 namespace GPlatform {
 
@@ -21,9 +26,9 @@ void    GpCryptoRandom::SEntropy (const size_byte_t aSize,
 
         randVal = randombytes_random();
 
-        aResOut.CopyFrom(reinterpret_cast<const std::byte*>(&randVal), bytesNeed.ValueAs<count_t>());
+        aResOut.CopyFrom(reinterpret_cast<const std::byte*>(&randVal), bytesNeed.As<count_t>());
 
-        aResOut.OffsetAdd(bytesNeed.ValueAs<count_t>());
+        aResOut.OffsetAdd(bytesNeed.As<count_t>());
         bytesLeft   -= bytesNeed;
     }
 }

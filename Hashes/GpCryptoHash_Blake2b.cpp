@@ -1,5 +1,11 @@
 #include "GpCryptoHash_Blake2b.hpp"
+
+GP_WARNING_PUSH()
+GP_WARNING_DISABLE(duplicated-branches)
+
 #include <libsodium/sodium.h>
+
+GP_WARNING_POP()
 
 namespace GPlatform {
 
@@ -12,7 +18,7 @@ void    GpCryptoHash_Blake2b::S_256 (GpRawPtrByteR                  aData,
     unsigned char*          resDataPtr  = aResOut.PtrAs<unsigned char*>();
     constexpr size_t        resDataSize = std::tuple_size<Res256T>::value;
     const unsigned char*    dataPtr     = (aData.PtrAs<const unsigned char*>());
-    const size_t            dataSize    = aData.CountLeftV<size_t>();
+    const size_t            dataSize    = aData.CountLeft().As<size_t>();
     const unsigned char*    keyPtr      = nullptr;
     size_t                  keySize     = 0;
 
@@ -20,7 +26,7 @@ void    GpCryptoHash_Blake2b::S_256 (GpRawPtrByteR                  aData,
     {
         GpRawPtrByteR& k = aKey.value();
         keyPtr  = k.PtrAs<const unsigned char*>();
-        keySize = k.CountLeftV<size_t>();
+        keySize = k.CountLeft().As<size_t>();
     }
 
     crypto_generichash_blake2b(resDataPtr, resDataSize, dataPtr, dataSize, keyPtr, keySize);

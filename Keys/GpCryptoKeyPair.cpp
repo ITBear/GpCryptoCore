@@ -86,7 +86,7 @@ GpBytesArray    GpCryptoKeyPair::ToPublicBytesWithPrefix (void) const
 
     const size_byte_t               resSize     = prefixPtr.SizeLeft() + size_byte_t::SMake(iPublicBytes.size());
     GpBytesArray                    res;
-    res.resize(resSize.ValueAs<size_t>());
+    res.resize(resSize.As<size_t>());
     GpByteWriterStorageFixedSize    resStorage(res);
     GpByteWriter                    resWriter(resStorage);
 
@@ -103,7 +103,7 @@ GpBytesArray    GpCryptoKeyPair::ToPublicStrHexWithPrefix (void) const
     //Str hex data
     const size_byte_t       resSize = size_byte_t::SMake(publicData.size()) * 2_byte;
     GpBytesArray            res;
-    res.resize(resSize.ValueAs<size_t>());
+    res.resize(resSize.As<size_t>());
 
     GpStringOps::SFromBytes(publicData, res);
 

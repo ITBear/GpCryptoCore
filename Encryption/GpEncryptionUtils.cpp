@@ -1,8 +1,59 @@
 #include "GpEncryptionUtils.hpp"
-#include "../Utils/GpSecureStorage.hpp"
+#include "../Hashes/GpCryptoHash_KDF_Passwd.hpp"
+#include "../Utils/GpByteWriterStorageSecure.hpp"
+
+GP_WARNING_PUSH()
+GP_WARNING_DISABLE(duplicated-branches)
+
 #include <libsodium/sodium.h>
 
+GP_WARNING_POP()
+
 namespace GPlatform {
+
+GpBytesArray    GpEncryptionUtils::SEasyEncrypt (GpRawPtrByteR  aSrcData,
+                                                 GpRawPtrCharR  aPassword,
+                                                 GpRawPtrCharR  aSalt)
+{
+    GpSecureStorage key = SPasswordToKey(aPassword, aSalt);
+
+    GpByteReaderStorage srcDataReaderStorage(aSrcData);
+    GpByteReader        srcDataReader(srcDataReaderStorage);
+
+    GpBytesArray encriptedData;
+    encriptedData.reserve(aSrcData.SizeLeft().As<size_t>());
+
+    GpByteWriterStorageByteArray    encriptedDataWriterStorage(encriptedData);
+    GpByteWriter                    encriptedDataWriter(encriptedDataWriterStorage);
+
+    GpEncryptionUtils::SEncrypt(srcDataReader,
+                                encriptedDataWriter,
+                                key.ViewR().R());
+
+    return encriptedData;
+}
+
+GpSecureStorage GpEncryptionUtils::SEasyDecrypt (GpRawPtrByteR  aSrcData,
+                                                 GpRawPtrCharR  aPassword,
+                                                 GpRawPtrCharR  aSalt)
+{
+    GpSecureStorage key = SPasswordToKey(aPassword, aSalt);
+
+    GpByteReaderStorage srcDataReaderStorage(aSrcData);
+    GpByteReader        srcDataReader(srcDataReaderStorage);
+
+    GpSecureStorage decriptedData;
+    decriptedData.Reserve(aSrcData.SizeLeft());
+
+    GpByteWriterStorageSecure   decriptedDataWriterStorage(decriptedData);
+    GpByteWriter                decriptedDataWriter(decriptedDataWriterStorage);
+
+    GpEncryptionUtils::SDecrypt(srcDataReader,
+                                decriptedDataWriter,
+                                key.ViewR().R());
+
+    return decriptedData;
+}
 
 //https://libsodium.gitbook.io/doc/secret-key_cryptography/secretstream
 
@@ -15,7 +66,7 @@ void    GpEncryptionUtils::SEncrypt (GpByteReader&  aReader,
 
     constexpr size_byte_t CHUNK_SIZE = 4096_byte;
     GpArray<unsigned char, crypto_secretstream_xchacha20poly1305_HEADERBYTES>                           encryptHeader;
-    GpArray<unsigned char, CHUNK_SIZE.ValueAs<size_t>() + crypto_secretstream_xchacha20poly1305_ABYTES> encryptChunk;
+    GpArray<unsigned char, CHUNK_SIZE.As<size_t>() + crypto_secretstream_xchacha20poly1305_ABYTES>  encryptChunk;
 
     crypto_secretstream_xchacha20poly1305_state encryptState;
 
@@ -41,7 +92,7 @@ void    GpEncryptionUtils::SEncrypt (GpByteReader&  aReader,
                                                        encryptChunk.data(),
                                                        &encryptChunkActualSize,
                                                        chunkPtr.PtrBeginAs<const unsigned char *>(),
-                                                       chunkPtr.CountTotalV<size_t>(),
+                                                       chunkPtr.CountTotal().As<size_t>(),
                                                        nullptr,
                                                        0,
                                                        tag) != 0)
@@ -87,13 +138,13 @@ void    GpEncryptionUtils::SDecrypt (GpByteReader&  aReader,
         GpRawPtrByteR chunkPtr  = aReader.BytesWithLen();
         unsigned char tag       = 0;
 
-        unsigned long long decryptChunkActualSize = decryptChunkPtr.CountTotalV<unsigned long long>();
+        unsigned long long decryptChunkActualSize = decryptChunkPtr.CountTotal().As<unsigned long long>();
         if (crypto_secretstream_xchacha20poly1305_pull(&encryptState,
                                                        decryptChunkPtr.PtrBeginAs<unsigned char*>(),
                                                        &decryptChunkActualSize,
                                                        &tag,
                                                        chunkPtr.PtrBeginAs<const unsigned char *>(),
-                                                       chunkPtr.CountTotalV<size_t>(),
+                                                       chunkPtr.CountTotal().As<size_t>(),
                                                        nullptr,
                                                        0) != 0)
         {
@@ -109,6 +160,12 @@ void    GpEncryptionUtils::SDecrypt (GpByteReader&  aReader,
         // Write decrypted chunk
         aWriter.Bytes(decryptChunkPtr.Subrange(0_cnt, count_t::SMake(decryptChunkActualSize)));
     }
+}
+
+GpSecureStorage GpEncryptionUtils::SPasswordToKey (GpRawPtrCharR aPassword,
+                                                   GpRawPtrCharR aSalt)
+{
+    return GpCryptoHash_KDF_Passwd::S_H(aPassword, aSalt, 32_byte, 32_MiB);
 }
 
 }//GPlatform
