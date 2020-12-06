@@ -325,7 +325,7 @@ void ripemd160_process(ripemd160_state& aState,
 void    ripemd160_done(ripemd160_state& aState,
                        GpRawPtrByteRW   aResOut)
 {
-    THROW_GPE_COND_CHECK_M(aResOut.CountLeft() >= count_t::SMake(RIPEMD160_DIGEST_SIZE), "aRes size too small");
+    THROW_GPE_COND_CHECK_M(aResOut.CountLeft() >= count_t::SMake(RIPEMD160_DIGEST_SIZE), "aRes size too small"_sv);
 
     /* Append the padding */
     aState.buf.b[aState.bufpos++] = 0x80;

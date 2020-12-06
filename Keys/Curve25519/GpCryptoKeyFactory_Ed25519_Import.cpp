@@ -59,7 +59,7 @@ void    GpCryptoKeyFactory_Ed25519_Import::Serialize (GpByteWriter& aWriter) con
 
 void    GpCryptoKeyFactory_Ed25519_Import::Deserialize (GpByteReader& aReader)
 {
-    THROW_GPE_COND_CHECK_M(aReader.BytesWithLen() == "GpCryptoKeyFactory_Ed25519_Import"_sv, "Wrong data");
+    THROW_GPE_COND_CHECK_M(aReader.BytesWithLen() == "GpCryptoKeyFactory_Ed25519_Import"_sv, "Wrong data"_sv);
 }
 
 }//GPlatform

@@ -49,7 +49,7 @@ GpSecureStorage&    GpSecureStorage::operator= (GpSecureStorage&& aStorage)
 
 void    GpSecureStorage::Clear (void)
 {
-    THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing");
+    THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing"_sv);
 
     if (iData != nullptr)
     {
@@ -66,7 +66,7 @@ void    GpSecureStorage::Clear (void)
     iSizeUsed       = 0_byte;
     iSizeAllocated  = 0_byte;
     iAlignment      = 1_byte;
-    //iIsViewing    = false;//THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing");
+    //iIsViewing    = false;//THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing"_sv);
 }
 
 void    GpSecureStorage::Resize (const size_byte_t aSize)
@@ -116,8 +116,8 @@ void    GpSecureStorage::Set (GpSecureStorage&& aStorage)
         return;
     }
 
-    THROW_GPE_COND_CHECK_M(aStorage.IsViewing() == false, "aStorage is viewing");
-    THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing");
+    THROW_GPE_COND_CHECK_M(aStorage.IsViewing() == false, "aStorage is viewing"_sv);
+    THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing"_sv);
 
     Clear();
 
@@ -139,8 +139,8 @@ void    GpSecureStorage::CopyFrom (const GpSecureStorage& aStorage)
         return;
     }
 
-    THROW_GPE_COND_CHECK_M(aStorage.IsViewing() == false, "aStorage is viewing");
-    THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing");
+    THROW_GPE_COND_CHECK_M(aStorage.IsViewing() == false, "aStorage is viewing"_sv);
+    THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing"_sv);
     THROW_GPE_COND_CHECK_M((Alignment() % aStorage.Alignment()) == 0_byte, "Wrong alignment"_sv);
 
     CopyFrom(aStorage.ViewR().R());
@@ -154,14 +154,14 @@ void    GpSecureStorage::CopyFrom (GpRawPtrByteR aData)
 
 GpSecureStorageViewR    GpSecureStorage::ViewR (void) const
 {
-    THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing");
+    THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing"_sv);
 
     return GpSecureStorageViewR(*this);
 }
 
 GpSecureStorageViewRW   GpSecureStorage::ViewRW (void)
 {
-    THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing");
+    THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing"_sv);
 
     return GpSecureStorageViewRW(*this);
 }
@@ -213,7 +213,7 @@ void    GpSecureStorage::UnlockR (void) const
 
 void    GpSecureStorage::SetViewing (const bool aValue) const
 {
-    THROW_GPE_COND_CHECK_M(iIsViewing != aValue, "Same value");
+    THROW_GPE_COND_CHECK_M(iIsViewing != aValue, "Same value"_sv);
 
     iIsViewing = aValue;
 }

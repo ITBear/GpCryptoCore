@@ -12,7 +12,7 @@ namespace GPlatform {
 void    GpCryptoHash_Sha2::S_256 (GpRawPtrByteR     aData,
                                   GpRawPtrByteRW    aResOut)
 {
-    THROW_GPE_COND_CHECK_M(aResOut.CountLeft() >= count_t::SMake(std::tuple_size<Res256T>::value), "aRes size too small");
+    THROW_GPE_COND_CHECK_M(aResOut.CountLeft() >= count_t::SMake(std::tuple_size<Res256T>::value), "aRes size too small"_sv);
 
     crypto_hash_sha256(aResOut.PtrAs<unsigned char*>(),
                        aData.PtrAs<const unsigned char*>(),
@@ -30,7 +30,7 @@ GpCryptoHash_Sha2::Res256T  GpCryptoHash_Sha2::S_256 (GpRawPtrByteR aData)
 void    GpCryptoHash_Sha2::S_512 (GpRawPtrByteR     aData,
                                   GpRawPtrByteRW    aResOut)
 {
-    THROW_GPE_COND_CHECK_M(aResOut.CountLeft() >= count_t::SMake(std::tuple_size<Res512T>::value), "aRes size too small");
+    THROW_GPE_COND_CHECK_M(aResOut.CountLeft() >= count_t::SMake(std::tuple_size<Res512T>::value), "aRes size too small"_sv);
 
     crypto_hash_sha512(aResOut.PtrAs<unsigned char*>(),
                        aData.PtrAs<const unsigned char*>(),

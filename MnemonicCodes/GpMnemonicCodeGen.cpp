@@ -96,11 +96,11 @@ bool    GpMnemonicCodeGen::SValidateMnemonic (const WordListT&  aWordList,
                                               const std::string aSpaceChar,
                                               GpRawPtrCharR     aMnemonic)
 {
-    GpVector<GpRawPtrCharR> mnemonicWords = GpStringOps::SSplit(aMnemonic.AsStringView(),
-                                                                aSpaceChar,
-                                                                0_cnt,
-                                                                0_cnt,
-                                                                Algo::SplitMode::SKIP_ZERO_LENGTH_PARTS);
+    GpVector<GpRawPtrCharR> mnemonicWords = StrOps::SSplit(aMnemonic.AsStringView(),
+                                                           aSpaceChar,
+                                                           0_cnt,
+                                                           0_cnt,
+                                                           Algo::SplitMode::SKIP_ZERO_LENGTH_PARTS);
 
     const auto& conf = GpMnemonicCodeGen_sMnemonicK.at(SFindConfByWordsCount(count_t::SMake(mnemonicWords.size())));
 
@@ -167,7 +167,7 @@ GpSecureStorage GpMnemonicCodeGen::SSeedFromMnemonic (const WordListT&  aWordLis
                                                       const count_t     aIterations,
                                                       const size_bit_t  aBitLengthDerivedKey)
 {
-    THROW_GPE_COND_CHECK_M(aMnemonic.CountLeft() > 0_cnt, "Mnemonic is empty");
+    THROW_GPE_COND_CHECK_M(aMnemonic.CountLeft() > 0_cnt, "Mnemonic is empty"_sv);
 
     // Validate mnemonic
     THROW_GPE_COND_CHECK_M(SValidateMnemonic(aWordList, aSpaceChar, aMnemonic), "Invalid mnemonic phrase"_sv);
