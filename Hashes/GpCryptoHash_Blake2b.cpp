@@ -13,7 +13,11 @@ void    GpCryptoHash_Blake2b::S_256 (GpRawPtrByteR                  aData,
                                      std::optional<GpRawPtrByteR>   aKey,
                                      GpRawPtrByteRW                 aResOut)
 {
-    THROW_GPE_COND_CHECK_M(aResOut.CountLeft() >= count_t::SMake(std::tuple_size<Res256T>::value), "aRes size too small"_sv);
+    THROW_GPE_COND
+    (
+        aResOut.CountLeft() >= count_t::SMake(std::tuple_size<Res256T>::value),
+        "aRes size too small"_sv
+    );
 
     unsigned char*          resDataPtr  = aResOut.PtrAs<unsigned char*>();
     constexpr size_t        resDataSize = std::tuple_size<Res256T>::value;

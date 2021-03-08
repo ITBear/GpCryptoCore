@@ -13,7 +13,7 @@ public:
     static GpSecureStorage      S_H (GpRawPtrByteR          aPassword,
                                      GpRawPtrByteR          aSalt,
                                      const size_bit_t       aBitLengthDerivedKey,
-                                     const size_mebibyte_t  aMemoryLimit = 32_MiB);
+                                     const size_mibyte_t    aMemoryLimit = 32_MiB);
 
 };
 

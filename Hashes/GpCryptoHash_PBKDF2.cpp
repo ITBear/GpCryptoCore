@@ -9,16 +9,33 @@ GP_WARNING_POP()
 
 namespace GPlatform {
 
-GpSecureStorage GpCryptoHash_PBKDF2::S_HmacSHA512 (GpRawPtrByteR    aPassword,
-                                                   GpRawPtrByteR    aSalt,
-                                                   const count_t    aIterations,
-                                                   const size_bit_t aBitLengthDerivedKey)
+GpSecureStorage GpCryptoHash_PBKDF2::S_HmacSHA512
+(
+    GpRawPtrByteR       aPassword,
+    GpRawPtrByteR       aSalt,
+    const count_t       aIterations,
+    const size_bit_t    aBitLengthDerivedKey
+)
 {
-    THROW_GPE_COND_CHECK_M(aPassword.CountLeft() > 0_cnt, "Wrong password length"_sv);
-    THROW_GPE_COND_CHECK_M(aSalt.CountLeft() > 0_cnt, "Wrong salt length"_sv);
-    THROW_GPE_COND_CHECK_M(   (aBitLengthDerivedKey > 0_bit)
-                           && (aBitLengthDerivedKey % 8_bit == 0_bit)
-                           && (aBitLengthDerivedKey <= 0x1fffffffe0_bit), "Wrong aBitLengthDerivedKey length"_sv);
+    THROW_GPE_COND
+    (
+        aPassword.CountLeft() > 0_cnt,
+        "Wrong password length"_sv
+    );
+
+    THROW_GPE_COND
+    (
+        aSalt.CountLeft() > 0_cnt,
+        "Wrong salt length"_sv
+    );
+
+    THROW_GPE_COND
+    (
+           (aBitLengthDerivedKey > 0_bit)
+        && (aBitLengthDerivedKey % 8_bit == 0_bit)
+        && (aBitLengthDerivedKey <= 0x1fffffffe0_bit),
+        "Wrong aBitLengthDerivedKey length"_sv
+    );
 
     const size_byte_t   derivedKeySize      = size_byte_t(aBitLengthDerivedKey);
     size_byte_t         derivedKeyLeftBytes = derivedKeySize;
@@ -96,11 +113,25 @@ GpSecureStorage GpCryptoHash_PBKDF2::S_HmacSHA256 (GpRawPtrByteR    aPassword,
                                                    const count_t    aIterations,
                                                    const size_bit_t aBitLengthDerivedKey)
 {
-    THROW_GPE_COND_CHECK_M(aPassword.CountLeft() > 0_cnt, "Wrong password"_sv);
-    THROW_GPE_COND_CHECK_M(aSalt.CountLeft() > 0_cnt, "Wrong salt"_sv);
-    THROW_GPE_COND_CHECK_M(   (aBitLengthDerivedKey > 0_bit)
-                           && (aBitLengthDerivedKey % 8_bit == 0_bit)
-                           && (aBitLengthDerivedKey <= 0x1fffffffe0_bit), "Wrong aBitLengthDerivedKey"_sv);
+    THROW_GPE_COND
+    (
+        aPassword.CountLeft() > 0_cnt,
+        "Wrong password"_sv
+    );
+
+    THROW_GPE_COND
+    (
+        aSalt.CountLeft() > 0_cnt,
+        "Wrong salt"_sv
+    );
+
+    THROW_GPE_COND
+    (
+           (aBitLengthDerivedKey > 0_bit)
+        && (aBitLengthDerivedKey % 8_bit == 0_bit)
+        && (aBitLengthDerivedKey <= 0x1fffffffe0_bit),
+        "Wrong aBitLengthDerivedKey"_sv
+    );
 
     const size_byte_t   derivedKeySize      = size_byte_t(aBitLengthDerivedKey);
     size_byte_t         derivedKeyLeftBytes = derivedKeySize;

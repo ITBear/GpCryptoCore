@@ -31,8 +31,11 @@ GpCryptoKeyFactory_Ed25519_Import::~GpCryptoKeyFactory_Ed25519_Import (void) noe
 
 GpCryptoKeyPair::SP GpCryptoKeyFactory_Ed25519_Import::Generate (void)
 {
-    THROW_GPE_COND_CHECK_M(iSeed.Size() == size_byte_t::SMake(crypto_sign_ed25519_SEEDBYTES),
-                           "Wrong seed size"_sv);
+    THROW_GPE_COND
+    (
+        iSeed.Size() == size_byte_t::SMake(crypto_sign_ed25519_SEEDBYTES),
+        "Wrong seed size"_sv
+    );
 
     GpSecureStorage privateBytes;
     GpBytesArray    publicBytes;
@@ -59,7 +62,11 @@ void    GpCryptoKeyFactory_Ed25519_Import::Serialize (GpByteWriter& aWriter) con
 
 void    GpCryptoKeyFactory_Ed25519_Import::Deserialize (GpByteReader& aReader)
 {
-    THROW_GPE_COND_CHECK_M(aReader.BytesWithLen() == "GpCryptoKeyFactory_Ed25519_Import"_sv, "Wrong data"_sv);
+    THROW_GPE_COND
+    (
+        aReader.BytesWithLen() == "GpCryptoKeyFactory_Ed25519_Import"_sv,
+        "Wrong data"_sv
+    );
 }
 
 }//GPlatform

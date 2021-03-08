@@ -13,19 +13,31 @@ namespace GPlatform {
 GpSecureStorage GpCryptoHash_KDF_Passwd::S_H (GpRawPtrByteR         aPassword,
                                               GpRawPtrByteR         aSalt,
                                               const size_bit_t      aBitLengthDerivedKey,
-                                              const size_mebibyte_t aMemoryLimit)
+                                              const size_mibyte_t   aMemoryLimit)
 {
-    THROW_GPE_COND_CHECK_M(   (aPassword.CountLeft() >= count_t::SMake(crypto_pwhash_PASSWD_MIN))
-                           && (aPassword.CountLeft() <= count_t::SMake(crypto_pwhash_PASSWD_MAX)),
-                           "Wrong password length"_sv);
-    THROW_GPE_COND_CHECK_M(aSalt.CountLeft() == count_t::SMake(crypto_pwhash_SALTBYTES), "Wrong salt length (must be 16 bytes)"_sv);
+    THROW_GPE_COND
+    (
+           (aPassword.CountLeft() >= count_t::SMake(crypto_pwhash_PASSWD_MIN))
+        && (aPassword.CountLeft() <= count_t::SMake(crypto_pwhash_PASSWD_MAX)),
+        "Wrong password length"_sv
+    );
+
+    THROW_GPE_COND
+    (
+        aSalt.CountLeft() == count_t::SMake(crypto_pwhash_SALTBYTES),
+        "Wrong salt length (must be 16 bytes)"_sv
+    );
 
 GP_WARNING_PUSH()
 GP_WARNING_DISABLE(duplicated-branches)
 
-    THROW_GPE_COND_CHECK_M(   (aBitLengthDerivedKey >= size_byte_t::SMake(crypto_pwhash_BYTES_MIN))
-                           && (aBitLengthDerivedKey <= size_byte_t::SMake(crypto_pwhash_BYTES_MAX))
-                           && (aBitLengthDerivedKey % 8_bit == 0_bit), "Wrong aBitLengthDerivedKey length"_sv);
+    THROW_GPE_COND
+    (
+           (aBitLengthDerivedKey >= size_byte_t::SMake(crypto_pwhash_BYTES_MIN))
+        && (aBitLengthDerivedKey <= size_byte_t::SMake(crypto_pwhash_BYTES_MAX))
+        && (aBitLengthDerivedKey % 8_bit == 0_bit),
+        "Wrong aBitLengthDerivedKey length"_sv
+    );
 
 GP_WARNING_POP()
 

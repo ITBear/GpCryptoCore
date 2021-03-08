@@ -24,9 +24,12 @@ GpMnemonicCodeGen_sMnemonicK =
     GpTuple<size_bit_t, size_bit_t, count_t>{256_bit, 8_bit, 24_cnt} //ES_256
 };
 
-GpSecureStorage GpMnemonicCodeGen::SGenerateNewMnemonic (const WordListT&   aWordList,
-                                                         const std::string  aSpaceChar,
-                                                         const EntropySize  aEntropySize)
+GpSecureStorage GpMnemonicCodeGen::SGenerateNewMnemonic
+(
+    const WordListT&    aWordList,
+    const std::string   aSpaceChar,
+    const EntropySize   aEntropySize
+)
 {
     const auto&         conf            = GpMnemonicCodeGen_sMnemonicK.at(size_t(aEntropySize));
     const size_bit_t    entropySize     = std::get<0>(conf);
@@ -85,22 +88,31 @@ GpSecureStorage GpMnemonicCodeGen::SGenerateNewMnemonic (const WordListT&   aWor
     return mnemonicPhrase;
 }
 
-bool    GpMnemonicCodeGen::SValidateMnemonic (const WordListT&          aWordList,
-                                              const std::string         aSpaceChar,
-                                              const GpSecureStorage&    aMnemonic)
+bool    GpMnemonicCodeGen::SValidateMnemonic
+(
+    const WordListT&        aWordList,
+    const std::string       aSpaceChar,
+    const GpSecureStorage&  aMnemonic
+)
 {
     return SValidateMnemonic(aWordList, aSpaceChar, aMnemonic.ViewR().R());
 }
 
-bool    GpMnemonicCodeGen::SValidateMnemonic (const WordListT&  aWordList,
-                                              const std::string aSpaceChar,
-                                              GpRawPtrCharR     aMnemonic)
+bool    GpMnemonicCodeGen::SValidateMnemonic
+(
+    const WordListT&    aWordList,
+    const std::string   aSpaceChar,
+    GpRawPtrCharR       aMnemonic
+)
 {
-    GpVector<GpRawPtrCharR> mnemonicWords = StrOps::SSplit(aMnemonic.AsStringView(),
-                                                           aSpaceChar,
-                                                           0_cnt,
-                                                           0_cnt,
-                                                           Algo::SplitMode::SKIP_ZERO_LENGTH_PARTS);
+    GpVector<GpRawPtrCharR> mnemonicWords = StrOps::SSplit
+    (
+        aMnemonic.AsStringView(),
+        aSpaceChar,
+        0_cnt,
+        0_cnt,
+        Algo::SplitMode::SKIP_ZERO_LENGTH_PARTS
+    );
 
     const auto& conf = GpMnemonicCodeGen_sMnemonicK.at(SFindConfByWordsCount(count_t::SMake(mnemonicWords.size())));
 
@@ -145,32 +157,49 @@ bool    GpMnemonicCodeGen::SValidateMnemonic (const WordListT&  aWordList,
     }
 }
 
-GpSecureStorage GpMnemonicCodeGen::SSeedFromMnemonic (const WordListT&          aWordList,
-                                                      const std::string         aSpaceChar,
-                                                      const GpSecureStorage&    aMnemonic,
-                                                      const GpSecureStorage&    aPassword,
-                                                      const count_t             aIterations,
-                                                      const size_bit_t          aBitLengthDerivedKey)
+GpSecureStorage GpMnemonicCodeGen::SSeedFromMnemonic
+(
+    const WordListT&        aWordList,
+    const std::string       aSpaceChar,
+    const GpSecureStorage&  aMnemonic,
+    const GpSecureStorage&  aPassword,
+    const count_t           aIterations,
+    const size_bit_t        aBitLengthDerivedKey
+)
 {
-    return SSeedFromMnemonic(aWordList,
-                             aSpaceChar,
-                             aMnemonic.ViewR().R(),
-                             aPassword.ViewR().R(),
-                             aIterations,
-                             aBitLengthDerivedKey);
+    return SSeedFromMnemonic
+    (
+        aWordList,
+        aSpaceChar,
+        aMnemonic.ViewR().R(),
+        aPassword.ViewR().R(),
+        aIterations,
+        aBitLengthDerivedKey
+    );
 }
 
-GpSecureStorage GpMnemonicCodeGen::SSeedFromMnemonic (const WordListT&  aWordList,
-                                                      const std::string aSpaceChar,
-                                                      GpRawPtrCharR     aMnemonic,
-                                                      GpRawPtrCharR     aPassword,
-                                                      const count_t     aIterations,
-                                                      const size_bit_t  aBitLengthDerivedKey)
+GpSecureStorage GpMnemonicCodeGen::SSeedFromMnemonic
+(
+    const WordListT&    aWordList,
+    const std::string   aSpaceChar,
+    GpRawPtrCharR       aMnemonic,
+    GpRawPtrCharR       aPassword,
+    const count_t       aIterations,
+    const size_bit_t    aBitLengthDerivedKey
+)
 {
-    THROW_GPE_COND_CHECK_M(aMnemonic.CountLeft() > 0_cnt, "Mnemonic is empty"_sv);
+    THROW_GPE_COND
+    (
+        aMnemonic.CountLeft() > 0_cnt,
+        "Mnemonic is empty"_sv
+    );
 
     // Validate mnemonic
-    THROW_GPE_COND_CHECK_M(SValidateMnemonic(aWordList, aSpaceChar, aMnemonic), "Invalid mnemonic phrase"_sv);
+    THROW_GPE_COND
+    (
+        SValidateMnemonic(aWordList, aSpaceChar, aMnemonic),
+        "Invalid mnemonic phrase"_sv
+    );
 
     // Mnemonic normalization
     GpSecureStorage normalizedMnemonic;
@@ -228,10 +257,13 @@ GpSecureStorage GpMnemonicCodeGen::SSeedFromMnemonic (const WordListT&  aWordLis
         }
     }
 
-    GpSecureStorage res = GpCryptoHash_PBKDF2::S_HmacSHA512(normalizedMnemonic.ViewR().R(),
-                                                            salt.ViewR().R(),
-                                                            aIterations,
-                                                            aBitLengthDerivedKey);
+    GpSecureStorage res = GpCryptoHash_PBKDF2::S_HmacSHA512
+    (
+        normalizedMnemonic.ViewR().R(),
+        salt.ViewR().R(),
+        aIterations,
+        aBitLengthDerivedKey
+    );
 
     return res;
 }
@@ -252,8 +284,11 @@ size_t  GpMnemonicCodeGen::SFindConfByWordsCount (const count_t aWordsCount)
     THROW_GPE("Wrong words count"_sv);
 }
 
-u_int_16    GpMnemonicCodeGen::SFindWordId (const WordListT&    aWordList,
-                                            GpRawPtrCharR       aWord)
+u_int_16    GpMnemonicCodeGen::SFindWordId
+(
+    const WordListT&    aWordList,
+    GpRawPtrCharR       aWord
+)
 {
     std::string_view word = aWord.AsStringView();
     size_t id = 0;

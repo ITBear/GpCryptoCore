@@ -28,8 +28,11 @@ GpCryptoKeyFactory_Ed25519_HD::~GpCryptoKeyFactory_Ed25519_HD (void) noexcept
 
 GpCryptoKeyPair::SP GpCryptoKeyFactory_Ed25519_HD::Generate (void)
 {
-    THROW_GPE_COND_CHECK_M(iParentHDKeyStorage.SchemeType() == GpCryptoHDSchemeType::SLIP10_ED25519,
-                           "HD scheme type must be SLIP10_ED25519"_sv);
+    THROW_GPE_COND
+    (
+        iParentHDKeyStorage.SchemeType() == GpCryptoHDSchemeType::SLIP10_ED25519,
+        "HD scheme type must be SLIP10_ED25519"_sv
+    );
 
     GpCryptoHDKeyStorage keyStorageHD = GpCryptoHDKeyGen::SChildKeyPair(iParentHDKeyStorage, iChildNumber);
     iChildNumber++;
@@ -54,7 +57,7 @@ void    GpCryptoKeyFactory_Ed25519_HD::Serialize (GpByteWriter& aWriter) const
     }
 
     //iChildNumber
-    aWriter.CompactSInt32(iChildNumber.As<s_int_32>());
+    aWriter.CompactUInt32(iChildNumber.As<s_int_32>());
 }
 
 void    GpCryptoKeyFactory_Ed25519_HD::Deserialize (GpByteReader& aReader)
@@ -62,8 +65,11 @@ void    GpCryptoKeyFactory_Ed25519_HD::Deserialize (GpByteReader& aReader)
     //iParentHDKeyStorage
     {
         //SchemeType
-        THROW_GPE_COND_CHECK_M(aReader.BytesWithLen() == GpCryptoHDSchemeType::SToString(iParentHDKeyStorage.SchemeType()),
-                               "Wrong SchemeType"_sv);
+        THROW_GPE_COND
+        (
+            aReader.BytesWithLen() == GpCryptoHDSchemeType::SToString(iParentHDKeyStorage.SchemeType()),
+            "Wrong SchemeType"_sv
+        );
 
         //ChainCode
         iParentHDKeyStorage.ChainCode().ViewRW().RW().CopyFrom(aReader.BytesWithLen());

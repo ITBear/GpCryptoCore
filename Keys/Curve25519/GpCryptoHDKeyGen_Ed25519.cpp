@@ -33,8 +33,11 @@ GpCryptoHDKeyStorage    GpCryptoHDKeyGen_Ed25519::SMasterKeyPairFromSeed (GpRawP
 GpCryptoHDKeyStorage    GpCryptoHDKeyGen_Ed25519::SChildKeyPair (const GpCryptoHDKeyStorage&    aParentHDKeyStorage,
                                                                  const count_t                  aChildId)
 {
-    THROW_GPE_COND_CHECK_M(aParentHDKeyStorage.SchemeType() == GpCryptoHDSchemeType::SLIP10_ED25519,
-                           "HD scheme type must be SLIP10_ED25519"_sv);
+    THROW_GPE_COND
+    (
+        aParentHDKeyStorage.SchemeType() == GpCryptoHDSchemeType::SLIP10_ED25519,
+        "HD scheme type must be SLIP10_ED25519"_sv
+    );
 
     //SLIP10_ED25519 only supports hardened keys
     const count_t childCode = aChildId + count_t::SMake(0x80000000);

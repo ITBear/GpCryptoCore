@@ -9,14 +9,24 @@ GP_WARNING_POP()
 
 namespace GPlatform {
 
-void    GpCryptoHash_Sha2::S_256 (GpRawPtrByteR     aData,
-                                  GpRawPtrByteRW    aResOut)
+void    GpCryptoHash_Sha2::S_256
+(
+    GpRawPtrByteR   aData,
+    GpRawPtrByteRW  aResOut
+)
 {
-    THROW_GPE_COND_CHECK_M(aResOut.CountLeft() >= count_t::SMake(std::tuple_size<Res256T>::value), "aRes size too small"_sv);
+    THROW_GPE_COND
+    (
+        aResOut.CountLeft() >= count_t::SMake(std::tuple_size<Res256T>::value),
+        "aRes size too small"_sv
+    );
 
-    crypto_hash_sha256(aResOut.PtrAs<unsigned char*>(),
-                       aData.PtrAs<const unsigned char*>(),
-                       aData.CountLeft().As<size_t>());
+    crypto_hash_sha256
+    (
+        aResOut.PtrAs<unsigned char*>(),
+        aData.PtrAs<const unsigned char*>(),
+        aData.CountLeft().As<size_t>()
+    );
 }
 
 GpCryptoHash_Sha2::Res256T  GpCryptoHash_Sha2::S_256 (GpRawPtrByteR aData)
@@ -27,14 +37,24 @@ GpCryptoHash_Sha2::Res256T  GpCryptoHash_Sha2::S_256 (GpRawPtrByteR aData)
     return res;
 }
 
-void    GpCryptoHash_Sha2::S_512 (GpRawPtrByteR     aData,
-                                  GpRawPtrByteRW    aResOut)
+void    GpCryptoHash_Sha2::S_512
+(
+    GpRawPtrByteR   aData,
+    GpRawPtrByteRW  aResOut
+)
 {
-    THROW_GPE_COND_CHECK_M(aResOut.CountLeft() >= count_t::SMake(std::tuple_size<Res512T>::value), "aRes size too small"_sv);
+    THROW_GPE_COND
+    (
+        aResOut.CountLeft() >= count_t::SMake(std::tuple_size<Res512T>::value),
+        "aRes size too small"_sv
+    );
 
-    crypto_hash_sha512(aResOut.PtrAs<unsigned char*>(),
-                       aData.PtrAs<const unsigned char*>(),
-                       aData.CountLeft().As<size_t>());
+    crypto_hash_sha512
+    (
+        aResOut.PtrAs<unsigned char*>(),
+        aData.PtrAs<const unsigned char*>(),
+        aData.CountLeft().As<size_t>()
+    );
 }
 
 GpCryptoHash_Sha2::Res512T  GpCryptoHash_Sha2::S_512 (GpRawPtrByteR aData)

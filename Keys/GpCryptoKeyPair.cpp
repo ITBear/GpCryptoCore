@@ -43,7 +43,11 @@ void    GpCryptoKeyPair::Clear (void) noexcept
 
 GpSecureStorage GpCryptoKeyPair::ToPrivateBytesWithPrefix (void) const
 {
-    THROW_GPE_COND_CHECK_M(iPrivateBytes.Size() > 0_byte, "Keypair is empty"_sv);
+    THROW_GPE_COND
+    (
+        iPrivateBytes.Size() > 0_byte,
+        "Keypair is empty"_sv
+    );
 
     GpRawPtrByteR                   prefixPtr   = PrivateBytesPrefix();
     GpSecureStorageViewR            privateView = iPrivateBytes.ViewR();
@@ -73,14 +77,18 @@ GpSecureStorage GpCryptoKeyPair::ToPrivateStrHexWithPrefix (void) const
     GpSecureStorage         res;
     res.Resize(resSize);
 
-    StrOps::SFromBytes(privatePtr, res.ViewRW().RW());
+    StrOps::SFromBytesHex(privatePtr, res.ViewRW().RW());
 
     return res;
 }
 
 GpBytesArray    GpCryptoKeyPair::ToPublicBytesWithPrefix (void) const
 {
-    THROW_GPE_COND_CHECK_M(iPublicBytes.size() > 0, "Keypair is empty"_sv);
+    THROW_GPE_COND
+    (
+        iPublicBytes.size() > 0,
+        "Keypair is empty"_sv
+    );
 
     GpRawPtrByteR                   prefixPtr   = PublicBytesPrefix();
 
@@ -105,7 +113,7 @@ GpBytesArray    GpCryptoKeyPair::ToPublicStrHexWithPrefix (void) const
     GpBytesArray            res;
     res.resize(resSize.As<size_t>());
 
-    StrOps::SFromBytes(publicData, res);
+    StrOps::SFromBytesHex(publicData, res);
 
     return res;
 }

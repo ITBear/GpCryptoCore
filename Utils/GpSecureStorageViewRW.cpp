@@ -38,7 +38,11 @@ GpSecureStorageViewRW&  GpSecureStorageViewRW::operator= (GpSecureStorageViewRW&
 
 GpRawPtrByteR   GpSecureStorageViewRW::R (void) const
 {
-    THROW_GPE_COND_CHECK_M(iStorage.has_value(), "Storage is null"_sv);
+    THROW_GPE_COND
+    (
+        iStorage.has_value(),
+        "Storage is null"_sv
+    );
 
     const GpSecureStorage& storage = iStorage.value();
     return storage.DataR();
@@ -46,7 +50,11 @@ GpRawPtrByteR   GpSecureStorageViewRW::R (void) const
 
 GpRawPtrByteRW  GpSecureStorageViewRW::RW (void)
 {
-    THROW_GPE_COND_CHECK_M(iStorage.has_value(), "Storage is null"_sv);
+    THROW_GPE_COND
+    (
+        iStorage.has_value(),
+        "Storage is null"_sv
+    );
 
     GpSecureStorage& storage = iStorage.value();
     return storage.DataRW();

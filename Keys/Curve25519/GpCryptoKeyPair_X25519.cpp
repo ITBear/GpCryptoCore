@@ -41,13 +41,13 @@ GpCryptoKeyPair_X25519::~GpCryptoKeyPair_X25519 (void) noexcept
 
 GpRawPtrByteR   GpCryptoKeyPair_X25519::PrivateBytesPrefix (void) const noexcept
 {
-    THROW_NOT_IMPLEMENTED();
+    THROW_GPE_NOT_IMPLEMENTED();
     //return sPrivateBytesPrefix;
 }
 
 GpRawPtrByteR   GpCryptoKeyPair_X25519::PublicBytesPrefix (void) const noexcept
 {
-    THROW_NOT_IMPLEMENTED();
+    THROW_GPE_NOT_IMPLEMENTED();
     //return sPublicBytesPrefix;
 }*/
 

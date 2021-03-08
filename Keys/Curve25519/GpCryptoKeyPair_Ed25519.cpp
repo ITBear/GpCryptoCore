@@ -83,8 +83,17 @@ bool    GpCryptoKeyPair_Ed25519::SVerifySign (GpRawPtrByteR aData,
                                               GpRawPtrByteR aSign,
                                               GpRawPtrByteR aPublicKey)
 {
-    THROW_GPE_COND_CHECK_M(aSign.CountLeft() >= count_t::SMake(crypto_sign_ed25519_BYTES), "aSign size too small"_sv);
-    THROW_GPE_COND_CHECK_M(aPublicKey.CountLeft() >= count_t::SMake(crypto_sign_ed25519_PUBLICKEYBYTES), "aPublicKey size too small"_sv);
+    THROW_GPE_COND
+    (
+        aSign.CountLeft() >= count_t::SMake(crypto_sign_ed25519_BYTES),
+        "aSign size too small"_sv
+    );
+
+    THROW_GPE_COND
+    (
+        aPublicKey.CountLeft() >= count_t::SMake(crypto_sign_ed25519_PUBLICKEYBYTES),
+        "aPublicKey size too small"_sv
+    );
 
     if (crypto_sign_ed25519_verify_detached(aSign.PtrAs<const unsigned char*>(),
                                             aData.PtrAs<const unsigned char*>(),

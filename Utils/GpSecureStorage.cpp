@@ -49,7 +49,7 @@ GpSecureStorage&    GpSecureStorage::operator= (GpSecureStorage&& aStorage)
 
 void    GpSecureStorage::Clear (void)
 {
-    THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing"_sv);
+    THROW_GPE_COND(IsViewing() == false, "Storage is viewing"_sv);
 
     if (iData != nullptr)
     {
@@ -66,7 +66,7 @@ void    GpSecureStorage::Clear (void)
     iSizeUsed       = 0_byte;
     iSizeAllocated  = 0_byte;
     iAlignment      = 1_byte;
-    //iIsViewing    = false;//THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing"_sv);
+    //iIsViewing    = false;//THROW_GPE_COND(IsViewing() == false, "Storage is viewing"_sv);
 }
 
 void    GpSecureStorage::Resize (const size_byte_t aSize)
@@ -87,7 +87,11 @@ void    GpSecureStorage::Reserve (const size_byte_t aSize)
 
 void    GpSecureStorage::Reserve (const size_byte_t aSize, const size_byte_t aAlignment)
 {
-    THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing"_sv);
+    THROW_GPE_COND
+    (
+        IsViewing() == false,
+        "Storage is viewing"_sv
+    );
 
     if (IsDataNullptr())
     {
@@ -96,7 +100,11 @@ void    GpSecureStorage::Reserve (const size_byte_t aSize, const size_byte_t aAl
         return;
     }
 
-    THROW_GPE_COND_CHECK_M((Alignment() % aAlignment) == 0_byte, "Wrong alignment"_sv);
+    THROW_GPE_COND
+    (
+        (Alignment() % aAlignment) == 0_byte,
+        "Wrong alignment"_sv
+    );
 
     if (aSize <= iSizeAllocated)
     {
@@ -116,8 +124,17 @@ void    GpSecureStorage::Set (GpSecureStorage&& aStorage)
         return;
     }
 
-    THROW_GPE_COND_CHECK_M(aStorage.IsViewing() == false, "aStorage is viewing"_sv);
-    THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing"_sv);
+    THROW_GPE_COND
+    (
+        aStorage.IsViewing() == false,
+        "aStorage is viewing"_sv
+    );
+
+    THROW_GPE_COND
+    (
+        IsViewing() == false,
+        "Storage is viewing"_sv
+    );
 
     Clear();
 
@@ -139,9 +156,23 @@ void    GpSecureStorage::CopyFrom (const GpSecureStorage& aStorage)
         return;
     }
 
-    THROW_GPE_COND_CHECK_M(aStorage.IsViewing() == false, "aStorage is viewing"_sv);
-    THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing"_sv);
-    THROW_GPE_COND_CHECK_M((Alignment() % aStorage.Alignment()) == 0_byte, "Wrong alignment"_sv);
+    THROW_GPE_COND
+    (
+        aStorage.IsViewing() == false,
+        "aStorage is viewing"_sv
+    );
+
+    THROW_GPE_COND
+    (
+        IsViewing() == false,
+        "Storage is viewing"_sv
+    );
+
+    THROW_GPE_COND
+    (
+        (Alignment() % aStorage.Alignment()) == 0_byte,
+        "Wrong alignment"_sv
+    );
 
     CopyFrom(aStorage.ViewR().R());
 }
@@ -154,14 +185,22 @@ void    GpSecureStorage::CopyFrom (GpRawPtrByteR aData)
 
 GpSecureStorageViewR    GpSecureStorage::ViewR (void) const
 {
-    THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing"_sv);
+    THROW_GPE_COND
+    (
+        IsViewing() == false,
+        "Storage is viewing"_sv
+    );
 
     return GpSecureStorageViewR(*this);
 }
 
 GpSecureStorageViewRW   GpSecureStorage::ViewRW (void)
 {
-    THROW_GPE_COND_CHECK_M(IsViewing() == false, "Storage is viewing"_sv);
+    THROW_GPE_COND
+    (
+        IsViewing() == false,
+        "Storage is viewing"_sv
+    );
 
     return GpSecureStorageViewRW(*this);
 }
@@ -213,7 +252,11 @@ void    GpSecureStorage::UnlockR (void) const
 
 void    GpSecureStorage::SetViewing (const bool aValue) const
 {
-    THROW_GPE_COND_CHECK_M(iIsViewing != aValue, "Same value"_sv);
+    THROW_GPE_COND
+    (
+        iIsViewing != aValue,
+        "Same value"_sv
+    );
 
     iIsViewing = aValue;
 }
@@ -232,18 +275,31 @@ void    GpSecureStorage::ClearAndAllocate (const size_byte_t aSize, const size_b
 {
     Clear();
 
-    THROW_GPE_COND_CHECK_M((aSize >= 1_byte) && (aSize <= 32768_byte), "aSize is out of range"_sv);
-    THROW_GPE_COND_CHECK_M((aSize % aAlignment) == 0_byte, "Wrong size for alignment"_sv);
+    THROW_GPE_COND
+    (
+        (aSize >= 1_byte) && (aSize <= 32768_byte),
+        "aSize is out of range"_sv
+    );
+
+    THROW_GPE_COND
+    (
+        (aSize % aAlignment) == 0_byte,
+        "Wrong size for alignment"_sv
+    );
 
 #if !defined(OS_BROWSER)
     iData = reinterpret_cast<std::byte*>(sodium_allocarray((aSize / aAlignment).As<size_t>(), aAlignment.As<size_t>()));
-    THROW_GPE_COND_CHECK_M(iData != nullptr, "sodium_malloc return nullptr"_sv);
+    THROW_GPE_COND
+    (
+        iData != nullptr,
+        "sodium_malloc return nullptr"_sv
+    );
 #else
     //iData = reinterpret_cast<std::byte*>(aligned_alloc(aAlignment.As<size_t>(), aSize.As<size_t>()));
-    //THROW_GPE_COND_CHECK_M(iData != nullptr, "aligned_alloc return nullptr"_sv);
+    //THROW_GPE_COND(iData != nullptr, "aligned_alloc return nullptr"_sv);
 
     iData = reinterpret_cast<std::byte*>(std::malloc(aSize.As<size_t>()));
-    THROW_GPE_COND_CHECK_M(iData != nullptr, "std::malloc return nullptr"_sv);
+    THROW_GPE_COND(iData != nullptr, "std::malloc return nullptr"_sv);
 #endif
 
     iSizeAllocated  = aSize;

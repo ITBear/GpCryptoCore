@@ -48,7 +48,11 @@ void    GpCryptoKeyFactory_Ed25519_Rnd::Serialize (GpByteWriter& aWriter) const
 
 void    GpCryptoKeyFactory_Ed25519_Rnd::Deserialize (GpByteReader& aReader)
 {
-    THROW_GPE_COND_CHECK_M(aReader.BytesWithLen() == "GpCryptoKeyFactory_Ed25519_Rnd"_sv, "Wrong data"_sv);
+    THROW_GPE_COND
+    (
+        aReader.BytesWithLen() == "GpCryptoKeyFactory_Ed25519_Rnd"_sv,
+        "Wrong data"_sv
+    );
 }
 
 }//GPlatform

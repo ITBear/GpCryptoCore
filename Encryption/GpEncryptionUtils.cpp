@@ -61,8 +61,11 @@ void    GpEncryptionUtils::SEncrypt (GpByteReader&  aReader,
                                      GpByteWriter&  aWriter,
                                      GpRawPtrByteR  aKey)
 {
-    THROW_GPE_COND_CHECK_M(aKey.CountLeft() >= count_t::SMake(crypto_secretstream_xchacha20poly1305_KEYBYTES),
-                           "Wrong key length"_sv);
+    THROW_GPE_COND
+    (
+        aKey.CountLeft() >= count_t::SMake(crypto_secretstream_xchacha20poly1305_KEYBYTES),
+        "Wrong key length"_sv
+    );
 
     constexpr size_byte_t CHUNK_SIZE = 4096_byte;
     GpArray<unsigned char, crypto_secretstream_xchacha20poly1305_HEADERBYTES>                           encryptHeader;
@@ -109,8 +112,11 @@ void    GpEncryptionUtils::SDecrypt (GpByteReader&  aReader,
                                      GpByteWriter&  aWriter,
                                      GpRawPtrByteR  aKey)
 {
-    THROW_GPE_COND_CHECK_M(aKey.CountLeft() >= count_t::SMake(crypto_secretstream_xchacha20poly1305_KEYBYTES),
-                           "Wrong key length"_sv);
+    THROW_GPE_COND
+    (
+        aKey.CountLeft() >= count_t::SMake(crypto_secretstream_xchacha20poly1305_KEYBYTES),
+        "Wrong key length"_sv
+    );
 
     constexpr size_byte_t CHUNK_SIZE = 4096_byte;
     GpArray<unsigned char, crypto_secretstream_xchacha20poly1305_HEADERBYTES>   encryptHeader;

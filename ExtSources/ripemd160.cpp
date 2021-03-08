@@ -293,7 +293,11 @@ void ripemd160_process(ripemd160_state& aState,
     size_t lengthLeft   = aData.CountLeft().As<size_t>();
 
     /* We never leave a full buffer */
-    THROW_GPE_COND_CHECK_M(aState.bufpos < 64, "Buffer ptr is out of range"_sv);
+    THROW_GPE_COND
+    (
+        aState.bufpos < 64,
+        "Buffer ptr is out of range"_sv
+    );
 
     while (lengthLeft > 0)
     {
@@ -325,7 +329,11 @@ void ripemd160_process(ripemd160_state& aState,
 void    ripemd160_done(ripemd160_state& aState,
                        GpRawPtrByteRW   aResOut)
 {
-    THROW_GPE_COND_CHECK_M(aResOut.CountLeft() >= count_t::SMake(RIPEMD160_DIGEST_SIZE), "aRes size too small"_sv);
+    THROW_GPE_COND
+    (
+        aResOut.CountLeft() >= count_t::SMake(RIPEMD160_DIGEST_SIZE),
+        "aRes size too small"_sv
+    );
 
     /* Append the padding */
     aState.buf.b[aState.bufpos++] = 0x80;
