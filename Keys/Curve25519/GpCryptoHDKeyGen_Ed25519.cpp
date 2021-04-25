@@ -5,14 +5,17 @@
 
 namespace GPlatform {
 
-GpCryptoHDKeyStorage    GpCryptoHDKeyGen_Ed25519::SMasterKeyPairFromSeed (GpRawPtrByteR aSeed)
+GpCryptoHDKeyStorage::SP    GpCryptoHDKeyGen_Ed25519::SMasterKeyPairFromSeed (GpRawPtrByteR aSeed)
 {
     GpSecureStorage valI;
     valI.Resize(512_bit);
 
-    GpCryptoHash_Hmac::S_512(aSeed,
-                             "ed25519 seed"_sv,
-                             valI.ViewRW().RW());
+    GpCryptoHash_Hmac::S_512
+    (
+        aSeed,
+        "ed25519 seed"_sv,
+        valI.ViewRW().RW()
+    );
 
     GpSecureStorageViewR    valIViewR   = valI.ViewR();
     GpRawPtrByteR           valIViewPtr = valIViewR.R();
@@ -25,13 +28,20 @@ GpCryptoHDKeyStorage    GpCryptoHDKeyGen_Ed25519::SMasterKeyPairFromSeed (GpRawP
     chainCode.CopyFrom(valIR);
     privateData.CopyFrom(valIL);
 
-    return GpCryptoHDKeyStorage(GpCryptoHDSchemeType::SLIP10_ED25519,
-                                std::move(chainCode),
-                                std::move(privateData));
+    return MakeSP<GpCryptoHDKeyStorage>
+    (
+                ?
+        GpCryptoHDSchemeType::SLIP10_ED25519,
+        std::move(chainCode),
+        std::move(privateData)
+    );
 }
 
-GpCryptoHDKeyStorage    GpCryptoHDKeyGen_Ed25519::SChildKeyPair (const GpCryptoHDKeyStorage&    aParentHDKeyStorage,
-                                                                 const count_t                  aChildId)
+GpCryptoHDKeyStorage::SP    GpCryptoHDKeyGen_Ed25519::SChildKeyPair
+(
+    const GpCryptoHDKeyStorage& aParentHDKeyStorage,
+    const count_t               aChildId
+)
 {
     THROW_GPE_COND
     (
@@ -59,9 +69,12 @@ GpCryptoHDKeyStorage    GpCryptoHDKeyGen_Ed25519::SChildKeyPair (const GpCryptoH
     GpSecureStorage valI;
     valI.Resize(512_bit);
 
-    GpCryptoHash_Hmac::S_512(sourceData.ViewR().R(),
-                             aParentHDKeyStorage.ChainCode().ViewR().R(),
-                             valI.ViewRW().RW());
+    GpCryptoHash_Hmac::S_512
+    (
+        sourceData.ViewR().R(),
+        aParentHDKeyStorage.ChainCode().ViewR().R(),
+        valI.ViewRW().RW()
+    );
 
     GpSecureStorageViewR    valIViewR   = valI.ViewR();
     GpRawPtrByteR           valIViewPtr = valIViewR.R();
@@ -74,9 +87,12 @@ GpCryptoHDKeyStorage    GpCryptoHDKeyGen_Ed25519::SChildKeyPair (const GpCryptoH
     chainCode.CopyFrom(valIR);
     privateData.CopyFrom(valIL);
 
-    return GpCryptoHDKeyStorage(GpCryptoHDSchemeType::SLIP10_ED25519,
-                                std::move(chainCode),
-                                std::move(privateData));
+    return MakeSP<GpCryptoHDKeyStorage>
+    (
+        GpCryptoHDSchemeType::SLIP10_ED25519,
+        std::move(chainCode),
+        std::move(privateData)
+    );
 }
 
 }//GPlatform

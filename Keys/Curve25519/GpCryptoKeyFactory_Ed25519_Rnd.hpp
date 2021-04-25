@@ -3,7 +3,7 @@
 #include "../GpCryptoKeyFactory.hpp"
 
 namespace GPlatform {
-
+/*
 class GPCRYPTOCORE_API GpCryptoKeyFactory_Ed25519_Rnd final: public GpCryptoKeyFactory
 {
 public:
@@ -18,5 +18,5 @@ public:
     virtual void                    Serialize                       (GpByteWriter& aWriter) const override final;
     virtual void                    Deserialize                     (GpByteReader& aReader) override final;
 };
-
+*/
 }//GPlatform

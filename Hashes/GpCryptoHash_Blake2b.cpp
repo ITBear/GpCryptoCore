@@ -9,9 +9,12 @@ GP_WARNING_POP()
 
 namespace GPlatform {
 
-void    GpCryptoHash_Blake2b::S_256 (GpRawPtrByteR                  aData,
-                                     std::optional<GpRawPtrByteR>   aKey,
-                                     GpRawPtrByteRW                 aResOut)
+void    GpCryptoHash_Blake2b::S_256
+(
+    GpRawPtrByteR                   aData,
+    std::optional<GpRawPtrByteR>    aKey,
+    GpRawPtrByteRW                  aResOut
+)
 {
     THROW_GPE_COND
     (
@@ -36,8 +39,11 @@ void    GpCryptoHash_Blake2b::S_256 (GpRawPtrByteR                  aData,
     crypto_generichash_blake2b(resDataPtr, resDataSize, dataPtr, dataSize, keyPtr, keySize);
 }
 
-GpCryptoHash_Blake2b::Res256T   GpCryptoHash_Blake2b::S_256 (GpRawPtrByteR                  aData,
-                                                             std::optional<GpRawPtrByteR>   aKey)
+GpCryptoHash_Blake2b::Res256T   GpCryptoHash_Blake2b::S_256
+(
+    GpRawPtrByteR                   aData,
+    std::optional<GpRawPtrByteR>    aKey
+)
 {
     Res256T res;
     GpRawPtrByteRW r(res);

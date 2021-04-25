@@ -51,7 +51,11 @@ SOURCES += \
 	Utils/GpCryptoRandom.cpp \
 	Utils/GpSecureStorage.cpp \
 	Utils/GpSecureStorageViewR.cpp \
-	Utils/GpSecureStorageViewRW.cpp
+	Utils/GpSecureStorageViewRW.cpp \
+	Wallet/Address.cpp \
+	Wallet/AddressGroup.cpp \
+	Wallet/Wallet.cpp \
+	Wallet/WalletUtils.cpp
 
 HEADERS += \
 	Encryption/GpEncryption.hpp \
@@ -88,4 +92,8 @@ HEADERS += \
 	Utils/GpCryptoUtils.h \
 	Utils/GpSecureStorage.hpp \
 	Utils/GpSecureStorageViewR.hpp \
-	Utils/GpSecureStorageViewRW.hpp
+	Utils/GpSecureStorageViewRW.hpp \
+	Wallet/Address.hpp \
+	Wallet/AddressGroup.hpp \
+	Wallet/Wallet.hpp \
+	Wallet/WalletUtils.hpp

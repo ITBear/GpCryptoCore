@@ -24,7 +24,7 @@ GpMnemonicCodeGen_sMnemonicK =
     GpTuple<size_bit_t, size_bit_t, count_t>{256_bit, 8_bit, 24_cnt} //ES_256
 };
 
-GpSecureStorage GpMnemonicCodeGen::SGenerateNewMnemonic
+GpSecureStorage::SP GpMnemonicCodeGen::SGenerateNewMnemonic
 (
     const WordListT&    aWordList,
     const std::string   aSpaceChar,
@@ -36,7 +36,8 @@ GpSecureStorage GpMnemonicCodeGen::SGenerateNewMnemonic
     const size_bit_t    checksumLength  = std::get<1>(conf);
     const count_t       wordsCount      = std::get<2>(conf);
 
-    GpSecureStorage                     entropy         = GpCryptoRandom::SEntropy(entropySize);
+    GpSecureStorage::SP                 entropySP       = GpCryptoRandom::SEntropy(entropySize);
+    const GpSecureStorage&              entropy         = entropySP.VC();
     const GpCryptoHash_Sha2::Res256T    entropySha256   = GpCryptoHash_Sha2::S_256(entropy.ViewR().R());
     const u_int_8                       checksumMask    = ~u_int_8((1 << (8 - checksumLength.As<size_t>()))-1);
     const u_int_8                       checksum        = u_int_8(u_int_8(entropySha256.at(0)) & checksumMask);
@@ -55,7 +56,8 @@ GpSecureStorage GpMnemonicCodeGen::SGenerateNewMnemonic
     }
 
     // Generate mnemonic phrase
-    GpSecureStorage mnemonicPhrase;
+    GpSecureStorage::SP mnemonicPhraseSP    = MakeSP<GpSecureStorage>();
+    GpSecureStorage&    mnemonicPhrase      = mnemonicPhraseSP.V();
     size_byte_t     mnemonicPhraseActualSize = 0_byte;
 
     {
@@ -85,7 +87,7 @@ GpSecureStorage GpMnemonicCodeGen::SGenerateNewMnemonic
 
     mnemonicPhrase.Resize(mnemonicPhraseActualSize);
 
-    return mnemonicPhrase;
+    return mnemonicPhraseSP;
 }
 
 bool    GpMnemonicCodeGen::SValidateMnemonic
@@ -157,7 +159,7 @@ bool    GpMnemonicCodeGen::SValidateMnemonic
     }
 }
 
-GpSecureStorage GpMnemonicCodeGen::SSeedFromMnemonic
+GpSecureStorage::SP GpMnemonicCodeGen::SSeedFromMnemonic
 (
     const WordListT&        aWordList,
     const std::string       aSpaceChar,
@@ -178,7 +180,7 @@ GpSecureStorage GpMnemonicCodeGen::SSeedFromMnemonic
     );
 }
 
-GpSecureStorage GpMnemonicCodeGen::SSeedFromMnemonic
+GpSecureStorage::SP GpMnemonicCodeGen::SSeedFromMnemonic
 (
     const WordListT&    aWordList,
     const std::string   aSpaceChar,
@@ -257,7 +259,7 @@ GpSecureStorage GpMnemonicCodeGen::SSeedFromMnemonic
         }
     }
 
-    GpSecureStorage res = GpCryptoHash_PBKDF2::S_HmacSHA512
+    GpSecureStorage::SP res = GpCryptoHash_PBKDF2::S_HmacSHA512
     (
         normalizedMnemonic.ViewR().R(),
         salt.ViewR().R(),

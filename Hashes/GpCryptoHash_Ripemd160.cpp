@@ -4,8 +4,11 @@
 
 namespace GPlatform {
 
-void    GpCryptoHash_Ripemd160::S_H (GpRawPtrByteR  aData,
-                                     GpRawPtrByteRW aResOut)
+void    GpCryptoHash_Ripemd160::S_H
+(
+    GpRawPtrByteR   aData,
+    GpRawPtrByteRW  aResOut
+)
 {
     Ripemd160(aData, aResOut);
 }

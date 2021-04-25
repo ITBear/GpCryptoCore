@@ -9,7 +9,7 @@ GP_WARNING_POP()
 
 namespace GPlatform {
 
-GpSecureStorage GpCryptoHash_PBKDF2::S_HmacSHA512
+GpSecureStorage::SP GpCryptoHash_PBKDF2::S_HmacSHA512
 (
     GpRawPtrByteR       aPassword,
     GpRawPtrByteR       aSalt,
@@ -40,7 +40,8 @@ GpSecureStorage GpCryptoHash_PBKDF2::S_HmacSHA512
     const size_byte_t   derivedKeySize      = size_byte_t(aBitLengthDerivedKey);
     size_byte_t         derivedKeyLeftBytes = derivedKeySize;
 
-    GpSecureStorage derivedKey;
+    GpSecureStorage::SP derivedKeySP    = MakeSP<GpSecureStorage>();
+    GpSecureStorage&    derivedKey      = derivedKeySP.V();
     derivedKey.Resize(derivedKeySize);
     GpSecureStorageViewRW   derivedKeyViewRW    = derivedKey.ViewRW();
     GpRawPtrByteRW          derivedKeyPtrRW     = derivedKeyViewRW.RW();
@@ -105,13 +106,16 @@ GpSecureStorage GpCryptoHash_PBKDF2::S_HmacSHA512
         derivedKeyPtrRW     += clen;
     }
 
-    return derivedKey;
+    return derivedKeySP;
 }
 
-GpSecureStorage GpCryptoHash_PBKDF2::S_HmacSHA256 (GpRawPtrByteR    aPassword,
-                                                   GpRawPtrByteR    aSalt,
-                                                   const count_t    aIterations,
-                                                   const size_bit_t aBitLengthDerivedKey)
+GpSecureStorage::SP GpCryptoHash_PBKDF2::S_HmacSHA256
+(
+    GpRawPtrByteR       aPassword,
+    GpRawPtrByteR       aSalt,
+    const count_t       aIterations,
+    const size_bit_t    aBitLengthDerivedKey
+)
 {
     THROW_GPE_COND
     (
@@ -136,7 +140,8 @@ GpSecureStorage GpCryptoHash_PBKDF2::S_HmacSHA256 (GpRawPtrByteR    aPassword,
     const size_byte_t   derivedKeySize      = size_byte_t(aBitLengthDerivedKey);
     size_byte_t         derivedKeyLeftBytes = derivedKeySize;
 
-    GpSecureStorage derivedKey;
+    GpSecureStorage::SP derivedKeySP    = MakeSP<GpSecureStorage>();
+    GpSecureStorage&    derivedKey      = derivedKeySP.V();
     derivedKey.Resize(derivedKeySize);
     GpSecureStorageViewRW   derivedKeyViewRW    = derivedKey.ViewRW();
     GpRawPtrByteRW          derivedKeyPtrRW     = derivedKeyViewRW.RW();
@@ -201,7 +206,7 @@ GpSecureStorage GpCryptoHash_PBKDF2::S_HmacSHA256 (GpRawPtrByteR    aPassword,
         derivedKeyPtrRW     += clen;
     }
 
-    return derivedKey;
+    return derivedKeySP;
 }
 
 }//namespace GPlatform

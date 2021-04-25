@@ -22,7 +22,7 @@ public:
     };
 
 public:
-    static GpSecureStorage      SGenerateNewMnemonic    (const WordListT&   aWordList,
+    static GpSecureStorage::SP  SGenerateNewMnemonic    (const WordListT&   aWordList,
                                                          const std::string  aSpaceChar,
                                                          const EntropySize  aEntropySize);
 
@@ -34,14 +34,14 @@ public:
                                                          const std::string  aSpaceChar,
                                                          GpRawPtrCharR      aMnemonic);
 
-    static GpSecureStorage      SSeedFromMnemonic       (const WordListT&       aWordList,
+    static GpSecureStorage::SP  SSeedFromMnemonic       (const WordListT&       aWordList,
                                                          const std::string      aSpaceChar,
                                                          const GpSecureStorage& aMnemonic,
                                                          const GpSecureStorage& aPassword,
                                                          const count_t          aIterations,
                                                          const size_bit_t       aBitLengthDerivedKey);
 
-    static GpSecureStorage      SSeedFromMnemonic       (const WordListT&   aWordList,
+    static GpSecureStorage::SP  SSeedFromMnemonic       (const WordListT&   aWordList,
                                                          const std::string  aSpaceChar,
                                                          GpRawPtrCharR      aMnemonic,
                                                          GpRawPtrCharR      aPassword,

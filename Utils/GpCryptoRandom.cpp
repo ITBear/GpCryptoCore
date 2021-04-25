@@ -9,8 +9,11 @@ GP_WARNING_POP()
 
 namespace GPlatform {
 
-void    GpCryptoRandom::SEntropy (const size_byte_t aSize,
-                                  GpRawPtrByteRW    aResOut)
+void    GpCryptoRandom::SEntropy
+(
+    const size_byte_t   aSize,
+    GpRawPtrByteRW      aResOut
+)
 {
     size_byte_t bytesLeft   = aSize;
     u_int_32    randVal     = 0;
@@ -33,9 +36,10 @@ void    GpCryptoRandom::SEntropy (const size_byte_t aSize,
     }
 }
 
-GpSecureStorage GpCryptoRandom::SEntropy (const size_byte_t aSize)
+GpSecureStorage::SP GpCryptoRandom::SEntropy (const size_byte_t aSize)
 {
-    GpSecureStorage entropy;
+    GpSecureStorage::SP entropySP   = MakeSP<GpSecureStorage>();
+    GpSecureStorage&    entropy     = entropySP.V();
     entropy.Resize(aSize);
 
     GpSecureStorageViewRW   entropyView = entropy.ViewRW();
@@ -43,7 +47,7 @@ GpSecureStorage GpCryptoRandom::SEntropy (const size_byte_t aSize)
 
     SEntropy(aSize, entropyData);
 
-    return entropy;
+    return entropySP;
 }
 
 }//namespace GPlatform

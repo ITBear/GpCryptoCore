@@ -8,49 +8,37 @@ namespace GPlatform {
 class GPCRYPTOCORE_API GpCryptoKeyPair
 {
 public:
+    CLASS_REMOVE_CTRS(GpCryptoKeyPair);
     CLASS_DECLARE_DEFAULTS(GpCryptoKeyPair)
 
     using TypeT     = GpCryptoKeyType;
     using TypeTE    = TypeT::EnumT;
 
 protected:
-                                GpCryptoKeyPair             (void) = delete;
-                                GpCryptoKeyPair             (const TypeTE aType) noexcept;
-                                GpCryptoKeyPair             (const TypeTE       aType,
-                                                             GpSecureStorage&&  aPrivateBytes,
-                                                             GpBytesArray&&     aPublicBytes);
-                                GpCryptoKeyPair             (const GpCryptoKeyPair& aKeyPair);
-                                GpCryptoKeyPair             (GpCryptoKeyPair&& aKeyPair);
+                                GpCryptoKeyPair     (const TypeTE           aType,
+                                                     GpSecureStorage::SP    aPrivateKey,
+                                                     GpBytesArray&&         aPublicKey) noexcept;
 
 public:
-    virtual                     ~GpCryptoKeyPair            (void) noexcept;
+    virtual                     ~GpCryptoKeyPair    (void) noexcept;
 
-    void                        Clear                       (void) noexcept;
+    void                        Clear               (void) noexcept;
 
-    TypeTE                      Type                        (void) const noexcept {return iType;}
+    TypeTE                      Type                (void) const noexcept {return iType;}
 
-    const GpSecureStorage&      PrivateBytes                (void) const noexcept {return iPrivateBytes;}
-    const GpRawPtrByteR         PublicBytes                 (void) const noexcept {return GpRawPtrByteR(iPublicBytes);}
+    const GpSecureStorage&      PrivateKey          (void) const {return iPrivateKey.VC();}
+    const GpRawPtrByteR         PublicKey           (void) const noexcept {return GpRawPtrByteR(iPublicKey);}
 
-    GpSecureStorage             ToPrivateBytesWithPrefix    (void) const;
-    GpSecureStorage             ToPrivateStrHexWithPrefix   (void) const;
+    virtual GpRawPtrByteR       PrivateKeyPrefix    (void) const noexcept = 0;
+    virtual GpRawPtrByteR       PublicKeyPrefix     (void) const noexcept = 0;
 
-    GpBytesArray                ToPublicBytesWithPrefix     (void) const;
-    GpBytesArray                ToPublicStrHexWithPrefix    (void) const;
-
-    virtual GpRawPtrByteR       PrivateBytesPrefix          (void) const noexcept = 0;
-    virtual GpRawPtrByteR       PublicBytesPrefix           (void) const noexcept = 0;
-
-protected:
-    void                        SetKeys                     (GpRawPtrByteR  aPrivateBytes,
-                                                             GpRawPtrByteR  aPublicBytes);
-    void                        SetKeys                     (GpSecureStorage&&  aPrivateBytes,
-                                                             GpBytesArray&&     aPublicBytes);
-
+    virtual GpBytesArray        Sign                (GpRawPtrByteR  aData) const = 0;
+    virtual bool                VerifySign          (GpRawPtrByteR  aData,
+                                                     GpRawPtrByteR  aSign) const = 0;
 protected:
     const TypeTE                iType;
-    GpSecureStorage             iPrivateBytes;
-    GpBytesArray                iPublicBytes;
+    GpSecureStorage::SP         iPrivateKey;
+    GpBytesArray                iPublicKey;
 };
 
 }//namespace GPlatform

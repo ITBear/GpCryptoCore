@@ -11,17 +11,12 @@ class GPCRYPTOCORE_API GpSecureStorage
     friend class GpSecureStorageViewRW;
 
 public:
+    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpSecureStorage);
     CLASS_DECLARE_DEFAULTS(GpSecureStorage)
 
 public:
                                 GpSecureStorage     (void) noexcept;
-                                GpSecureStorage     (const GpSecureStorage& aStorage);
-                                GpSecureStorage     (GpSecureStorage&& aStorage);
-    explicit                    GpSecureStorage     (GpRawPtrByteR aData);
                                 ~GpSecureStorage    (void) noexcept;
-
-    GpSecureStorage&            operator=           (const GpSecureStorage& aStorage);
-    GpSecureStorage&            operator=           (GpSecureStorage&& aStorage);
 
     void                        Clear               (void);
     void                        Resize              (const size_byte_t aSize);

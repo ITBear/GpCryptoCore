@@ -11,11 +11,14 @@ GP_WARNING_POP()
 
 namespace GPlatform {
 
-GpBytesArray    GpEncryptionUtils::SEasyEncrypt (GpRawPtrByteR  aSrcData,
-                                                 GpRawPtrCharR  aPassword,
-                                                 GpRawPtrCharR  aSalt)
+GpBytesArray    GpEncryptionUtils::SEasyEncrypt
+(
+    GpRawPtrByteR   aSrcData,
+    GpRawPtrCharR   aPassword,
+    GpRawPtrCharR   aSalt
+)
 {
-    GpSecureStorage key = SPasswordToKey(aPassword, aSalt);
+    GpSecureStorage::SP key = SPasswordToKey(aPassword, aSalt);
 
     GpByteReaderStorage srcDataReaderStorage(aSrcData);
     GpByteReader        srcDataReader(srcDataReaderStorage);
@@ -26,40 +29,53 @@ GpBytesArray    GpEncryptionUtils::SEasyEncrypt (GpRawPtrByteR  aSrcData,
     GpByteWriterStorageByteArray    encriptedDataWriterStorage(encriptedData);
     GpByteWriter                    encriptedDataWriter(encriptedDataWriterStorage);
 
-    GpEncryptionUtils::SEncrypt(srcDataReader,
-                                encriptedDataWriter,
-                                key.ViewR().R());
+    GpEncryptionUtils::SEncrypt
+    (
+        srcDataReader,
+        encriptedDataWriter,
+        key->ViewR().R()
+    );
 
     return encriptedData;
 }
 
-GpSecureStorage GpEncryptionUtils::SEasyDecrypt (GpRawPtrByteR  aSrcData,
-                                                 GpRawPtrCharR  aPassword,
-                                                 GpRawPtrCharR  aSalt)
+GpSecureStorage::SP GpEncryptionUtils::SEasyDecrypt
+(
+    GpRawPtrByteR   aSrcData,
+    GpRawPtrCharR   aPassword,
+    GpRawPtrCharR   aSalt
+)
 {
-    GpSecureStorage key = SPasswordToKey(aPassword, aSalt);
+    GpSecureStorage::SP key = SPasswordToKey(aPassword, aSalt);
 
     GpByteReaderStorage srcDataReaderStorage(aSrcData);
     GpByteReader        srcDataReader(srcDataReaderStorage);
 
-    GpSecureStorage decriptedData;
+    GpSecureStorage::SP decriptedDataSP = MakeSP<GpSecureStorage>();
+    GpSecureStorage&    decriptedData   = decriptedDataSP.V();
     decriptedData.Reserve(aSrcData.SizeLeft());
 
     GpByteWriterStorageSecure   decriptedDataWriterStorage(decriptedData);
     GpByteWriter                decriptedDataWriter(decriptedDataWriterStorage);
 
-    GpEncryptionUtils::SDecrypt(srcDataReader,
-                                decriptedDataWriter,
-                                key.ViewR().R());
+    GpEncryptionUtils::SDecrypt
+    (
+        srcDataReader,
+        decriptedDataWriter,
+        key->ViewR().R()
+    );
 
-    return decriptedData;
+    return decriptedDataSP;
 }
 
 //https://libsodium.gitbook.io/doc/secret-key_cryptography/secretstream
 
-void    GpEncryptionUtils::SEncrypt (GpByteReader&  aReader,
-                                     GpByteWriter&  aWriter,
-                                     GpRawPtrByteR  aKey)
+void    GpEncryptionUtils::SEncrypt
+(
+    GpByteReader&   aReader,
+    GpByteWriter&   aWriter,
+    GpRawPtrByteR   aKey
+)
 {
     THROW_GPE_COND
     (
@@ -68,14 +84,17 @@ void    GpEncryptionUtils::SEncrypt (GpByteReader&  aReader,
     );
 
     constexpr size_byte_t CHUNK_SIZE = 4096_byte;
-    GpArray<unsigned char, crypto_secretstream_xchacha20poly1305_HEADERBYTES>                           encryptHeader;
+    GpArray<unsigned char, crypto_secretstream_xchacha20poly1305_HEADERBYTES>                       encryptHeader;
     GpArray<unsigned char, CHUNK_SIZE.As<size_t>() + crypto_secretstream_xchacha20poly1305_ABYTES>  encryptChunk;
 
     crypto_secretstream_xchacha20poly1305_state encryptState;
 
-    if (crypto_secretstream_xchacha20poly1305_init_push(&encryptState,
-                                                        encryptHeader.data(),
-                                                        aKey.PtrAs<const unsigned char*>()) != 0)
+    if (crypto_secretstream_xchacha20poly1305_init_push
+        (
+            &encryptState,
+            encryptHeader.data(),
+            aKey.PtrAs<const unsigned char*>()
+        ) != 0)
     {
         THROW_GPE("crypto_secretstream_xchacha20poly1305_init_push return error"_sv);
     }
@@ -91,14 +110,17 @@ void    GpEncryptionUtils::SEncrypt (GpByteReader&  aReader,
         const unsigned char tag = (aReader.SizeLeft() == 0_byte) ? crypto_secretstream_xchacha20poly1305_TAG_FINAL : 0;
 
         unsigned long long encryptChunkActualSize = NumOps::SConvert<unsigned long long>(encryptChunk.size());
-        if (crypto_secretstream_xchacha20poly1305_push(&encryptState,
-                                                       encryptChunk.data(),
-                                                       &encryptChunkActualSize,
-                                                       chunkPtr.PtrBeginAs<const unsigned char *>(),
-                                                       chunkPtr.CountTotal().As<size_t>(),
-                                                       nullptr,
-                                                       0,
-                                                       tag) != 0)
+        if (crypto_secretstream_xchacha20poly1305_push
+            (
+                &encryptState,
+                encryptChunk.data(),
+                &encryptChunkActualSize,
+                chunkPtr.PtrBeginAs<const unsigned char *>(),
+                chunkPtr.CountTotal().As<size_t>(),
+                nullptr,
+                0,
+                tag
+            ) != 0)
         {
             THROW_GPE("crypto_secretstream_xchacha20poly1305_push return error"_sv);
         }
@@ -108,9 +130,12 @@ void    GpEncryptionUtils::SEncrypt (GpByteReader&  aReader,
     }
 }
 
-void    GpEncryptionUtils::SDecrypt (GpByteReader&  aReader,
-                                     GpByteWriter&  aWriter,
-                                     GpRawPtrByteR  aKey)
+void    GpEncryptionUtils::SDecrypt
+(
+    GpByteReader&   aReader,
+    GpByteWriter&   aWriter,
+    GpRawPtrByteR   aKey
+)
 {
     THROW_GPE_COND
     (
@@ -145,14 +170,17 @@ void    GpEncryptionUtils::SDecrypt (GpByteReader&  aReader,
         unsigned char tag       = 0;
 
         unsigned long long decryptChunkActualSize = decryptChunkPtr.CountTotal().As<unsigned long long>();
-        if (crypto_secretstream_xchacha20poly1305_pull(&encryptState,
-                                                       decryptChunkPtr.PtrBeginAs<unsigned char*>(),
-                                                       &decryptChunkActualSize,
-                                                       &tag,
-                                                       chunkPtr.PtrBeginAs<const unsigned char *>(),
-                                                       chunkPtr.CountTotal().As<size_t>(),
-                                                       nullptr,
-                                                       0) != 0)
+        if (crypto_secretstream_xchacha20poly1305_pull
+            (
+                &encryptState,
+                decryptChunkPtr.PtrBeginAs<unsigned char*>(),
+                &decryptChunkActualSize,
+                &tag,
+                chunkPtr.PtrBeginAs<const unsigned char *>(),
+                chunkPtr.CountTotal().As<size_t>(),
+                nullptr,
+                0
+            ) != 0)
         {
             THROW_GPE("crypto_secretstream_xchacha20poly1305_pull return error"_sv);
         }
@@ -168,8 +196,11 @@ void    GpEncryptionUtils::SDecrypt (GpByteReader&  aReader,
     }
 }
 
-GpSecureStorage GpEncryptionUtils::SPasswordToKey (GpRawPtrCharR aPassword,
-                                                   GpRawPtrCharR aSalt)
+GpSecureStorage::SP GpEncryptionUtils::SPasswordToKey
+(
+    GpRawPtrCharR aPassword,
+    GpRawPtrCharR aSalt
+)
 {
     return GpCryptoHash_KDF_Passwd::S_H(aPassword, aSalt, 32_byte, 32_MiB);
 }

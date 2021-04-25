@@ -10,7 +10,7 @@ GP_WARNING_POP()
 
 namespace GPlatform {
 
-GpCryptoKeyFactory_Ed25519_Import::GpCryptoKeyFactory_Ed25519_Import (const GpSecureStorage& aSeed):
+/*GpCryptoKeyFactory_Ed25519_Import::GpCryptoKeyFactory_Ed25519_Import (const GpSecureStorage& aSeed):
 iSeed(aSeed)
 {
 }
@@ -67,6 +67,6 @@ void    GpCryptoKeyFactory_Ed25519_Import::Deserialize (GpByteReader& aReader)
         aReader.BytesWithLen() == "GpCryptoKeyFactory_Ed25519_Import"_sv,
         "Wrong data"_sv
     );
-}
+}*/
 
 }//GPlatform

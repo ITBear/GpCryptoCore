@@ -11,7 +11,7 @@ GP_WARNING_DISABLE(duplicated-branches)
 GP_WARNING_POP()
 
 namespace GPlatform {
-
+/*
 GpCryptoKeyFactory_Ed25519_HD::GpCryptoKeyFactory_Ed25519_HD (const GpCryptoHDKeyStorage& aParentHDKeyStorage):
 iParentHDKeyStorage(aParentHDKeyStorage)
 {
@@ -81,5 +81,5 @@ void    GpCryptoKeyFactory_Ed25519_HD::Deserialize (GpByteReader& aReader)
     //iChildNumber
     iChildNumber = count_t::SMake(aReader.CompactSInt32());
 }
-
+*/
 }//GPlatform

@@ -5,6 +5,7 @@
 #include "Hashes/GpCryptoHashes.hpp"
 #include "MnemonicCodes/GpMnemonicCodes.hpp"
 #include "Encryption/GpEncryption.hpp"
+#include "Wallet/Wallet.hpp"
 
 namespace GPlatform {
 

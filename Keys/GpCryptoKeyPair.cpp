@@ -2,31 +2,15 @@
 
 namespace GPlatform {
 
-GpCryptoKeyPair::GpCryptoKeyPair (const TypeTE aType) noexcept:
-iType(aType)
-{
-}
-
-GpCryptoKeyPair::GpCryptoKeyPair (const TypeTE      aType,
-                                  GpSecureStorage&& aPrivateBytes,
-                                  GpBytesArray&&    aPublicBytes):
+GpCryptoKeyPair::GpCryptoKeyPair
+(
+    const TypeTE        aType,
+    GpSecureStorage::SP aPrivateKey,
+    GpBytesArray&&      aPublicKey
+) noexcept:
 iType(aType),
-iPrivateBytes(std::move(aPrivateBytes)),
-iPublicBytes(std::move(aPublicBytes))
-{
-}
-
-GpCryptoKeyPair::GpCryptoKeyPair (const GpCryptoKeyPair& aKeyPair):
-iType(aKeyPair.iType),
-iPrivateBytes(aKeyPair.iPrivateBytes),
-iPublicBytes(aKeyPair.iPublicBytes)
-{
-}
-
-GpCryptoKeyPair::GpCryptoKeyPair (GpCryptoKeyPair&& aKeyPair):
-iType(std::move(aKeyPair.iType)),
-iPrivateBytes(std::move(aKeyPair.iPrivateBytes)),
-iPublicBytes(std::move(aKeyPair.iPublicBytes))
+iPrivateKey(std::move(aPrivateKey)),
+iPublicKey(std::move(aPublicKey))
 {
 }
 
@@ -37,24 +21,27 @@ GpCryptoKeyPair::~GpCryptoKeyPair (void) noexcept
 
 void    GpCryptoKeyPair::Clear (void) noexcept
 {
-    iPrivateBytes.Clear();
-    iPublicBytes.clear();
+    iPublicKey.clear();
+    iPrivateKey.Clear();
 }
 
-GpSecureStorage GpCryptoKeyPair::ToPrivateBytesWithPrefix (void) const
+/*GpSecureStorage::SP   GpCryptoKeyPair::ToPrivateBytesWithPrefix (void) const
 {
+    const GpSecureStorage& privateBytes = PrivateBytes();
+
     THROW_GPE_COND
     (
-        iPrivateBytes.Size() > 0_byte,
+        privateBytes.Size() > 0_byte,
         "Keypair is empty"_sv
     );
 
     GpRawPtrByteR                   prefixPtr   = PrivateBytesPrefix();
-    GpSecureStorageViewR            privateView = iPrivateBytes.ViewR();
+    GpSecureStorageViewR            privateView = privateBytes.ViewR();
     GpRawPtrByteR                   privatePtr  = privateView.R().Subrange(0_cnt, 32_cnt);
 
     const size_byte_t               resSize     = prefixPtr.SizeLeft() + privatePtr.SizeLeft();
-    GpSecureStorage                 res;
+    GpSecureStorage::SP             resSP       = MakeSP<GpSecureStorage>();
+    GpSecureStorage&                res         = resSP.V();
     res.Resize(resSize);
     GpSecureStorageViewRW           resView     = res.ViewRW();
     GpByteWriterStorageFixedSize    resStorage(resView.RW());
@@ -63,23 +50,24 @@ GpSecureStorage GpCryptoKeyPair::ToPrivateBytesWithPrefix (void) const
     resWriter.Bytes(prefixPtr);
     resWriter.Bytes(privatePtr);
 
-    return res;
+    return resSP;
 }
 
-GpSecureStorage GpCryptoKeyPair::ToPrivateStrHexWithPrefix (void) const
+GpSecureStorage::SP GpCryptoKeyPair::ToPrivateStrHexWithPrefix (void) const
 {
-    GpSecureStorage         privateData = ToPrivateBytesWithPrefix();
-    GpSecureStorageViewR    privateView = privateData.ViewR();
+    GpSecureStorage::SP     privateData = ToPrivateBytesWithPrefix();
+    GpSecureStorageViewR    privateView = privateData->ViewR();
     GpRawPtrByteR           privatePtr  = privateView.R();
 
     //Str hex data
     const size_byte_t       resSize = privatePtr.SizeLeft() * 2_byte;
-    GpSecureStorage         res;
+    GpSecureStorage::SP     resSP   = MakeSP<GpSecureStorage>();
+    GpSecureStorage&        res     = resSP.V();
     res.Resize(resSize);
 
     StrOps::SFromBytesHex(privatePtr, res.ViewRW().RW());
 
-    return res;
+    return resSP;
 }
 
 GpBytesArray    GpCryptoKeyPair::ToPublicBytesWithPrefix (void) const
@@ -116,20 +104,6 @@ GpBytesArray    GpCryptoKeyPair::ToPublicStrHexWithPrefix (void) const
     StrOps::SFromBytesHex(publicData, res);
 
     return res;
-}
-
-void    GpCryptoKeyPair::SetKeys (GpRawPtrByteR aPrivateBytes,
-                                  GpRawPtrByteR aPublicBytes)
-{
-    iPrivateBytes.ViewRW().RW().CopyFrom(aPrivateBytes);
-    iPublicBytes = GpBytesArrayUtils::SMake(aPublicBytes);
-}
-
-void    GpCryptoKeyPair::SetKeys (GpSecureStorage&& aPrivateBytes,
-                                  GpBytesArray&&    aPublicBytes)
-{
-    iPrivateBytes   = std::move(aPrivateBytes);
-    iPublicBytes    = std::move(aPublicBytes);
-}
+}*/
 
 }//namespace GPlatform

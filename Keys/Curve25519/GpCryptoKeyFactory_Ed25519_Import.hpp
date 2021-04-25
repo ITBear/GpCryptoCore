@@ -4,7 +4,7 @@
 
 namespace GPlatform {
 
-class GPCRYPTOCORE_API GpCryptoKeyFactory_Ed25519_Import final: public GpCryptoKeyFactory
+/*class GPCRYPTOCORE_API GpCryptoKeyFactory_Ed25519_Import final: public GpCryptoKeyFactory
 {
 public:
     CLASS_REMOVE_CTRS(GpCryptoKeyFactory_Ed25519_Import)
@@ -22,6 +22,6 @@ public:
 
 private:
     GpSecureStorage                 iSeed;
-};
+};*/
 
 }//GPlatform

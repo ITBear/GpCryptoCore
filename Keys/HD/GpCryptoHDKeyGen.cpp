@@ -3,8 +3,11 @@
 
 namespace GPlatform {
 
-GpCryptoHDKeyStorage    GpCryptoHDKeyGen::SMasterKeyPairFromSeed (GpRawPtrByteR         aSeed,
-                                                                  const SchemeTypeTE    aSchemeType)
+GpCryptoHDKeyStorage::SP    GpCryptoHDKeyGen::SMasterKeyPairFromSeed
+(
+    GpRawPtrByteR       aSeed,
+    const SchemeTypeTE  aSchemeType
+)
 {
     switch (aSchemeType)
     {
@@ -19,8 +22,11 @@ GpCryptoHDKeyStorage    GpCryptoHDKeyGen::SMasterKeyPairFromSeed (GpRawPtrByteR 
     }
 }
 
-GpCryptoHDKeyStorage    GpCryptoHDKeyGen::SChildKeyPair (const GpCryptoHDKeyStorage&    aParentHDKeyStorage,
-                                                         const count_t                  aChildId)
+GpCryptoHDKeyStorage::SP    GpCryptoHDKeyGen::SChildKeyPair
+(
+    const GpCryptoHDKeyStorage& aParentHDKeyStorage,
+    const count_t               aChildId
+)
 {
     switch (aParentHDKeyStorage.SchemeType())
     {

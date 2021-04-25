@@ -9,7 +9,7 @@ GP_WARNING_DISABLE(duplicated-branches)
 GP_WARNING_POP()
 
 namespace GPlatform {
-
+/*
 GpCryptoKeyFactory_Ed25519_Rnd::GpCryptoKeyFactory_Ed25519_Rnd (void) noexcept
 {
 }
@@ -54,5 +54,5 @@ void    GpCryptoKeyFactory_Ed25519_Rnd::Deserialize (GpByteReader& aReader)
         "Wrong data"_sv
     );
 }
-
+*/
 }//GPlatform

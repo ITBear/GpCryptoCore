@@ -10,9 +10,9 @@ public:
     CLASS_REMOVE_CTRS(GpCryptoHDKeyGen_Ed25519)
 
 public:
-    static GpCryptoHDKeyStorage     SMasterKeyPairFromSeed  (GpRawPtrByteR  aSeed);
-    static GpCryptoHDKeyStorage     SChildKeyPair           (const GpCryptoHDKeyStorage&    aParentHDKeyStorage,
-                                                             const count_t                  aChildId);
+    static GpCryptoHDKeyStorage::SP     SMasterKeyPairFromSeed  (GpRawPtrByteR  aSeed);
+    static GpCryptoHDKeyStorage::SP     SChildKeyPair           (const GpCryptoHDKeyStorage&    aParentHDKeyStorage,
+                                                                 const count_t                  aChildId);
 };
 
 }//GPlatform

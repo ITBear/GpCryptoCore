@@ -4,7 +4,7 @@
 #include "../HD/GpCryptoHDKeyStorage.hpp"
 
 namespace GPlatform {
-
+/*
 class GPCRYPTOCORE_API GpCryptoKeyFactory_Ed25519_HD final: public GpCryptoKeyFactory
 {
 public:
@@ -25,5 +25,5 @@ private:
     GpCryptoHDKeyStorage            iParentHDKeyStorage;
     count_t                         iChildNumber        = 0_cnt;
 };
-
+*/
 }//GPlatform

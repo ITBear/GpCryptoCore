@@ -15,36 +15,9 @@ GpSecureStorage::GpSecureStorage (void) noexcept
 {
 }
 
-GpSecureStorage::GpSecureStorage (const GpSecureStorage& aStorage)
-{
-    CopyFrom(aStorage);
-}
-
-GpSecureStorage::GpSecureStorage (GpSecureStorage&& aStorage)
-{
-    Set(std::move(aStorage));
-}
-
-GpSecureStorage::GpSecureStorage (GpRawPtrByteR aData)
-{
-    CopyFrom(aData);
-}
-
 GpSecureStorage::~GpSecureStorage (void) noexcept
 {
     Clear();
-}
-
-GpSecureStorage&    GpSecureStorage::operator= (const GpSecureStorage& aStorage)
-{
-    CopyFrom(aStorage);
-    return *this;
-}
-
-GpSecureStorage&    GpSecureStorage::operator= (GpSecureStorage&& aStorage)
-{
-    Set(std::move(aStorage));
-    return *this;
 }
 
 void    GpSecureStorage::Clear (void)
@@ -74,7 +47,11 @@ void    GpSecureStorage::Resize (const size_byte_t aSize)
     Resize(aSize, iAlignment);
 }
 
-void    GpSecureStorage::Resize (const size_byte_t aSize, const size_byte_t aAlignment)
+void    GpSecureStorage::Resize
+(
+    const size_byte_t aSize,
+    const size_byte_t aAlignment
+)
 {
     Reserve(aSize, aAlignment);
     iSizeUsed = aSize;
@@ -85,7 +62,11 @@ void    GpSecureStorage::Reserve (const size_byte_t aSize)
     Reserve(aSize, iAlignment);
 }
 
-void    GpSecureStorage::Reserve (const size_byte_t aSize, const size_byte_t aAlignment)
+void    GpSecureStorage::Reserve
+(
+    const size_byte_t aSize,
+    const size_byte_t aAlignment
+)
 {
     THROW_GPE_COND
     (

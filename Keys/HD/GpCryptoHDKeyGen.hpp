@@ -13,11 +13,11 @@ public:
     using SchemeTypeTE  = SchemeTypeT::EnumT;
 
 public:
-    static GpCryptoHDKeyStorage     SMasterKeyPairFromSeed  (GpRawPtrByteR          aSeed,
-                                                             const SchemeTypeTE     aSchemeType);
+    static GpCryptoHDKeyStorage::SP     SMasterKeyPairFromSeed  (GpRawPtrByteR          aSeed,
+                                                                 const SchemeTypeTE     aSchemeType);
 
-    static GpCryptoHDKeyStorage     SChildKeyPair           (const GpCryptoHDKeyStorage&    aParentHDKeyStorage,
-                                                             const count_t                  aChildId);
+    static GpCryptoHDKeyStorage::SP     SChildKeyPair           (const GpCryptoHDKeyStorage&    aParentHDKeyStorage,
+                                                                 const count_t                  aChildId);
 };
 
 }//GPlatform

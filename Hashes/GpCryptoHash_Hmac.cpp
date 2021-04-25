@@ -9,9 +9,12 @@ GP_WARNING_POP()
 
 namespace GPlatform {
 
-void    GpCryptoHash_Hmac::S_256 (GpRawPtrByteR     aData,
-                                  GpRawPtrByteR     aKey,
-                                  GpRawPtrByteRW    aResOut)
+void    GpCryptoHash_Hmac::S_256
+(
+    GpRawPtrByteR   aData,
+    GpRawPtrByteR   aKey,
+    GpRawPtrByteRW  aResOut
+)
 {
     THROW_GPE_COND
     (
@@ -35,8 +38,11 @@ void    GpCryptoHash_Hmac::S_256 (GpRawPtrByteR     aData,
                                  aResOut.PtrAs<unsigned char*>());
 }
 
-GpCryptoHash_Hmac::Res256T  GpCryptoHash_Hmac::S_256 (GpRawPtrByteR aData,
-                                                      GpRawPtrByteR aKey)
+GpCryptoHash_Hmac::Res256T  GpCryptoHash_Hmac::S_256
+(
+    GpRawPtrByteR   aData,
+    GpRawPtrByteR   aKey
+)
 {
     Res256T res;
     GpRawPtrByteRW r(res);
@@ -44,9 +50,12 @@ GpCryptoHash_Hmac::Res256T  GpCryptoHash_Hmac::S_256 (GpRawPtrByteR aData,
     return res;
 }
 
-void    GpCryptoHash_Hmac::S_512 (GpRawPtrByteR     aData,
-                                  GpRawPtrByteR     aKey,
-                                  GpRawPtrByteRW    aResOut)
+void    GpCryptoHash_Hmac::S_512
+(
+    GpRawPtrByteR   aData,
+    GpRawPtrByteR   aKey,
+    GpRawPtrByteRW  aResOut
+)
 {
     THROW_GPE_COND
     (
@@ -70,8 +79,11 @@ void    GpCryptoHash_Hmac::S_512 (GpRawPtrByteR     aData,
                                  aResOut.PtrAs<unsigned char*>());
 }
 
-GpCryptoHash_Hmac::Res512T  GpCryptoHash_Hmac::S_512 (GpRawPtrByteR aData,
-                                                      GpRawPtrByteR aKey)
+GpCryptoHash_Hmac::Res512T  GpCryptoHash_Hmac::S_512
+(
+    GpRawPtrByteR   aData,
+    GpRawPtrByteR   aKey
+)
 {
     Res512T res;
     GpRawPtrByteRW r(res);

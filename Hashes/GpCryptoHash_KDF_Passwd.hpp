@@ -10,7 +10,7 @@ public:
     CLASS_REMOVE_CTRS(GpCryptoHash_KDF_Passwd)
 
 public:
-    static GpSecureStorage      S_H (GpRawPtrByteR          aPassword,
+    static GpSecureStorage::SP  S_H (GpRawPtrByteR          aPassword,
                                      GpRawPtrByteR          aSalt,
                                      const size_bit_t       aBitLengthDerivedKey,
                                      const size_mibyte_t    aMemoryLimit = 32_MiB);

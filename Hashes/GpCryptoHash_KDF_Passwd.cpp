@@ -9,11 +9,13 @@ GP_WARNING_POP()
 
 namespace GPlatform {
 
-
-GpSecureStorage GpCryptoHash_KDF_Passwd::S_H (GpRawPtrByteR         aPassword,
-                                              GpRawPtrByteR         aSalt,
-                                              const size_bit_t      aBitLengthDerivedKey,
-                                              const size_mibyte_t   aMemoryLimit)
+GpSecureStorage::SP GpCryptoHash_KDF_Passwd::S_H
+(
+    GpRawPtrByteR       aPassword,
+    GpRawPtrByteR       aSalt,
+    const size_bit_t    aBitLengthDerivedKey,
+    const size_mibyte_t aMemoryLimit
+)
 {
     THROW_GPE_COND
     (
@@ -43,7 +45,8 @@ GP_WARNING_POP()
 
     const size_byte_t derivedKeySize = size_byte_t(aBitLengthDerivedKey);
 
-    GpSecureStorage derivedKey;
+    GpSecureStorage::SP derivedKeySP    = MakeSP<GpSecureStorage>();
+    GpSecureStorage&    derivedKey      = derivedKeySP.V();
     derivedKey.Resize(derivedKeySize);
 
     //https://libsodium.gitbook.io/doc/password_hashing/default_phf
@@ -59,7 +62,7 @@ GP_WARNING_POP()
         THROW_GPE("crypto_pwhash return error"_sv);
     }
 
-    return derivedKey;
+    return derivedKeySP;
 }
 
 }//namespace
