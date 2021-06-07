@@ -22,15 +22,14 @@ GpCryptoHDKeyStorage::SP    GpCryptoHDKeyGen_Ed25519::SMasterKeyPairFromSeed (Gp
     GpRawPtrByteR           valIL       = valIViewPtr.Subrange(0_cnt, 32_cnt);
     GpRawPtrByteR           valIR       = valIViewPtr.Subrange(32_cnt, 32_cnt);
 
-    GpSecureStorage chainCode;
-    GpSecureStorage privateData;
+    GpSecureStorage::SP chainCode   = MakeSP<GpSecureStorage>();
+    GpSecureStorage::SP privateData = MakeSP<GpSecureStorage>();
 
-    chainCode.CopyFrom(valIR);
-    privateData.CopyFrom(valIL);
+    chainCode->CopyFrom(valIR);
+    privateData->CopyFrom(valIL);
 
     return MakeSP<GpCryptoHDKeyStorage>
     (
-                ?
         GpCryptoHDSchemeType::SLIP10_ED25519,
         std::move(chainCode),
         std::move(privateData)
@@ -62,7 +61,7 @@ GpCryptoHDKeyStorage::SP    GpCryptoHDKeyGen_Ed25519::SChildKeyPair
         GpByteWriter                    sourceDataWriter(sourceDataStorage);
 
         sourceDataWriter.UInt8(0);
-        sourceDataWriter.Bytes(aParentHDKeyStorage.KeyData().ViewR().R());
+        sourceDataWriter.Bytes(aParentHDKeyStorage.KeyData().VC().ViewR().R());
         sourceDataWriter.UInt32(childCode.As<u_int_32>());
     }
 
@@ -72,7 +71,7 @@ GpCryptoHDKeyStorage::SP    GpCryptoHDKeyGen_Ed25519::SChildKeyPair
     GpCryptoHash_Hmac::S_512
     (
         sourceData.ViewR().R(),
-        aParentHDKeyStorage.ChainCode().ViewR().R(),
+        aParentHDKeyStorage.ChainCode().VC().ViewR().R(),
         valI.ViewRW().RW()
     );
 
@@ -81,11 +80,11 @@ GpCryptoHDKeyStorage::SP    GpCryptoHDKeyGen_Ed25519::SChildKeyPair
     GpRawPtrByteR           valIL       = valIViewPtr.Subrange(0_cnt, 32_cnt);
     GpRawPtrByteR           valIR       = valIViewPtr.Subrange(32_cnt, 32_cnt);
 
-    GpSecureStorage chainCode;
-    GpSecureStorage privateData;
+    GpSecureStorage::SP chainCode   = MakeSP<GpSecureStorage>();
+    GpSecureStorage::SP privateData = MakeSP<GpSecureStorage>();
 
-    chainCode.CopyFrom(valIR);
-    privateData.CopyFrom(valIL);
+    chainCode->CopyFrom(valIR);
+    privateData->CopyFrom(valIL);
 
     return MakeSP<GpCryptoHDKeyStorage>
     (

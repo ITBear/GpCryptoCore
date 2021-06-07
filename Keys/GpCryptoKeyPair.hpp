@@ -16,7 +16,7 @@ public:
 
 protected:
                                 GpCryptoKeyPair     (const TypeTE           aType,
-                                                     GpSecureStorage::SP    aPrivateKey,
+                                                     GpSecureStorage::CSP   aPrivateKey,
                                                      GpBytesArray&&         aPublicKey) noexcept;
 
 public:
@@ -26,7 +26,7 @@ public:
 
     TypeTE                      Type                (void) const noexcept {return iType;}
 
-    const GpSecureStorage&      PrivateKey          (void) const {return iPrivateKey.VC();}
+    const GpSecureStorage::CSP  PrivateKey          (void) const {return iPrivateKey;}
     const GpRawPtrByteR         PublicKey           (void) const noexcept {return GpRawPtrByteR(iPublicKey);}
 
     virtual GpRawPtrByteR       PrivateKeyPrefix    (void) const noexcept = 0;
@@ -37,7 +37,7 @@ public:
                                                      GpRawPtrByteR  aSign) const = 0;
 protected:
     const TypeTE                iType;
-    GpSecureStorage::SP         iPrivateKey;
+    GpSecureStorage::CSP        iPrivateKey;
     GpBytesArray                iPublicKey;
 };
 

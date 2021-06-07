@@ -4,7 +4,7 @@
 
 namespace GPlatform {
 
-class GPCRYPTOCORE_API GpCryptoKeyFactory
+class GpCryptoKeyFactory
 {
 public:
     CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpCryptoKeyFactory)
@@ -16,9 +16,9 @@ protected:
 public:
     virtual                         ~GpCryptoKeyFactory (void) noexcept {}
 
-    virtual GpCryptoKeyPair::SP     Generate            (void) = 0;
-    virtual void                    Serialize           (GpByteWriter& aWriter) const = 0;
-    virtual void                    Deserialize         (GpByteReader& aReader) = 0;
+    virtual GpCryptoKeyPair::CSP    Generate            (void) = 0;
+    //virtual void                  Serialize           (GpByteWriter& aWriter) const = 0;
+    //virtual void                  Deserialize         (GpByteReader& aReader) = 0;
 };
 
 }//namespace GPlatform

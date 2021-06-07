@@ -11,13 +11,8 @@ GP_WARNING_DISABLE(duplicated-branches)
 GP_WARNING_POP()
 
 namespace GPlatform {
-/*
-GpCryptoKeyFactory_Ed25519_HD::GpCryptoKeyFactory_Ed25519_HD (const GpCryptoHDKeyStorage& aParentHDKeyStorage):
-iParentHDKeyStorage(aParentHDKeyStorage)
-{
-}
 
-GpCryptoKeyFactory_Ed25519_HD::GpCryptoKeyFactory_Ed25519_HD (GpCryptoHDKeyStorage&& aParentHDKeyStorage):
+GpCryptoKeyFactory_Ed25519_HD::GpCryptoKeyFactory_Ed25519_HD (GpCryptoHDKeyStorage::CSP aParentHDKeyStorage) noexcept:
 iParentHDKeyStorage(std::move(aParentHDKeyStorage))
 {
 }
@@ -26,23 +21,23 @@ GpCryptoKeyFactory_Ed25519_HD::~GpCryptoKeyFactory_Ed25519_HD (void) noexcept
 {
 }
 
-GpCryptoKeyPair::SP GpCryptoKeyFactory_Ed25519_HD::Generate (void)
+GpCryptoKeyPair::CSP    GpCryptoKeyFactory_Ed25519_HD::Generate (void)
 {
     THROW_GPE_COND
     (
-        iParentHDKeyStorage.SchemeType() == GpCryptoHDSchemeType::SLIP10_ED25519,
+        iParentHDKeyStorage.VC().SchemeType() == GpCryptoHDSchemeType::SLIP10_ED25519,
         "HD scheme type must be SLIP10_ED25519"_sv
     );
 
-    GpCryptoHDKeyStorage keyStorageHD = GpCryptoHDKeyGen::SChildKeyPair(iParentHDKeyStorage, iChildNumber);
+    GpCryptoHDKeyStorage::SP keyStorageHD = GpCryptoHDKeyGen::SChildKeyPair(iParentHDKeyStorage.VC(), iChildNumber);
     iChildNumber++;
 
-    GpCryptoKeyFactory_Ed25519_Import factory(keyStorageHD.KeyData());
+    GpCryptoKeyFactory_Ed25519_Import factory(keyStorageHD->KeyData());
 
     return factory.Generate();
 }
 
-void    GpCryptoKeyFactory_Ed25519_HD::Serialize (GpByteWriter& aWriter) const
+/*void  GpCryptoKeyFactory_Ed25519_HD::Serialize (GpByteWriter& aWriter) const
 {
     //iParentHDKeyStorage
     {
@@ -72,14 +67,14 @@ void    GpCryptoKeyFactory_Ed25519_HD::Deserialize (GpByteReader& aReader)
         );
 
         //ChainCode
-        iParentHDKeyStorage.ChainCode().ViewRW().RW().CopyFrom(aReader.BytesWithLen());
+        iParentHDKeyStorage->ChainCode().ViewRW().RW().CopyFrom(aReader.BytesWithLen());
 
         //KeyData
-        iParentHDKeyStorage.KeyData().ViewRW().RW().CopyFrom(aReader.BytesWithLen());
+        iParentHDKeyStorage->KeyData().ViewRW().RW().CopyFrom(aReader.BytesWithLen());
     }
 
     //iChildNumber
     iChildNumber = count_t::SMake(aReader.CompactSInt32());
-}
-*/
+}*/
+
 }//GPlatform

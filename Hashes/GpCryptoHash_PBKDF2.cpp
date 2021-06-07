@@ -9,7 +9,7 @@ GP_WARNING_POP()
 
 namespace GPlatform {
 
-GpSecureStorage::SP GpCryptoHash_PBKDF2::S_HmacSHA512
+GpSecureStorage::CSP    GpCryptoHash_PBKDF2::S_HmacSHA512
 (
     GpRawPtrByteR       aPassword,
     GpRawPtrByteR       aSalt,
@@ -89,9 +89,9 @@ GpSecureStorage::SP GpCryptoHash_PBKDF2::S_HmacSHA512
             crypto_auth_hmacsha512_final(&hCtx, dataU.PtrAs<unsigned char*>());
 
             {
-                std::byte*          ptrT    = dataT.Ptr();
-                const std::byte*    ptrU    = dataU.Ptr();
-                const size_t        count   = size_t(crypto_auth_hmacsha512_BYTES);
+                u_int_8*        ptrT    = dataT.PtrAs<u_int_8*>();
+                const u_int_8*  ptrU    = dataU.PtrAs<u_int_8*>();
+                const size_t    count   = size_t(crypto_auth_hmacsha512_BYTES);
 
                 for (size_t k = 0; k < count; k++)
                 {
@@ -109,7 +109,7 @@ GpSecureStorage::SP GpCryptoHash_PBKDF2::S_HmacSHA512
     return derivedKeySP;
 }
 
-GpSecureStorage::SP GpCryptoHash_PBKDF2::S_HmacSHA256
+GpSecureStorage::CSP    GpCryptoHash_PBKDF2::S_HmacSHA256
 (
     GpRawPtrByteR       aPassword,
     GpRawPtrByteR       aSalt,
@@ -189,9 +189,9 @@ GpSecureStorage::SP GpCryptoHash_PBKDF2::S_HmacSHA256
             crypto_auth_hmacsha256_final(&hCtx, dataU.PtrAs<unsigned char*>());
 
             {
-                std::byte*          ptrT    = dataT.Ptr();
-                const std::byte*    ptrU    = dataU.Ptr();
-                const size_t        count   = size_t(crypto_auth_hmacsha256_BYTES);
+                u_int_8*        ptrT    = dataT.PtrAs<u_int_8*>();
+                const u_int_8*  ptrU    = dataU.PtrAs<u_int_8*>();
+                const size_t    count   = size_t(crypto_auth_hmacsha256_BYTES);
 
                 for (size_t k = 0; k < count; k++)
                 {

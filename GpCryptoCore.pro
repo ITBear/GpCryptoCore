@@ -52,10 +52,10 @@ SOURCES += \
 	Utils/GpSecureStorage.cpp \
 	Utils/GpSecureStorageViewR.cpp \
 	Utils/GpSecureStorageViewRW.cpp \
-	Wallet/Address.cpp \
-	Wallet/AddressGroup.cpp \
-	Wallet/Wallet.cpp \
-	Wallet/WalletUtils.cpp
+	Wallet/GpCryptoAddress.cpp \
+	Wallet/GpCryptoAddressGroup.cpp \
+	Wallet/GpCryptoWallet.cpp \
+	Wallet/GpCryptoWalletUtils.cpp
 
 HEADERS += \
 	Encryption/GpEncryption.hpp \
@@ -93,7 +93,8 @@ HEADERS += \
 	Utils/GpSecureStorage.hpp \
 	Utils/GpSecureStorageViewR.hpp \
 	Utils/GpSecureStorageViewRW.hpp \
-	Wallet/Address.hpp \
-	Wallet/AddressGroup.hpp \
-	Wallet/Wallet.hpp \
-	Wallet/WalletUtils.hpp
+	Wallet/GpCryptoAddress.hpp \
+	Wallet/GpCryptoAddressFactory.hpp \
+	Wallet/GpCryptoAddressGroup.hpp \
+	Wallet/GpCryptoWallet.hpp \
+	Wallet/GpCryptoWalletUtils.hpp

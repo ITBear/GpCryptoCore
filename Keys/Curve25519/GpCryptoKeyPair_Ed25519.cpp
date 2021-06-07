@@ -14,8 +14,8 @@ const std::string_view  GpCryptoKeyPair_Ed25519::sPublicKeyPrefix   = "\x30\x2a\
 
 GpCryptoKeyPair_Ed25519::GpCryptoKeyPair_Ed25519
 (
-    GpSecureStorage::SP aPrivateKey,
-    GpBytesArray&&      aPublicKey
+    GpSecureStorage::CSP    aPrivateKey,
+    GpBytesArray&&          aPublicKey
 ) noexcept:
 GpCryptoKeyPair
 (
@@ -32,7 +32,7 @@ GpCryptoKeyPair_Ed25519::~GpCryptoKeyPair_Ed25519 (void) noexcept
 
 GpBytesArray    GpCryptoKeyPair_Ed25519::Sign (GpRawPtrByteR aData) const
 {
-    return SSign(aData, PrivateKey());
+    return SSign(aData, PrivateKey().VC());
 }
 
 bool    GpCryptoKeyPair_Ed25519::VerifySign (GpRawPtrByteR  aData,

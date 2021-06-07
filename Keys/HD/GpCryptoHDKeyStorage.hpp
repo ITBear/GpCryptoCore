@@ -21,8 +21,8 @@ public:
                                 ~GpCryptoHDKeyStorage   (void) noexcept;
 
     SchemeTypeTE                SchemeType              (void) const noexcept {return iSchemeType;}
-    const GpSecureStorage&      ChainCode               (void) const noexcept {return iChainCode.VC();}
-    const GpSecureStorage&      KeyData                 (void) const noexcept {return iKeyData.VC();}
+    const GpSecureStorage::CSP  ChainCode               (void) const noexcept {return iChainCode;}
+    const GpSecureStorage::CSP  KeyData                 (void) const noexcept {return iKeyData;}
 
 private:
     const SchemeTypeTE          iSchemeType;

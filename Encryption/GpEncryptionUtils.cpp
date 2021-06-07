@@ -18,7 +18,7 @@ GpBytesArray    GpEncryptionUtils::SEasyEncrypt
     GpRawPtrCharR   aSalt
 )
 {
-    GpSecureStorage::SP key = SPasswordToKey(aPassword, aSalt);
+    GpSecureStorage::CSP key = SPasswordToKey(aPassword, aSalt);
 
     GpByteReaderStorage srcDataReaderStorage(aSrcData);
     GpByteReader        srcDataReader(srcDataReaderStorage);
@@ -33,26 +33,26 @@ GpBytesArray    GpEncryptionUtils::SEasyEncrypt
     (
         srcDataReader,
         encriptedDataWriter,
-        key->ViewR().R()
+        key.VC().ViewR().R()
     );
 
     return encriptedData;
 }
 
-GpSecureStorage::SP GpEncryptionUtils::SEasyDecrypt
+GpSecureStorage::CSP    GpEncryptionUtils::SEasyDecrypt
 (
     GpRawPtrByteR   aSrcData,
     GpRawPtrCharR   aPassword,
     GpRawPtrCharR   aSalt
 )
 {
-    GpSecureStorage::SP key = SPasswordToKey(aPassword, aSalt);
+    GpSecureStorage::CSP key = SPasswordToKey(aPassword, aSalt);
 
     GpByteReaderStorage srcDataReaderStorage(aSrcData);
     GpByteReader        srcDataReader(srcDataReaderStorage);
 
-    GpSecureStorage::SP decriptedDataSP = MakeSP<GpSecureStorage>();
-    GpSecureStorage&    decriptedData   = decriptedDataSP.V();
+    GpSecureStorage::SP     decriptedDataSP = MakeSP<GpSecureStorage>();
+    GpSecureStorage&        decriptedData   = decriptedDataSP.V();
     decriptedData.Reserve(aSrcData.SizeLeft());
 
     GpByteWriterStorageSecure   decriptedDataWriterStorage(decriptedData);
@@ -62,7 +62,7 @@ GpSecureStorage::SP GpEncryptionUtils::SEasyDecrypt
     (
         srcDataReader,
         decriptedDataWriter,
-        key->ViewR().R()
+        key.VC().ViewR().R()
     );
 
     return decriptedDataSP;
@@ -196,7 +196,7 @@ void    GpEncryptionUtils::SDecrypt
     }
 }
 
-GpSecureStorage::SP GpEncryptionUtils::SPasswordToKey
+GpSecureStorage::CSP    GpEncryptionUtils::SPasswordToKey
 (
     GpRawPtrCharR aPassword,
     GpRawPtrCharR aSalt

@@ -24,7 +24,7 @@ GpMnemonicCodeGen_sMnemonicK =
     GpTuple<size_bit_t, size_bit_t, count_t>{256_bit, 8_bit, 24_cnt} //ES_256
 };
 
-GpSecureStorage::SP GpMnemonicCodeGen::SGenerateNewMnemonic
+GpSecureStorage::CSP    GpMnemonicCodeGen::SGenerateNewMnemonic
 (
     const WordListT&    aWordList,
     const std::string   aSpaceChar,
@@ -36,7 +36,7 @@ GpSecureStorage::SP GpMnemonicCodeGen::SGenerateNewMnemonic
     const size_bit_t    checksumLength  = std::get<1>(conf);
     const count_t       wordsCount      = std::get<2>(conf);
 
-    GpSecureStorage::SP                 entropySP       = GpCryptoRandom::SEntropy(entropySize);
+    GpSecureStorage::CSP                entropySP       = GpCryptoRandom::SEntropy(entropySize);
     const GpSecureStorage&              entropy         = entropySP.VC();
     const GpCryptoHash_Sha2::Res256T    entropySha256   = GpCryptoHash_Sha2::S_256(entropy.ViewR().R());
     const u_int_8                       checksumMask    = ~u_int_8((1 << (8 - checksumLength.As<size_t>()))-1);
@@ -159,7 +159,7 @@ bool    GpMnemonicCodeGen::SValidateMnemonic
     }
 }
 
-GpSecureStorage::SP GpMnemonicCodeGen::SSeedFromMnemonic
+GpSecureStorage::CSP    GpMnemonicCodeGen::SSeedFromMnemonic
 (
     const WordListT&        aWordList,
     const std::string       aSpaceChar,
@@ -180,7 +180,7 @@ GpSecureStorage::SP GpMnemonicCodeGen::SSeedFromMnemonic
     );
 }
 
-GpSecureStorage::SP GpMnemonicCodeGen::SSeedFromMnemonic
+GpSecureStorage::CSP    GpMnemonicCodeGen::SSeedFromMnemonic
 (
     const WordListT&    aWordList,
     const std::string   aSpaceChar,
@@ -259,7 +259,7 @@ GpSecureStorage::SP GpMnemonicCodeGen::SSeedFromMnemonic
         }
     }
 
-    GpSecureStorage::SP res = GpCryptoHash_PBKDF2::S_HmacSHA512
+    GpSecureStorage::CSP res = GpCryptoHash_PBKDF2::S_HmacSHA512
     (
         normalizedMnemonic.ViewR().R(),
         salt.ViewR().R(),

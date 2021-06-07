@@ -36,7 +36,7 @@ void    GpCryptoRandom::SEntropy
     }
 }
 
-GpSecureStorage::SP GpCryptoRandom::SEntropy (const size_byte_t aSize)
+GpSecureStorage::CSP    GpCryptoRandom::SEntropy (const size_byte_t aSize)
 {
     GpSecureStorage::SP entropySP   = MakeSP<GpSecureStorage>();
     GpSecureStorage&    entropy     = entropySP.V();

@@ -11,7 +11,7 @@ class GPCRYPTOCORE_API GpCryptoRandom
 public:
     static void                 SEntropy    (const size_byte_t  aSize,
                                              GpRawPtrByteRW     aResOut);
-    static GpSecureStorage::SP  SEntropy    (const size_byte_t aSize);
+    static GpSecureStorage::CSP SEntropy    (const size_byte_t aSize);
 };
 
 }//namespace GPlatform

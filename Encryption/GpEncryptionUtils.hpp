@@ -15,7 +15,7 @@ public:
                                                  GpRawPtrCharR  aPassword,
                                                  GpRawPtrCharR  aSalt);
 
-    static GpSecureStorage::SP  SEasyDecrypt    (GpRawPtrByteR  aSrcData,
+    static GpSecureStorage::CSP SEasyDecrypt    (GpRawPtrByteR  aSrcData,
                                                  GpRawPtrCharR  aPassword,
                                                  GpRawPtrCharR  aSalt);
 
@@ -27,7 +27,7 @@ public:
                                                  GpByteWriter&  aWriter,
                                                  GpRawPtrByteR  aKey);
 
-    static GpSecureStorage::SP  SPasswordToKey  (GpRawPtrCharR  aPassword,
+    static GpSecureStorage::CSP SPasswordToKey  (GpRawPtrCharR  aPassword,
                                                  GpRawPtrCharR  aSalt);
 };
 

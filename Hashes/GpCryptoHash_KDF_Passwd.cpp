@@ -9,7 +9,7 @@ GP_WARNING_POP()
 
 namespace GPlatform {
 
-GpSecureStorage::SP GpCryptoHash_KDF_Passwd::S_H
+GpSecureStorage::CSP    GpCryptoHash_KDF_Passwd::S_H
 (
     GpRawPtrByteR       aPassword,
     GpRawPtrByteR       aSalt,

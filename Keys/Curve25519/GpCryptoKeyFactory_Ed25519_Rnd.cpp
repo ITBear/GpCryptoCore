@@ -9,7 +9,7 @@ GP_WARNING_DISABLE(duplicated-branches)
 GP_WARNING_POP()
 
 namespace GPlatform {
-/*
+
 GpCryptoKeyFactory_Ed25519_Rnd::GpCryptoKeyFactory_Ed25519_Rnd (void) noexcept
 {
 }
@@ -18,16 +18,16 @@ GpCryptoKeyFactory_Ed25519_Rnd::~GpCryptoKeyFactory_Ed25519_Rnd (void) noexcept
 {
 }
 
-GpCryptoKeyPair::SP GpCryptoKeyFactory_Ed25519_Rnd::Generate (void)
+GpCryptoKeyPair::CSP    GpCryptoKeyFactory_Ed25519_Rnd::Generate (void)
 {
-    GpSecureStorage privateBytes;
-    GpBytesArray    publicBytes;
+    GpSecureStorage::SP privateBytes = MakeSP<GpSecureStorage>();
+    GpBytesArray        publicBytes;
 
     {
-        privateBytes.Resize(size_byte_t::SMake(crypto_sign_ed25519_SECRETKEYBYTES));
+        privateBytes->Resize(size_byte_t::SMake(crypto_sign_ed25519_SECRETKEYBYTES));
         publicBytes.resize(size_t(crypto_sign_PUBLICKEYBYTES));
 
-        GpSecureStorageViewRW   privateBytesView    = privateBytes.ViewRW();
+        GpSecureStorageViewRW   privateBytesView    = privateBytes->ViewRW();
         GpRawPtrByteRW          privateBytesPtr     = privateBytesView.RW();
         GpRawPtrByteRW          publicBytesPtr      = GpRawPtrByteRW(publicBytes);
 
@@ -38,9 +38,9 @@ GpCryptoKeyPair::SP GpCryptoKeyFactory_Ed25519_Rnd::Generate (void)
         }
     }
 
-    return MakeSP<GpCryptoKeyPair_Ed25519>(std::move(privateBytes), std::move(publicBytes));
+    return MakeSP<GpCryptoKeyPair_Ed25519>(privateBytes, std::move(publicBytes));
 }
-
+/*
 void    GpCryptoKeyFactory_Ed25519_Rnd::Serialize (GpByteWriter& aWriter) const
 {
     aWriter.BytesWithLen("GpCryptoKeyFactory_Ed25519_Rnd"_sv);

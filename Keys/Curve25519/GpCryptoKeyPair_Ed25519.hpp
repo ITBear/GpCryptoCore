@@ -11,7 +11,7 @@ public:
     CLASS_DECLARE_DEFAULTS(GpCryptoKeyPair_Ed25519)
 
 public:
-                                GpCryptoKeyPair_Ed25519     (GpSecureStorage::SP    aPrivateKey,
+                                GpCryptoKeyPair_Ed25519     (GpSecureStorage::CSP   aPrivateKey,
                                                              GpBytesArray&&         aPublicKey) noexcept;
     virtual                     ~GpCryptoKeyPair_Ed25519    (void) noexcept override final;
 
