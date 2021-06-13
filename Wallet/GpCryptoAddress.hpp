@@ -20,6 +20,7 @@ public:
     const GpCryptoKeyPair&  KeyPair             (void) const noexcept {return iKeyPair.VC();}
     std::string_view        Name                (void) const noexcept {return iName;}
     void                    SetName             (std::string_view aName)  {iName = aName;}
+    GpRawPtrByteR           Addr                (void) const noexcept {return iAddr;}
     std::string_view        AddrStr             (void) const noexcept {return iAddrStr;}
 
     GpBytesArray            SignData            (GpRawPtrByteR aData) const;
@@ -29,12 +30,14 @@ public:
     void                    RecalcAddrStr       (void);
 
 protected:
-    virtual std::string     OnRecalcAddrStr     (void) const = 0;
+    virtual std::tuple<GpBytesArray, std::string>
+                            OnRecalcAddrStr     (void) const = 0;
 
 private:
     const GpUUID            iUID;
     GpCryptoKeyPair::CSP    iKeyPair;
     std::string             iName;
+    GpBytesArray            iAddr;
     std::string             iAddrStr;
 };
 

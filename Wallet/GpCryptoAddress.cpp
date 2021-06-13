@@ -33,7 +33,10 @@ bool    GpCryptoAddress::VerifySign
 
 void    GpCryptoAddress::RecalcAddrStr (void)
 {
-    iAddrStr = OnRecalcAddrStr();
+    auto res = OnRecalcAddrStr();
+
+    iAddr       = std::get<0>(res);
+    iAddrStr    = std::get<1>(res);
 }
 
 }//namespace GPlatform

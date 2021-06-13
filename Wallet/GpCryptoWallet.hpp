@@ -14,7 +14,7 @@ public:
 
 public:
                                             GpCryptoWallet      (GpCryptoAddressFactory::SP aAddrFactory) noexcept;
-                                            ~GpCryptoWallet     (void) noexcept;
+    virtual                                 ~GpCryptoWallet     (void) noexcept;
 
     GpCryptoAddress::SP                     GenerateNextRndAddr (void);
     GpCryptoAddress::SP                     GenerateNextHDAddr  (const GpUUID& aGroupUID);

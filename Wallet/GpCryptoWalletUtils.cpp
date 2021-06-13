@@ -51,8 +51,11 @@ GpCryptoHDKeyStorage::CSP   GpCryptoWalletUtils::SGenerateBip44 (GpRawPtrByteR a
     //BIP44
     GpCryptoHDKeyStorage::SP hdRoot         = GpCryptoHDKeyGen::SMasterKeyPairFromSeed(aSeed, GpCryptoHDSchemeType::SLIP10_ED25519);
     GpCryptoHDKeyStorage::SP purposeKey     = GpCryptoHDKeyGen::SChildKeyPair(hdRoot.VC(), 44_cnt);
-    GpCryptoHDKeyStorage::SP coinTypeKey    = GpCryptoHDKeyGen::SChildKeyPair(purposeKey.VC(), count_t::SMake(7562605UL));
+    //GpCryptoHDKeyStorage::SP coinTypeKey  = GpCryptoHDKeyGen::SChildKeyPair(purposeKey.VC(), count_t::SMake(501UL));
+    GpCryptoHDKeyStorage::SP coinTypeKey    = GpCryptoHDKeyGen::SChildKeyPair(purposeKey.VC(), count_t::SMake(0UL));
+
     GpCryptoHDKeyStorage::SP accountKey     = GpCryptoHDKeyGen::SChildKeyPair(coinTypeKey.VC(), 0_cnt);
+
     GpCryptoHDKeyStorage::SP changeKey      = GpCryptoHDKeyGen::SChildKeyPair(accountKey.VC(), 0_cnt);
 
     return changeKey;
@@ -89,7 +92,11 @@ GpCryptoAddress::SP GpCryptoWalletUtils::SNewAddrFromFactory
     GpCryptoKeyFactory&     aKeyFactory
 )
 {
-    return aAddrFactory.Generate(aKeyFactory);//MakeSP<CryptoAddress>(GpUUID::SGenRandom(), aFactory.Generate());
+    GpCryptoAddress::SP addr = aAddrFactory.Generate(aKeyFactory);//MakeSP<CryptoAddress>(GpUUID::SGenRandom(), aFactory.Generate());
+
+    addr->RecalcAddrStr();
+
+    return addr;
 }
 
 GpCryptoAddress::SP GpCryptoWalletUtils::SNewAddrFromPrivateKey

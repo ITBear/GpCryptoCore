@@ -12,6 +12,7 @@ namespace GPlatform {
 
 void    GpCryptoCore::SInit (void)
 {
+    GpSRandom::S().SetSeedFromRD();
     SCheckEntropyCapacity();
 
     if (sodium_init() == -1)
