@@ -68,8 +68,6 @@ GpSecureStorage::CSP    GpEncryptionUtils::SEasyDecrypt
     return decriptedDataSP;
 }
 
-//https://libsodium.gitbook.io/doc/secret-key_cryptography/secretstream
-
 void    GpEncryptionUtils::SEncrypt
 (
     GpByteReader&   aReader,

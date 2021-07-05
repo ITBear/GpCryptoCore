@@ -150,7 +150,7 @@ bool    GpMnemonicCodeGen::SValidateMnemonic
         const u_int_8 checksumIn    = u_int_8(entropyWithChecksumPtrR.At(entropCnt));
         const u_int_8 checksumCalc  = u_int_8(u_int_8(entropySha256.at(0)) & checksumMask);
 
-        /*return       (checksumIn   & checksumMask)
+        /*return   (checksumIn   & checksumMask)
                 == (checksumCalc & checksumMask);*/
 
         //TODO check GpBitWriter

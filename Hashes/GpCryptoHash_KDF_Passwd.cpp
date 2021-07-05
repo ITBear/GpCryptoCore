@@ -49,7 +49,6 @@ GP_WARNING_POP()
     GpSecureStorage&    derivedKey      = derivedKeySP.V();
     derivedKey.Resize(derivedKeySize);
 
-    //https://libsodium.gitbook.io/doc/password_hashing/default_phf
     if (crypto_pwhash(derivedKey.ViewRW().RW().PtrAs<unsigned char*>(),
                       derivedKeySize.As<size_t>(),
                       aPassword.PtrAs<const char*>(),
