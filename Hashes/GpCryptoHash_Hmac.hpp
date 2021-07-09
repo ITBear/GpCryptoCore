@@ -6,7 +6,7 @@ namespace GPlatform {
 
 class GPCRYPTOCORE_API GpCryptoHash_Hmac
 {
-    CLASS_REMOVE_CTRS(GpCryptoHash_Hmac)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpCryptoHash_Hmac)
 
 public:
     using Res256T = GpArray<std::byte, 32>;

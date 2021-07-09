@@ -7,7 +7,7 @@ namespace GPlatform {
 class GPCRYPTOCORE_API GpCryptoHDKeyGen_Ed25519
 {
 public:
-    CLASS_REMOVE_CTRS(GpCryptoHDKeyGen_Ed25519)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpCryptoHDKeyGen_Ed25519)
 
 public:
     static GpCryptoHDKeyStorage::SP     SMasterKeyPairFromSeed  (GpRawPtrByteR  aSeed);

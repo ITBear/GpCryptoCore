@@ -7,7 +7,7 @@ namespace GPlatform {
 class GpCryptoKeyFactory
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpCryptoKeyFactory)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpCryptoKeyFactory)
     CLASS_DECLARE_DEFAULTS(GpCryptoKeyFactory)
 
 protected:

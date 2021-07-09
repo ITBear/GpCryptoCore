@@ -6,7 +6,7 @@ namespace GPlatform {
 
 class GPCRYPTOCORE_API GpByteWriterStorageSecure final: public GpByteWriterStorage
 {
-    CLASS_REMOVE_CTRS(GpByteWriterStorageSecure)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpByteWriterStorageSecure)
 
 public:
     inline                  GpByteWriterStorageSecure   (GpSecureStorage& aOut) noexcept;

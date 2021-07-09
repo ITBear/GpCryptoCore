@@ -8,7 +8,7 @@ namespace GPlatform {
 class GPCRYPTOCORE_API GpCryptoKeyPair
 {
 public:
-    CLASS_REMOVE_CTRS(GpCryptoKeyPair);
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpCryptoKeyPair);
     CLASS_DECLARE_DEFAULTS(GpCryptoKeyPair)
 
     using TypeT     = GpCryptoKeyType;

@@ -11,7 +11,7 @@ namespace GPlatform {
 
 class GPCRYPTOCORE_API GpCryptoCore
 {
-    CLASS_REMOVE_CTRS(GpCryptoCore)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpCryptoCore)
 
 public:
     static void         SInit                   (void);

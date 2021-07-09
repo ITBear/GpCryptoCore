@@ -7,7 +7,7 @@ namespace GPlatform {
 class GPCRYPTOCORE_API GpCryptoHash_KDF_Passwd
 {
 public:
-    CLASS_REMOVE_CTRS(GpCryptoHash_KDF_Passwd)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpCryptoHash_KDF_Passwd)
 
 public:
     static GpSecureStorage::CSP S_H (GpRawPtrByteR          aPassword,

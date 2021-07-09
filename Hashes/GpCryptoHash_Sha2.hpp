@@ -6,7 +6,7 @@ namespace GPlatform {
 
 class GPCRYPTOCORE_API GpCryptoHash_Sha2
 {
-    CLASS_REMOVE_CTRS(GpCryptoHash_Sha2)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpCryptoHash_Sha2)
 
 public:
     using Res256T = GpArray<std::byte, 32>;

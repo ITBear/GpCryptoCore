@@ -11,7 +11,7 @@ class GPCRYPTOCORE_API GpSecureStorage
     friend class GpSecureStorageViewRW;
 
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpSecureStorage);
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpSecureStorage);
     CLASS_DECLARE_DEFAULTS(GpSecureStorage)
 
 public:

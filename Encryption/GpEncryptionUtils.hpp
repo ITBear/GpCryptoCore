@@ -8,7 +8,7 @@ namespace GPlatform {
 class GPCRYPTOCORE_API GpEncryptionUtils
 {
 public:
-    CLASS_REMOVE_CTRS(GpEncryptionUtils)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpEncryptionUtils)
 
 public:
     static GpBytesArray         SEasyEncrypt    (GpRawPtrByteR  aSrcData,

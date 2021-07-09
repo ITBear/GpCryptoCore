@@ -7,7 +7,7 @@ namespace GPlatform {
 class GPCRYPTOCORE_API GpCryptoHash_Blake2b
 {
 public:
-    CLASS_REMOVE_CTRS(GpCryptoHash_Blake2b)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpCryptoHash_Blake2b)
 
 public:
     using Res256T = GpArray<std::byte, 32>;

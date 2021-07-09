@@ -11,7 +11,7 @@ class GPCRYPTOCORE_API GpSecureStorageViewR
     friend class GpSecureStorage;
 
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_MOVE(GpSecureStorageViewR)
+    CLASS_REMOVE_CTRS_DEFAULT_COPY(GpSecureStorageViewR)
     CLASS_DECLARE_DEFAULTS(GpSecureStorageViewR)
 
     using StorageOptT = std::optional<std::reference_wrapper<const GpSecureStorage>>;

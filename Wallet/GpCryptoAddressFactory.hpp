@@ -7,7 +7,7 @@ namespace GPlatform {
 class GpCryptoAddressFactory
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpCryptoAddressFactory)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpCryptoAddressFactory)
     CLASS_DECLARE_DEFAULTS(GpCryptoAddressFactory)
 
 protected:

@@ -6,7 +6,7 @@ namespace GPlatform {
 
 class GPCRYPTOCORE_API GpCryptoHash_Ripemd160
 {
-    CLASS_REMOVE_CTRS(GpCryptoHash_Ripemd160)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpCryptoHash_Ripemd160)
 
 public:
     using Res160T = GpArray<std::byte, 20>;

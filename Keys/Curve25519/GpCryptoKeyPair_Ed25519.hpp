@@ -7,7 +7,7 @@ namespace GPlatform {
 class GPCRYPTOCORE_API GpCryptoKeyPair_Ed25519 final : public GpCryptoKeyPair
 {
 public:
-    CLASS_REMOVE_CTRS(GpCryptoKeyPair_Ed25519);
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpCryptoKeyPair_Ed25519);
     CLASS_DECLARE_DEFAULTS(GpCryptoKeyPair_Ed25519)
 
 public:

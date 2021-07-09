@@ -8,7 +8,7 @@ namespace GPlatform {
 class GPCRYPTOCORE_API GpCryptoKeyFactory_Ed25519_HD final: public GpCryptoKeyFactory
 {
 public:
-    CLASS_REMOVE_CTRS(GpCryptoKeyFactory_Ed25519_HD)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpCryptoKeyFactory_Ed25519_HD)
     CLASS_DECLARE_DEFAULTS(GpCryptoKeyFactory_Ed25519_HD)
 
 public:

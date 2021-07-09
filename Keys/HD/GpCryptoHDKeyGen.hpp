@@ -7,7 +7,7 @@ namespace GPlatform {
 class GPCRYPTOCORE_API GpCryptoHDKeyGen
 {
 public:
-    CLASS_REMOVE_CTRS(GpCryptoHDKeyGen)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpCryptoHDKeyGen)
 
     using SchemeTypeT   = GpCryptoHDSchemeType;
     using SchemeTypeTE  = SchemeTypeT::EnumT;

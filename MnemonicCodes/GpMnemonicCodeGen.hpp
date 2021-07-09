@@ -6,7 +6,7 @@ namespace GPlatform {
 
 class GPCRYPTOCORE_API GpMnemonicCodeGen
 {
-    CLASS_REMOVE_CTRS(GpMnemonicCodeGen)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpMnemonicCodeGen)
 
 public:
     using WordListT = GpArray<std::string, 2048>;

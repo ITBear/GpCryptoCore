@@ -7,7 +7,7 @@ namespace GPlatform {
 class GPCRYPTOCORE_API GpCryptoWallet
 {
 public:
-    CLASS_REMOVE_CTRS(GpCryptoWallet)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpCryptoWallet)
     CLASS_DECLARE_DEFAULTS(GpCryptoWallet)
 
     using HDAddrGroupsT = GpCryptoAddressGroup::C::MapUuid::SP;

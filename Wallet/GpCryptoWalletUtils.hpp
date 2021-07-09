@@ -8,7 +8,7 @@ namespace GPlatform {
 class GPCRYPTOCORE_API GpCryptoWalletUtils
 {
 public:
-    CLASS_REMOVE_CTRS(GpCryptoWalletUtils)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpCryptoWalletUtils)
 
 public:
     static GpSecureStorage::CSP         SNewMnemonic                    (void);

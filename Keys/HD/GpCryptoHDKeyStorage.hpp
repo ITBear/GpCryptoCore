@@ -8,7 +8,7 @@ namespace GPlatform {
 class GPCRYPTOCORE_API GpCryptoHDKeyStorage
 {
 public:
-    CLASS_REMOVE_CTRS(GpCryptoHDKeyStorage);
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpCryptoHDKeyStorage);
     CLASS_DECLARE_DEFAULTS(GpCryptoHDKeyStorage)
 
     using SchemeTypeT   = GpCryptoHDSchemeType;

@@ -7,7 +7,7 @@ namespace GPlatform {
 class GPCRYPTOCORE_API GpCryptoAddress
 {
 public:
-    CLASS_REMOVE_CTRS(GpCryptoAddress);
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpCryptoAddress);
     CLASS_DECLARE_DEFAULTS(GpCryptoAddress)
 
 public:

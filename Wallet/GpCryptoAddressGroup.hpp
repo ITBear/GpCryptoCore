@@ -7,10 +7,10 @@ namespace GPlatform {
 class GPCRYPTOCORE_API GpCryptoAddressGroup
 {
 public:
-    CLASS_REMOVE_CTRS(GpCryptoAddressGroup)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpCryptoAddressGroup)
     CLASS_DECLARE_DEFAULTS(GpCryptoAddressGroup)
 
-    using AddrListT = GpMap<GpUUID, GpCryptoAddress::SP>;
+    using AddrListT = GpMap<GpUUID, GpCryptoAddress::SP, std::less<>>;
 
 public:
                                         GpCryptoAddressGroup    (const GpUUID&              aUID,
