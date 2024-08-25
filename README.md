@@ -1,3 +1,5 @@
+#!!! OBSTOLE, USE https://github.com/ITBear/GpCrypto
+
 # GpCryptoCore
 Crypto core
 
